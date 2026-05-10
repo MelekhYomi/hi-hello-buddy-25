@@ -1,26 +1,70 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+import { Hero } from "@/components/hero";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "C Imperium Branding — From Jos to the World" },
+      {
+        name: "description",
+        content:
+          "Premium branding agency in Jos, Nigeria. Logo design, print & packaging, web development, and large-scale campaigns for businesses ready to dominate their market.",
+      },
+      { property: "og:title", content: "C Imperium Branding — From Jos to the World" },
+      {
+        property: "og:description",
+        content:
+          "We build brands that command attention. Strategic design, printing, and digital execution for ambitious Nigerian businesses.",
+      },
+      { property: "og:type", content: "website" },
+    ],
+  }),
+  component: HomePage,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+function HomePage() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="grain relative min-h-screen bg-background">
+      <SiteHeader />
+      <main>
+        <Hero />
+
+        {/* Phase 2 placeholders */}
+        <section id="services" className="border-t border-border/40 py-32 text-center">
+          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">What we do</div>
+          <h2 className="mt-4 font-display text-5xl md:text-7xl">OUR SERVICES</h2>
+          <p className="mx-auto mt-6 max-w-md text-sm text-muted-foreground">
+            Coming in Phase 2 — wired to the live database.
+          </p>
+        </section>
+
+        <section id="portfolio" className="border-t border-border/40 py-32 text-center">
+          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">Selected work</div>
+          <h2 className="mt-4 font-display text-5xl md:text-7xl">PORTFOLIO</h2>
+          <p className="mx-auto mt-6 max-w-md text-sm text-muted-foreground">Coming in Phase 2.</p>
+        </section>
+
+        <section id="testimonials" className="border-t border-border/40 py-32 text-center">
+          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">Client voices</div>
+          <h2 className="mt-4 font-display text-5xl md:text-7xl">TESTIMONIALS</h2>
+          <p className="mx-auto mt-6 max-w-md text-sm text-muted-foreground">Coming in Phase 2.</p>
+        </section>
+
+        <section id="book" className="border-t border-border/40 py-32 text-center">
+          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">Let's talk</div>
+          <h2 className="mt-4 font-display text-5xl md:text-7xl">BOOK A CONSULTATION</h2>
+          <p className="mx-auto mt-6 max-w-md text-sm text-muted-foreground">Coming in Phase 3 — with auth + availability.</p>
+        </section>
+
+        <section id="contact" className="border-t border-border/40 py-32 text-center">
+          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">Reach out</div>
+          <h2 className="mt-4 font-display text-5xl md:text-7xl">CONTACT</h2>
+          <p className="mx-auto mt-6 max-w-md text-sm text-muted-foreground">Coming in Phase 4.</p>
+        </section>
+      </main>
+      <SiteFooter />
     </div>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
