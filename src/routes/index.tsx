@@ -2,6 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Hero } from "@/components/hero";
+import { ServicesSection } from "@/components/services-section";
+import { PortfolioSection } from "@/components/portfolio-section";
+import { TestimonialsSection } from "@/components/testimonials-section";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,27 +33,9 @@ function HomePage() {
       <SiteHeader />
       <main>
         <Hero />
-
-        {/* Phase 2 placeholders */}
-        <section id="services" className="border-t border-border/40 py-32 text-center">
-          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">What we do</div>
-          <h2 className="mt-4 font-display text-5xl md:text-7xl">OUR SERVICES</h2>
-          <p className="mx-auto mt-6 max-w-md text-sm text-muted-foreground">
-            Coming in Phase 2 — wired to the live database.
-          </p>
-        </section>
-
-        <section id="portfolio" className="border-t border-border/40 py-32 text-center">
-          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">Selected work</div>
-          <h2 className="mt-4 font-display text-5xl md:text-7xl">PORTFOLIO</h2>
-          <p className="mx-auto mt-6 max-w-md text-sm text-muted-foreground">Coming in Phase 2.</p>
-        </section>
-
-        <section id="testimonials" className="border-t border-border/40 py-32 text-center">
-          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">Client voices</div>
-          <h2 className="mt-4 font-display text-5xl md:text-7xl">TESTIMONIALS</h2>
-          <p className="mx-auto mt-6 max-w-md text-sm text-muted-foreground">Coming in Phase 2.</p>
-        </section>
+        <ServicesSection />
+        <PortfolioSection />
+        <TestimonialsSection />
 
         <section id="book" className="border-t border-border/40 py-32 text-center">
           <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">Let's talk</div>
