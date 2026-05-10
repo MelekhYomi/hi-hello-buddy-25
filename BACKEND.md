@@ -91,8 +91,8 @@ const isAdmin = roles?.some(r => r.role === "admin");
 
 - [x] Phase 1: Cloud + schema + seed data + landing shell + animated hero
 - [x] Phase 2: Services + Portfolio + Testimonials wired to DB
-- [x] Phase 3: Booking form (public + signed-in) + email/password auth (signup/login/reset) + customer dashboard
-- [ ] Phase 4: Admin dashboard + Contact form
+- [x] Phase 3: Booking form + email/password auth + customer dashboard
+- [x] Phase 4: Public contact form + admin dashboard at `/admin` (bookings status mgmt + contact inbox, role-gated via `_admin` layout)
 
 ## Changelog
 

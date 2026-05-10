@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 
 export function SiteHeader() {
-  const { user, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/70 backdrop-blur-xl">
@@ -16,8 +16,12 @@ export function SiteHeader() {
           <Link to="/" hash="portfolio" className="story-link text-muted-foreground hover:text-foreground transition-colors">Portfolio</Link>
           <Link to="/" hash="testimonials" className="story-link text-muted-foreground hover:text-foreground transition-colors">Testimonials</Link>
           <Link to="/" hash="book" className="story-link text-muted-foreground hover:text-foreground transition-colors">Book</Link>
+          <Link to="/" hash="contact" className="story-link text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
           {user ? (
             <>
+              {isAdmin && (
+                <Link to="/admin" className="story-link text-imperium hover:text-imperium-glow transition-colors">Admin</Link>
+              )}
               <Link to="/dashboard" className="story-link text-muted-foreground hover:text-foreground transition-colors">Dashboard</Link>
               <button
                 onClick={() => signOut()}
