@@ -6,6 +6,7 @@ import { ServicesSection } from "@/components/services-section";
 import { PortfolioSection } from "@/components/portfolio-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { BookingSection } from "@/components/booking-section";
+import { ContactSection } from "@/components/contact-section";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,11 +41,7 @@ function HomePage() {
 
         <BookingSection />
 
-        <section id="contact" className="border-t border-border/40 py-32 text-center">
-          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">Reach out</div>
-          <h2 className="mt-4 font-display text-5xl md:text-7xl">CONTACT</h2>
-          <p className="mx-auto mt-6 max-w-md text-sm text-muted-foreground">Coming in Phase 4.</p>
-        </section>
+        <ContactSection />
       </main>
       <SiteFooter />
     </div>
