@@ -90,7 +90,7 @@ const isAdmin = roles?.some(r => r.role === "admin");
 ## Phased build status
 
 - [x] Phase 1: Cloud + schema + seed data + landing shell + animated hero
-- [ ] Phase 2: Services + Portfolio (Case Studies) sections, wired to DB
+- [x] Phase 2: Services + Portfolio + Testimonials wired to DB (live reads via @tanstack/react-query)
 - [ ] Phase 3: Booking form + auth (signup/login/customer dashboard)
 - [ ] Phase 4: Admin dashboard + Contact form
 
