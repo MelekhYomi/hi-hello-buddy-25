@@ -6,6 +6,7 @@ import { ServicesSection } from "@/components/services-section";
 import { PortfolioSection } from "@/components/portfolio-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { BookingSection } from "@/components/booking-section";
+import { ContactSection } from "@/components/contact-section";
 
 export const Route = createFileRoute("/")({
   head: () => ({
