@@ -2,7 +2,10 @@ import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, MessageCircle } from "lucide-react";
+
+const WHATSAPP_NUMBER = "2348000000000"; // change to real number
+const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi C Imperium, I'd like to discuss a project.")}`;
 
 const schema = z.object({
   name: z.string().trim().min(2, "Name is too short").max(100),
@@ -45,35 +48,55 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="border-t border-border/40 py-24 md:py-32">
+    <section id="contact" className="border-t border-border/40 py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="grid grid-cols-1 gap-16 md:grid-cols-12">
-          <div className="md:col-span-5">
-            <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
-              [05] Reach out
-            </div>
-            <h2 className="mt-4 font-display text-5xl leading-[0.9] md:text-6xl">
-              CONTACT<br />THE STUDIO.
-            </h2>
-            <p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              For partnerships, press, careers, or general questions — drop a line.
-              We read everything.
-            </p>
+        <div className="text-center">
+          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">Get in touch</div>
+          <h2 className="mt-4 font-display text-5xl leading-[0.9] md:text-7xl">CONTACT US</h2>
+          <div className="mx-auto mt-6 h-px w-24 bg-imperium" />
+          <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
+            Ready to elevate your brand? Reach out via WhatsApp for instant response, or send us a
+            message and we'll get back within 24 hours.
+          </p>
+        </div>
 
-            <ul className="mt-10 space-y-5 font-mono text-[11px] uppercase tracking-[0.2em]">
-              <li className="flex items-start gap-3">
-                <Mail className="h-4 w-4 text-imperium" strokeWidth={1.5} />
-                <a href="mailto:hello@cimperium.ng" className="story-link">hello@cimperium.ng</a>
-              </li>
-              <li className="flex items-start gap-3">
-                <Phone className="h-4 w-4 text-imperium" strokeWidth={1.5} />
-                <a href="tel:+2348000000000" className="story-link">+234 800 000 0000</a>
-              </li>
-              <li className="flex items-start gap-3">
-                <MapPin className="h-4 w-4 text-imperium" strokeWidth={1.5} />
-                <span className="text-muted-foreground">Jos · Plateau · Nigeria</span>
-              </li>
-            </ul>
+        <div className="mt-14 grid grid-cols-1 gap-8 md:grid-cols-12">
+          <div className="space-y-4 md:col-span-5">
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-start gap-4 border border-emerald-700/60 bg-emerald-950/20 p-6 transition-all hover:border-emerald-500 hover:-translate-y-1 hover:shadow-[0_0_30px_-10px_rgb(16,185,129)]"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-600/20">
+                <MessageCircle className="h-6 w-6 text-emerald-400" strokeWidth={1.5} />
+              </div>
+              <div>
+                <div className="font-display text-lg">Chat on WhatsApp</div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Fastest way to reach us. Available during business hours.
+                </p>
+                <div className="mt-3 font-mono text-xs text-emerald-400 transition-all group-hover:translate-x-1">
+                  +234 800 000 0000 →
+                </div>
+              </div>
+            </a>
+
+            <div className="grid grid-cols-2 gap-4">
+              <a
+                href="mailto:hello@cimperium.com"
+                className="group block border border-border/60 bg-card p-5 transition-all hover:border-imperium hover:-translate-y-1"
+              >
+                <Mail className="h-5 w-5 text-imperium" strokeWidth={1.5} />
+                <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Email</div>
+                <div className="mt-1 text-sm">hello@cimperium.com</div>
+              </a>
+              <div className="border border-border/60 bg-card p-5">
+                <MapPin className="h-5 w-5 text-imperium" strokeWidth={1.5} />
+                <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Location</div>
+                <div className="mt-1 text-sm">Jos, Plateau State, Nigeria</div>
+              </div>
+            </div>
           </div>
 
           <form onSubmit={submit} className="md:col-span-7 space-y-5">
