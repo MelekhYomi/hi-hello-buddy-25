@@ -2,11 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
+import { CalendarIcon, Clock, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
@@ -19,10 +15,16 @@ const schema = z.object({
   phone: z.string().trim().max(30).optional().or(z.literal("")),
   company: z.string().trim().max(100).optional().or(z.literal("")),
   service_id: z.string().uuid().nullable(),
-  preferred_date: z.date(),
-  preferred_time: z.string().min(1),
+  preferred_date: z.string().min(1, "Pick a date"),
+  preferred_time: z.string().min(1, "Pick a time"),
   project_details: z.string().trim().max(2000).optional().or(z.literal("")),
 });
+
+const inputClass =
+  "w-full rounded-md border border-border/70 bg-card/60 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none transition-colors focus:border-imperium";
+
+const labelClass =
+  "font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground";
 
 export function BookingSection() {
   const { user } = useAuth();
@@ -45,7 +47,7 @@ export function BookingSection() {
   const [phone, setPhone] = useState("");
   const [company, setCompany] = useState("");
   const [serviceId, setServiceId] = useState<string>("");
-  const [date, setDate] = useState<Date | undefined>();
+  const [date, setDate] = useState<string>("");
   const [time, setTime] = useState("");
   const [details, setDetails] = useState("");
   const [busy, setBusy] = useState(false);
@@ -74,7 +76,7 @@ export function BookingSection() {
       phone: parsed.data.phone || null,
       company: parsed.data.company || null,
       service_id: parsed.data.service_id,
-      preferred_date: format(parsed.data.preferred_date, "yyyy-MM-dd"),
+      preferred_date: parsed.data.preferred_date,
       preferred_time: parsed.data.preferred_time,
       project_details: parsed.data.project_details || null,
     });
@@ -84,123 +86,183 @@ export function BookingSection() {
       return;
     }
     toast.success("Booking received. We'll confirm by email shortly.");
-    setPhone(""); setCompany(""); setServiceId(""); setDate(undefined); setTime(""); setDetails("");
+    setPhone(""); setCompany(""); setServiceId(""); setDate(""); setTime(""); setDetails("");
   };
 
-  return (
-    <section id="book" className="relative border-t border-border/40 bg-card/40 py-16 md:py-20">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-12">
-          <div className="md:col-span-5">
-            <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
-              [04] Let's talk
-            </div>
-            <h2 className="mt-4 font-display text-5xl leading-[0.9] md:text-6xl">
-              BOOK A<br />CONSULTATION.
-            </h2>
-            <p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Tell us about your project. We'll respond within 24 hours with
-              availability and a brief response document.
-            </p>
-            <ul className="mt-8 space-y-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              <li className="flex items-center gap-3"><span className="h-px w-6 bg-imperium" />Free 30-min strategy call</li>
-              <li className="flex items-center gap-3"><span className="h-px w-6 bg-imperium" />Naira pricing, transparent</li>
-              <li className="flex items-center gap-3"><span className="h-px w-6 bg-imperium" />Jos · Lagos · remote</li>
-            </ul>
-          </div>
+  const today = format(new Date(), "yyyy-MM-dd");
 
+  return (
+    <section id="book" className="relative border-t border-border/40 py-16 md:py-20">
+      <div className="mx-auto max-w-7xl px-6">
+        {/* Heading — left aligned per reference */}
+        <div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
+            Start your project
+          </div>
+          <h2 className="mt-4 font-display text-5xl leading-[0.9] md:text-7xl">
+            BOOK CONSULTATION
+          </h2>
+          <div className="mt-6 h-px w-24 bg-imperium" />
+          <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
+            Schedule a free consultation with our team. We'll discuss your
+            vision, assess your needs, and outline a roadmap to elevate your brand.
+          </p>
+        </div>
+
+        <div className="mt-14 grid grid-cols-1 gap-10 md:grid-cols-12">
+          {/* Left column */}
+          <aside className="md:col-span-5 space-y-8">
+            <div className="border-l-2 border-imperium pl-5">
+              <h3 className="font-display text-xl tracking-tight">
+                WHY BOOK A CONSULTATION?
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Every great brand starts with a conversation. Our consultation
+                is a strategic session where we understand your business, your
+                audience, and your ambitions. No obligations — just clarity.
+              </p>
+            </div>
+
+            <ul className="space-y-3">
+              {[
+                "Free 30-minute strategic session",
+                "Tailored brand recommendations",
+                "Clear project scope and pricing",
+                "Direct access to senior designers",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm text-foreground/90">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-imperium" strokeWidth={2} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+
+            <div className="border border-border/60 bg-card/40 p-6">
+              <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-imperium">
+                Office location
+              </div>
+              <div className="mt-3 font-display text-lg">Jos, Plateau State</div>
+              <div className="text-sm text-muted-foreground">Nigeria</div>
+              <div className="mt-3 text-xs text-muted-foreground/80">
+                Serving clients from Lagos to London, Abuja to New York.
+              </div>
+            </div>
+          </aside>
+
+          {/* Form */}
           <form onSubmit={submit} className="md:col-span-7 space-y-5">
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              <FormField label="Full name" value={fullName} onChange={setFullName} required />
-              <FormField label="Email" type="email" value={email} onChange={setEmail} required />
-              <FormField label="Phone" value={phone} onChange={setPhone} />
-              <FormField label="Company" value={company} onChange={setCompany} />
+              <Field label="Full name" required>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  placeholder="Your name"
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Email" required>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="your@email.com"
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Phone">
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+234…"
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Company">
+                <input
+                  type="text"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="Your company"
+                  className={inputClass}
+                />
+              </Field>
             </div>
 
-            <div>
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Service</span>
+            <Field label="Service interested in">
               <select
                 value={serviceId}
                 onChange={(e) => setServiceId(e.target.value)}
-                className="mt-2 w-full border-b border-border bg-transparent py-3 text-base outline-none focus:border-imperium"
+                className={inputClass}
               >
-                <option value="" className="bg-card">Select a service…</option>
+                <option value="" className="bg-card">Select a service</option>
                 {services?.map((s) => (
                   <option key={s.id} value={s.id} className="bg-card">{s.title}</option>
                 ))}
                 <option value="other" className="bg-card">Other (tell us in the details)</option>
               </select>
-            </div>
+            </Field>
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              <div>
-                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Preferred date</span>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "mt-2 h-12 w-full justify-start rounded-none border-0 border-b border-border bg-transparent px-0 text-base font-normal hover:bg-transparent",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div>
-                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Preferred time</span>
-                <div className="mt-3 flex flex-wrap gap-2">
+              <Field
+                label={
+                  <span className="inline-flex items-center gap-2">
+                    <CalendarIcon className="h-3.5 w-3.5" /> Preferred date
+                  </span>
+                }
+                required
+              >
+                <input
+                  type="date"
+                  value={date}
+                  min={today}
+                  onChange={(e) => setDate(e.target.value)}
+                  required
+                  className={inputClass}
+                />
+              </Field>
+              <Field
+                label={
+                  <span className="inline-flex items-center gap-2">
+                    <Clock className="h-3.5 w-3.5" /> Preferred time
+                  </span>
+                }
+                required
+              >
+                <select
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  required
+                  className={inputClass}
+                >
+                  <option value="" className="bg-card">Select time</option>
                   {TIMES.map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => setTime(t)}
-                      className={cn(
-                        "border px-3 py-1.5 font-mono text-[11px] tracking-wider transition-colors",
-                        time === t
-                          ? "border-imperium bg-imperium text-primary-foreground"
-                          : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
-                      )}
-                    >
-                      {t}
-                    </button>
+                    <option key={t} value={t} className="bg-card">{t}</option>
                   ))}
-                </div>
-              </div>
+                </select>
+              </Field>
             </div>
 
-            <label className="block">
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Project details</span>
+            <Field label="Project details">
               <textarea
                 value={details}
                 onChange={(e) => setDetails(e.target.value)}
-                rows={4}
+                rows={5}
                 maxLength={2000}
-                className="mt-2 w-full resize-none border-b border-border bg-transparent py-3 text-base outline-none focus:border-imperium"
-                placeholder="Tell us about your brand, goals, timeline, budget…"
+                placeholder="Tell us about your project, goals, and timeline…"
+                className={`${inputClass} resize-none`}
               />
-            </label>
+            </Field>
 
             <button
               type="submit"
               disabled={busy}
-              className="mt-2 w-full bg-imperium py-4 font-mono text-[11px] uppercase tracking-[0.3em] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50 md:w-auto md:px-12"
+              className="mt-2 w-full bg-foreground py-4 font-mono text-[11px] uppercase tracking-[0.3em] text-background transition-opacity hover:opacity-90 disabled:opacity-50"
             >
-              {busy ? "Sending…" : "Submit booking"}
+              {busy ? "Sending…" : "Book consultation"}
             </button>
           </form>
         </div>
@@ -209,31 +271,22 @@ export function BookingSection() {
   );
 }
 
-function FormField({
+function Field({
   label,
-  type = "text",
-  value,
-  onChange,
   required,
+  children,
 }: {
-  label: string;
-  type?: string;
-  value: string;
-  onChange: (v: string) => void;
+  label: React.ReactNode;
   required?: boolean;
+  children: React.ReactNode;
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-        {label}{required && <span className="text-imperium"> *</span>}
+      <span className={labelClass}>
+        {label}
+        {required && <span className="text-imperium"> *</span>}
       </span>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required={required}
-        className="mt-2 w-full border-b border-border bg-transparent py-3 text-base outline-none focus:border-imperium"
-      />
+      <div className="mt-2">{children}</div>
     </label>
   );
 }
