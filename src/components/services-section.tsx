@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Palette, Printer, Globe, Share2, Megaphone, Sparkles, type LucideIcon } from "lucide-react";
+import { Palette, Printer, Globe, Share2, Megaphone, Sparkles, ArrowRight, type LucideIcon } from "lucide-react";
 
 const ICONS: Record<string, LucideIcon> = {
   palette: Palette,
@@ -11,7 +11,7 @@ const ICONS: Record<string, LucideIcon> = {
 };
 
 const formatNaira = (n: number | null) =>
-  n == null ? "" : `₦${(n / 1000).toLocaleString("en-NG", { maximumFractionDigits: 0 })}k`;
+  n == null ? "" : `₦${n.toLocaleString("en-NG")}`;
 
 export function ServicesSection() {
   const { data: services, isLoading } = useQuery({
@@ -28,73 +28,70 @@ export function ServicesSection() {
   });
 
   return (
-    <section id="services" className="relative border-t border-border/40 py-24 md:py-32">
+    <section id="services" className="relative border-t border-border/40 py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-12 md:gap-16">
-          <div className="md:col-span-4">
-            <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
-              [01] What we do
-            </div>
-            <h2 className="mt-4 font-display text-5xl leading-[0.9] md:text-7xl">
-              SERVICES<br />THAT<br />SCALE.
-            </h2>
-            <p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              From a single logo to a national rollout — we treat every brief as an
-              empire-in-the-making. Pricing in Naira, delivery in weeks not months.
-            </p>
+        <div className="text-center">
+          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
+            What we do
           </div>
+          <h2 className="mt-4 font-display text-5xl leading-[0.9] md:text-7xl">
+            OUR SERVICES
+          </h2>
+          <div className="mx-auto mt-6 h-px w-24 bg-imperium" />
+          <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
+            From concept to execution, we deliver comprehensive branding solutions that transform
+            businesses into market leaders.
+          </p>
+        </div>
 
-          <div className="md:col-span-8">
-            <div className="grid grid-cols-1 gap-px bg-border/40 sm:grid-cols-2">
-              {isLoading &&
-                Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="h-64 animate-pulse bg-card" />
-                ))}
-              {services?.map((s, idx) => {
-                const Icon = ICONS[s.icon] ?? Sparkles;
-                return (
-                  <article
-                    key={s.id}
-                    className="group relative bg-card p-8 transition-colors hover:bg-accent"
-                  >
-                    <div className="flex items-start justify-between">
-                      <Icon className="h-7 w-7 text-imperium" strokeWidth={1.5} />
-                      <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                        0{idx + 1}
-                      </span>
-                    </div>
-                    <h3 className="mt-8 font-display text-2xl tracking-tight">
-                      {s.title.toUpperCase()}
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground line-clamp-3">
-                      {s.description}
-                    </p>
-                    <div className="mt-6 flex items-end justify-between gap-3">
-                      <ul className="space-y-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground/70">
-                        {s.features.slice(0, 3).map((f) => (
-                          <li key={f} className="flex items-center gap-2">
-                            <span className="h-px w-3 bg-imperium" />
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
-                      {s.price_min != null && (
-                        <div className="text-right">
-                          <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
-                            From
-                          </div>
-                          <div className="font-display text-xl text-foreground">
-                            {formatNaira(s.price_min)}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className="absolute inset-x-0 bottom-0 h-px scale-x-0 bg-imperium transition-transform duration-500 group-hover:scale-x-100" />
-                  </article>
-                );
-              })}
-            </div>
-          </div>
+        <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {isLoading &&
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-96 animate-pulse bg-card" />
+            ))}
+          {services?.map((s) => {
+            const Icon = ICONS[s.icon] ?? Sparkles;
+            const isMonthly = s.slug === "social-media";
+            return (
+              <article
+                key={s.id}
+                className="group relative flex flex-col border border-border/60 bg-card p-8 transition-all duration-300 hover:border-imperium hover:shadow-[0_0_40px_-10px_var(--imperium)] hover:-translate-y-1"
+              >
+                <Icon className="h-8 w-8 text-imperium transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />
+
+                <h3 className="mt-8 font-display text-2xl tracking-tight">
+                  {s.title.toUpperCase()}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {s.description}
+                </p>
+
+                {s.price_min != null && (
+                  <div className="mt-5 font-mono text-xs tracking-wider text-imperium">
+                    {formatNaira(s.price_min)} - {formatNaira(s.price_max)}{isMonthly ? "/month" : ""}
+                  </div>
+                )}
+
+                <ul className="mt-5 flex-1 space-y-2">
+                  {s.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm text-foreground/80">
+                      <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-imperium" strokeWidth={2} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                <a
+                  href={`#book?service=${s.slug}`}
+                  className="mt-8 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium transition-all hover:gap-4"
+                >
+                  Book now <ArrowRight className="h-3.5 w-3.5" />
+                </a>
+
+                <div className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-imperium transition-transform duration-500 group-hover:scale-x-100" />
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>
