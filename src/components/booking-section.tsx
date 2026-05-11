@@ -57,7 +57,7 @@ export function BookingSection() {
       email,
       phone,
       company,
-      service_id: serviceId || null,
+      service_id: serviceId && serviceId !== "other" ? serviceId : null,
       preferred_date: date,
       preferred_time: time,
       project_details: details,
