@@ -88,7 +88,7 @@ export function BookingSection() {
   };
 
   return (
-    <section id="book" className="relative border-t border-border/40 bg-card/40 py-24 md:py-32">
+    <section id="book" className="relative border-t border-border/40 bg-card/40 py-16 md:py-20">
       <div className="mx-auto max-w-5xl px-6">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-12">
           <div className="md:col-span-5">
@@ -128,6 +128,7 @@ export function BookingSection() {
                 {services?.map((s) => (
                   <option key={s.id} value={s.id} className="bg-card">{s.title}</option>
                 ))}
+                <option value="other" className="bg-card">Other (tell us in the details)</option>
               </select>
             </div>
 
