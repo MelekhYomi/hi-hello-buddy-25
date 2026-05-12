@@ -260,7 +260,7 @@ export function BookingSection() {
             <button
               type="submit"
               disabled={busy}
-              className="mt-2 w-full bg-foreground py-4 font-mono text-[11px] uppercase tracking-[0.3em] text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="btn-cta mt-2 h-14 w-full px-6 disabled:opacity-50"
             >
               {busy ? "Sending…" : "Book consultation"}
             </button>

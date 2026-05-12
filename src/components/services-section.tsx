@@ -83,7 +83,7 @@ export function ServicesSection() {
 
                 <a
                   href={`#book?service=${s.slug}`}
-                  className="mt-8 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium transition-all hover:gap-4"
+                  className="btn-cta mt-8 inline-flex h-11 w-full px-6"
                 >
                   Book now <ArrowRight className="h-3.5 w-3.5" />
                 </a>
