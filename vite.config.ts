@@ -11,5 +11,7 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
+    // Increase the limit to 1000kB (1MB)
+    chunkSizeWarningLimit: 1000,
   },
 });
