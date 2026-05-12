@@ -77,6 +77,7 @@ export type Database = {
           cover_image: string | null
           created_at: string
           display_order: number
+          gallery_images: string[]
           id: string
           industry: string
           is_featured: boolean
@@ -92,6 +93,7 @@ export type Database = {
           cover_image?: string | null
           created_at?: string
           display_order?: number
+          gallery_images?: string[]
           id?: string
           industry: string
           is_featured?: boolean
@@ -107,6 +109,7 @@ export type Database = {
           cover_image?: string | null
           created_at?: string
           display_order?: number
+          gallery_images?: string[]
           id?: string
           industry?: string
           is_featured?: boolean
