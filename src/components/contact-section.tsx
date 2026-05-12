@@ -122,7 +122,7 @@ export function ContactSection() {
             <button
               type="submit"
               disabled={busy}
-              className="w-full bg-imperium py-4 font-mono text-[11px] uppercase tracking-[0.3em] text-primary-foreground hover:opacity-90 disabled:opacity-50 md:w-auto md:px-12"
+              className="btn-cta h-14 w-full px-12 disabled:opacity-50 md:w-auto"
             >
               {busy ? "Sending…" : "Send message"}
             </button>

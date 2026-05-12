@@ -1,8 +1,15 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowUpRight } from "lucide-react";
+import type { Database } from "@/integrations/supabase/types";
+import { CaseStudyModal } from "@/components/case-study-modal";
+
+type CaseStudy = Database["public"]["Tables"]["case_studies"]["Row"];
 
 export function PortfolioSection() {
+  const [open, setOpen] = useState<CaseStudy | null>(null);
+
   const { data: cases, isLoading } = useQuery({
     queryKey: ["case_studies"],
     queryFn: async () => {
@@ -38,10 +45,11 @@ export function PortfolioSection() {
               <div key={i} className="aspect-[4/5] animate-pulse bg-card" />
             ))}
           {cases?.map((c) => (
-            <a
+            <button
               key={c.id}
-              href="#book"
-              className="group relative block aspect-[4/5] overflow-hidden border border-border/60 bg-card transition-all duration-300 hover:border-imperium hover:shadow-[0_0_40px_-10px_var(--imperium)]"
+              type="button"
+              onClick={() => setOpen(c)}
+              className="group relative block aspect-[4/5] cursor-pointer overflow-hidden border border-border/60 bg-card text-left transition-all duration-300 hover:border-imperium hover:shadow-[0_0_40px_-10px_var(--imperium)]"
             >
               {c.cover_image ? (
                 <img
@@ -54,39 +62,38 @@ export function PortfolioSection() {
                 <div
                   className="absolute inset-0"
                   style={{
-                    background: `radial-gradient(circle at 30% 40%, oklch(0.58 0.24 27 / 0.5), transparent 55%), oklch(0.08 0 0)`,
+                    background: `radial-gradient(circle at 30% 40%, oklch(0.85 0.18 95 / 0.5), transparent 55%), oklch(0.08 0 0)`,
                   }}
                 />
               )}
 
-              {/* Dark gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
 
-              {/* Featured badge */}
               {c.is_featured && (
                 <span className="absolute right-4 top-4 z-10 border border-imperium bg-background/60 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-imperium backdrop-blur">
                   Featured
                 </span>
               )}
 
-              {/* Content */}
               <div className="absolute inset-x-0 bottom-0 p-6">
                 <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-imperium">
                   {c.industry}
                 </div>
                 <h3 className="mt-2 font-display text-2xl leading-tight md:text-3xl">
-                  {c.title.toUpperCase()}
+                  {c.title}
                 </h3>
                 <div className="mt-2 text-sm text-foreground/80">{c.client}</div>
-                <div className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium transition-all group-hover:gap-4">
+                <div className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium transition-all group-hover:gap-4 group-hover:text-foreground">
                   View case study
                   <ArrowUpRight className="h-3.5 w-3.5" />
                 </div>
               </div>
-            </a>
+            </button>
           ))}
         </div>
       </div>
+
+      <CaseStudyModal study={open} onClose={() => setOpen(null)} />
     </section>
   );
 }
