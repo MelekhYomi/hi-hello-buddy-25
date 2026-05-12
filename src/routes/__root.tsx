@@ -78,6 +78,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Premium branding agency from Jos, Nigeria." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "C Imperium Branding" },
+      { name: "twitter:title", content: "C Imperium Branding" },
+      { property: "og:description", content: "Premium branding agency from Jos, Nigeria." },
+      { name: "twitter:description", content: "Premium branding agency from Jos, Nigeria." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/e3475928-ac68-4f00-9a8c-963c00c5f21b" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/e3475928-ac68-4f00-9a8c-963c00c5f21b" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
