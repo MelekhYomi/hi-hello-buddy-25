@@ -9,6 +9,10 @@ import {
 } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth-context";
+import { CartProvider } from "@/lib/cart-context";
+import { CartDrawer } from "@/components/cart-drawer";
+import { LeadCapturePopup } from "@/components/lead-capture-popup";
+import { useVisitorTracker } from "@/lib/use-visitor-tracker";
 
 import appCss from "../styles.css?url";
 
@@ -121,9 +125,19 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
-        <Toaster />
+        <CartProvider>
+          <TrackerHost />
+          <Outlet />
+          <CartDrawer />
+          <LeadCapturePopup />
+          <Toaster />
+        </CartProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+function TrackerHost() {
+  useVisitorTracker();
+  return null;
 }

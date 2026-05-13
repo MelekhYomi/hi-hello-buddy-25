@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/_admin")({
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
-    if (!roles?.some((r) => r.role === "admin")) {
+    if (!roles?.some((r) => r.role === "admin" || r.role === "staff")) {
       throw redirect({ to: "/dashboard" });
     }
   },

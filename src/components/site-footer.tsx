@@ -1,13 +1,15 @@
+import { Link } from "@tanstack/react-router";
+
 export function SiteFooter() {
   return (
     <footer className="border-t border-border/40 bg-ink py-16">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid gap-12 md:grid-cols-4">
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2">
-              <span className="font-display text-2xl text-imperium leading-none">C</span>
-              <span className="font-display text-xl tracking-wider">IMPERIUM</span>
-            </div>
+            <Link to="/" className="inline-flex items-center gap-2 group">
+              <span className="font-display text-2xl text-imperium leading-none transition-transform group-hover:scale-110">C</span>
+              <span className="font-display text-xl tracking-wider transition-colors group-hover:text-imperium">IMPERIUM</span>
+            </Link>
             <p className="mt-4 max-w-sm text-sm text-muted-foreground leading-relaxed">
               Building brands that command attention. From Jos, Nigeria to the global stage —
               we transform businesses into market leaders through strategic design and world-class execution.
