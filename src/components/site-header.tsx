@@ -1,5 +1,7 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { ShoppingBag } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useCart } from "@/lib/cart-context";
 import logo from "@/assets/cimperium-logo.png";
 
 const SECTIONS = [
@@ -13,6 +15,7 @@ const SECTIONS = [
 
 export function SiteHeader() {
   const { user, signOut } = useAuth();
+  const { count, setOpen } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -69,13 +72,27 @@ export function SiteHeader() {
             </Link>
           )}
         </nav>
-        <a
-          href="#book"
-          onClick={goToSection("book")}
-          className="btn-cta hidden h-9 px-4 md:inline-flex"
-        >
-          Book Consultation
-        </a>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setOpen(true)}
+            aria-label="Open cart"
+            className="relative inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-imperium"
+          >
+            <ShoppingBag className="h-5 w-5" />
+            {count > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-imperium px-1 font-mono text-[9px] font-bold text-charleston">
+                {count}
+              </span>
+            )}
+          </button>
+          <a
+            href="#book"
+            onClick={goToSection("book")}
+            className="btn-cta hidden h-9 px-4 md:inline-flex"
+          >
+            Book Consultation
+          </a>
+        </div>
       </div>
     </header>
   );
