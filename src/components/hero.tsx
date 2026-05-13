@@ -45,7 +45,7 @@ export function Hero() {
       <div className="relative mx-auto w-full max-w-7xl px-6 pt-32 pb-20 text-center">
         <div className="mb-8 flex items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
           <span className="h-px w-8 bg-imperium" />
-          <span>Branding Agency · Jos, Nigeria</span>
+          <span>Branding Agency</span>
           <span className="h-px w-8 bg-imperium" />
         </div>
 
