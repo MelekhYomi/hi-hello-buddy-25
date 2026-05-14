@@ -81,12 +81,17 @@ export function ServicesSection() {
                   ))}
                 </ul>
 
-                <a
-                  href={`#book?service=${s.slug}`}
+                <button
+                  type="button"
+                  onClick={() => {
+                    try { sessionStorage.setItem("ci_preselect_service", s.id); } catch {}
+                    window.dispatchEvent(new CustomEvent("ci:preselect-service", { detail: { id: s.id } }));
+                    document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
                   className="btn-cta mt-8 inline-flex h-11 w-full px-6"
                 >
                   Book now <ArrowRight className="h-3.5 w-3.5" />
-                </a>
+                </button>
 
                 <div className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-imperium transition-transform duration-500 group-hover:scale-x-100" />
               </article>
