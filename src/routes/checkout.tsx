@@ -135,7 +135,7 @@ function CheckoutPage() {
         `Email: ${email}`,
         notes ? `\nNotes: ${notes}` : "",
       ].filter(Boolean).join("\n");
-      const waNumber = "2348000000000"; // TODO: replace with C Imperium WhatsApp number
+      const waNumber = "2348038577654"; // TODO: replace with C Imperium WhatsApp number
       const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(lines)}`;
       clear();
       window.open(url, "_blank");

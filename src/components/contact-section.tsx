@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Mail, MapPin, MessageCircle } from "lucide-react";
 
-const WHATSAPP_NUMBER = "2348000000000"; // change to real number
+const WHATSAPP_NUMBER = "2348038577654"; // change to real number
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi C Imperium, I'd like to discuss a project.")}`;
 
 const schema = z.object({
