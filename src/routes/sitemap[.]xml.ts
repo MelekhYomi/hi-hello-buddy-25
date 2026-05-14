@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const BASE_URL = "https://hi-hello-buddy-25.lovable.app";
 
-export const Route = createFileRoute("/api/sitemap.xml")({
+export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
