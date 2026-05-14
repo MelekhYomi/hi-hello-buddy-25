@@ -1,0 +1,16 @@
+# Netlify config for TanStack Start static fallback.
+# WARNING: This project is built for Cloudflare Workers (SSR + server functions).
+# Deploying to Netlify as-is will only serve the SPA shell — server functions
+# (createServerFn) and server routes (/sitemap.xml, /api/*) will NOT work.
+# For a proper Netlify deployment, the build adapter needs to be swapped.
+# Recommended: publish via Lovable (one click) which is already configured.
+
+[build]
+  command = "bun run build"
+  publish = "dist"
+
+# SPA fallback so client-side routes don't 404 on refresh
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
