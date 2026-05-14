@@ -98,6 +98,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap",
       },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "C Imperium Branding",
+          url: "https://hi-hello-buddy-25.lovable.app",
+          logo: "https://hi-hello-buddy-25.lovable.app/favicon.ico",
+          description: "Premium branding agency from Jos, Nigeria. Logo design, print, web, and campaigns.",
+          address: { "@type": "PostalAddress", addressLocality: "Jos", addressRegion: "Plateau", addressCountry: "NG" },
+          sameAs: [],
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
