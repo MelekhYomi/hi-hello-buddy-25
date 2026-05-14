@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { format } from "date-fns";
@@ -51,6 +51,19 @@ export function BookingSection() {
   const [time, setTime] = useState("");
   const [details, setDetails] = useState("");
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    try {
+      const pre = sessionStorage.getItem("ci_preselect_service");
+      if (pre) { setServiceId(pre); sessionStorage.removeItem("ci_preselect_service"); }
+    } catch {}
+    const handler = (e: Event) => {
+      const id = (e as CustomEvent<{ id: string }>).detail?.id;
+      if (id) setServiceId(id);
+    };
+    window.addEventListener("ci:preselect-service", handler);
+    return () => window.removeEventListener("ci:preselect-service", handler);
+  }, []);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
