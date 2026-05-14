@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /staff-login
+Disallow: /dashboard
+Disallow: /checkout
+
+Sitemap: https://hi-hello-buddy-25.lovable.app/sitemap.xml
