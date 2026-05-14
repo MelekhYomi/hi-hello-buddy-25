@@ -7,7 +7,8 @@ export const Route = createFileRoute("/api/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const staticEntries = [
+        type Entry = { path: string; lastmod?: string; changefreq?: string; priority?: string };
+        const staticEntries: Entry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/shop", changefreq: "daily", priority: "0.9" },
           { path: "/login", changefreq: "yearly", priority: "0.3" },
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/api/sitemap.xml")({
           .select("slug, updated_at")
           .eq("is_active", true);
 
-        const productEntries = (products ?? []).map((p) => ({
+        const productEntries: Entry[] = (products ?? []).map((p) => ({
           path: `/shop/${p.slug}`,
           lastmod: p.updated_at?.slice(0, 10),
           changefreq: "weekly",

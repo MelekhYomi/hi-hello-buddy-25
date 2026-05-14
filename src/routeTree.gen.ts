@@ -19,6 +19,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
+import { Route as ApiSitemapDotxmlRouteImport } from './routes/api/sitemap[.]xml'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/_admin'
 import { Route as AuthenticatedAdminAdminRouteImport } from './routes/_authenticated/_admin/admin'
@@ -72,6 +73,11 @@ const ShopSlugRoute = ShopSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => ShopRoute,
 } as any)
+const ApiSitemapDotxmlRoute = ApiSitemapDotxmlRouteImport.update({
+  id: '/api/sitemap.xml',
+  path: '/api/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/staff-login': typeof StaffLoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/sitemap.xml': typeof ApiSitemapDotxmlRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
 }
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/staff-login': typeof StaffLoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/sitemap.xml': typeof ApiSitemapDotxmlRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
 }
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   '/staff-login': typeof StaffLoginRoute
   '/_authenticated/_admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/sitemap.xml': typeof ApiSitemapDotxmlRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/_authenticated/_admin/admin': typeof AuthenticatedAdminAdminRoute
 }
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/staff-login'
     | '/dashboard'
+    | '/api/sitemap.xml'
     | '/shop/$slug'
     | '/admin'
   fileRoutesByTo: FileRoutesByTo
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/staff-login'
     | '/dashboard'
+    | '/api/sitemap.xml'
     | '/shop/$slug'
     | '/admin'
   id:
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/staff-login'
     | '/_authenticated/_admin'
     | '/_authenticated/dashboard'
+    | '/api/sitemap.xml'
     | '/shop/$slug'
     | '/_authenticated/_admin/admin'
   fileRoutesById: FileRoutesById
@@ -183,6 +195,7 @@ export interface RootRouteChildren {
   ShopRoute: typeof ShopRouteWithChildren
   SignupRoute: typeof SignupRoute
   StaffLoginRoute: typeof StaffLoginRoute
+  ApiSitemapDotxmlRoute: typeof ApiSitemapDotxmlRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -257,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopSlugRouteImport
       parentRoute: typeof ShopRoute
     }
+    '/api/sitemap.xml': {
+      id: '/api/sitemap.xml'
+      path: '/api/sitemap.xml'
+      fullPath: '/api/sitemap.xml'
+      preLoaderRoute: typeof ApiSitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -326,6 +346,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShopRoute: ShopRouteWithChildren,
   SignupRoute: SignupRoute,
   StaffLoginRoute: StaffLoginRoute,
+  ApiSitemapDotxmlRoute: ApiSitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
