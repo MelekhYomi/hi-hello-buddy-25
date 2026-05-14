@@ -98,7 +98,7 @@ function AdminPage() {
     else { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-contacts"] }); }
   };
 
-  const updateOrder = async (id: string, patch: Record<string, string>) => {
+  const updateOrder = async (id: string, patch: { status?: string; payment_status?: string }) => {
     const { error } = await supabase.from("orders").update(patch).eq("id", id);
     if (error) toast.error(error.message);
     else { toast.success("Updated"); qc.invalidateQueries({ queryKey: ["admin-orders"] }); }
