@@ -23,7 +23,7 @@ const schema = z.object({
   city: z.string().trim().max(100),
   state: z.string().trim().max(100),
   delivery_zone_id: z.string().uuid(),
-  payment_method: z.enum(["online", "on_delivery"]),
+  payment_method: z.enum(["online", "on_delivery", "whatsapp"]),
   notes: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 
@@ -41,7 +41,7 @@ function CheckoutPage() {
   const [city, setCity] = useState("");
   const [stateName, setStateName] = useState("Plateau");
   const [zoneId, setZoneId] = useState("");
-  const [payMethod, setPayMethod] = useState<"online" | "on_delivery">("online");
+  const [payMethod, setPayMethod] = useState<"online" | "on_delivery" | "whatsapp">("online");
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -89,8 +89,8 @@ function CheckoutPage() {
     const { data: order, error } = await supabase.from("orders").insert({
       user_id: user?.id ?? null,
       status: "pending",
-      payment_status: payMethod === "on_delivery" ? "pay_on_delivery" : "unpaid",
-      payment_provider: payMethod === "online" ? "manual" : null,
+      payment_status: payMethod === "on_delivery" ? "pay_on_delivery" : payMethod === "whatsapp" ? "whatsapp_pending" : "unpaid",
+      payment_provider: payMethod === "whatsapp" ? "whatsapp" : payMethod === "online" ? "manual" : null,
       subtotal, shipping_fee: shipping, total,
       currency: "NGN",
       delivery_method: zone?.fee === 0 ? "pickup" : "standard",
@@ -115,6 +115,33 @@ function CheckoutPage() {
     const { error: itemsErr } = await supabase.from("order_items").insert(orderItems);
     setBusy(false);
     if (itemsErr) return toast.error(itemsErr.message);
+
+    if (payMethod === "whatsapp") {
+      const lines = [
+        `*New order from ${name}*`,
+        `Order #${order.id.slice(0, 8)}`,
+        ``,
+        `*Items:*`,
+        ...items.map((i) => `• ${i.title} × ${i.quantity} — ${formatNaira(i.price * i.quantity)}`),
+        ``,
+        `Subtotal: ${formatNaira(subtotal)}`,
+        `Shipping: ${shipping === 0 ? "FREE" : formatNaira(shipping)}`,
+        `*Total: ${formatNaira(total)}*`,
+        ``,
+        `*Delivery to:*`,
+        `${address}`,
+        `${city}, ${stateName}`,
+        `Phone: ${phone}`,
+        `Email: ${email}`,
+        notes ? `\nNotes: ${notes}` : "",
+      ].filter(Boolean).join("\n");
+      const waNumber = "2348000000000"; // TODO: replace with C Imperium WhatsApp number
+      const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(lines)}`;
+      clear();
+      window.open(url, "_blank");
+      navigate({ to: "/order-success", search: { id: order.id } });
+      return;
+    }
 
     toast.success("Order received! We'll be in touch shortly.");
     clear();
@@ -174,6 +201,13 @@ function CheckoutPage() {
                   <div>
                     <div className="text-sm font-medium">Pay on delivery</div>
                     <div className="text-xs text-muted-foreground">Pay the dispatch rider in cash or transfer. Available within Plateau State.</div>
+                  </div>
+                </label>
+                <label className={`flex cursor-pointer items-start gap-3 rounded-md border p-4 transition ${payMethod === "whatsapp" ? "border-imperium bg-imperium/5" : "border-border hover:border-imperium/60"}`}>
+                  <input type="radio" checked={payMethod === "whatsapp"} onChange={() => setPayMethod("whatsapp")} className="mt-1 accent-[var(--imperium)]" />
+                  <div>
+                    <div className="text-sm font-medium">Send order via WhatsApp</div>
+                    <div className="text-xs text-muted-foreground">We'll open WhatsApp with your full order &amp; address. Pay manually after we confirm stock.</div>
                   </div>
                 </label>
               </div>
