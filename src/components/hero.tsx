@@ -1,4 +1,4 @@
-import logoMark from "@/assets/cimperium-mark.png";
+import { HeroMarquee } from "@/components/hero-marquee";
 
 const CORE_VALUES = ["Character", "Competence", "Capacity"];
 
@@ -49,15 +49,9 @@ export function Hero() {
           <span className="h-px w-8 bg-imperium" />
         </div>
 
-        {/* Logo mark — animated focal point */}
-        <div className="relative mx-auto mb-8 flex h-32 w-32 items-center justify-center md:h-40 md:w-40">
-          <span className="absolute inset-0 rounded-full border border-imperium/40 pulse-ring" />
-          <span className="absolute inset-2 rounded-full border border-imperium/20 pulse-ring" style={{ animationDelay: "1s" }} />
-          <img
-            src={logoMark}
-            alt="C Imperium emblem"
-            className="relative h-24 w-24 object-contain float-y md:h-32 md:w-32"
-          />
+        {/* Modern marquee banner — work, products, testimonials */}
+        <div className="relative mx-auto mb-10 -mx-6 md:mb-12">
+          <HeroMarquee />
         </div>
 
         <h1 className="font-display text-[clamp(3.5rem,14vw,12rem)] font-black leading-[0.85] tracking-tight">
