@@ -77,7 +77,7 @@ export function ContactSection() {
                   Fastest way to reach us. Available during business hours.
                 </p>
                 <div className="mt-3 font-mono text-xs text-emerald-400 transition-all group-hover:translate-x-1">
-                  +234 800 000 0000 →
+                  +234 803 857 7654 →
                 </div>
               </div>
             </a>

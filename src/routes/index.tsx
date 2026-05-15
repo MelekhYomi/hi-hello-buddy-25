@@ -4,6 +4,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { Hero } from "@/components/hero";
 import { ProductsSection } from "@/components/products-section";
 import { ServicesSection } from "@/components/services-section";
+import { WhySection } from "@/components/why-section";
+import { ProcessSection } from "@/components/process-section";
 import { PortfolioSection } from "@/components/portfolio-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { BookingSection } from "@/components/booking-section";
@@ -38,6 +40,8 @@ function HomePage() {
         <Hero />
         <ProductsSection />
         <ServicesSection />
+        <WhySection />
+        <ProcessSection />
         <PortfolioSection />
         <TestimonialsSection />
 

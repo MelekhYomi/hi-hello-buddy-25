@@ -11,9 +11,16 @@ export function SiteFooter() {
               <span className="font-display text-xl tracking-wider transition-colors group-hover:text-imperium">IMPERIUM</span>
             </Link>
             <p className="mt-4 max-w-sm text-sm text-muted-foreground leading-relaxed">
-              Building brands that command attention. From Jos, Nigeria to the global stage —
-              we transform businesses into market leaders through strategic design and world-class execution.
+              Design. Branding. Print. Web. Building brands that command attention — from Jos,
+              Nigeria to the global stage.
             </p>
+            <div className="mt-6 flex items-center gap-5 font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+              <a href="https://instagram.com/cimperiumbranding" target="_blank" rel="noopener noreferrer" className="hover:text-imperium transition-colors">Instagram</a>
+              <span className="h-1 w-1 rounded-full bg-imperium/60" />
+              <a href="https://linkedin.com/company/cimperium" target="_blank" rel="noopener noreferrer" className="hover:text-imperium transition-colors">LinkedIn</a>
+              <span className="h-1 w-1 rounded-full bg-imperium/60" />
+              <a href="https://behance.net/cimperium" target="_blank" rel="noopener noreferrer" className="hover:text-imperium transition-colors">Behance</a>
+            </div>
           </div>
           <div>
             <h4 className="font-mono text-[11px] uppercase tracking-[0.2em] text-imperium">Navigate</h4>

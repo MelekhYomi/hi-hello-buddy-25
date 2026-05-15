@@ -66,14 +66,22 @@ export function Hero() {
 
         <div className="mt-6 flex items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
           <span className="h-px w-12 bg-imperium" />
-          <span>From Jos to the World</span>
+          <span>Stand Out. Dominate.</span>
           <span className="h-px w-12 bg-imperium" />
         </div>
 
-        <p className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-          We build brands that command attention. Graphic design, printing, web development,
-          and large-scale campaigns for businesses ready to dominate their market.
+        <h2 className="mx-auto mt-8 max-w-3xl font-display text-3xl leading-tight md:text-5xl">
+          We Build Brands <span className="text-imperium">People Remember.</span>
+        </h2>
+
+        <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+          Creative solutions for modern brands — through design, print, branding, and web
+          experiences that actually connect.
         </p>
+
+        <div className="mt-6 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
+          Minimal. Strategic. Impactful.
+        </div>
 
         {/* Core values */}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3 md:gap-5">
