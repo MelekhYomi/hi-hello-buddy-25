@@ -89,7 +89,7 @@ export function HeroMarquee() {
     queryFn: async () => {
       const { data } = await supabase
         .from("products")
-        .select("id,name,tagline,image_url,is_active")
+        .select("id,title,description,images,is_active")
         .eq("is_active", true)
         .limit(8);
       return data ?? [];
@@ -119,9 +119,9 @@ export function HeroMarquee() {
     ...(products ?? []).map((p) => ({
       key: `p-${p.id}`,
       kind: "product" as const,
-      title: p.name,
-      subtitle: p.tagline ?? undefined,
-      image: p.image_url,
+      title: p.title,
+      subtitle: p.description ?? undefined,
+      image: p.images?.[0] ?? null,
       tag: "Product",
     })),
     ...(testimonials ?? []).map((t) => ({
