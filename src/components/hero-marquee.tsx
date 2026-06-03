@@ -85,7 +85,7 @@ export function HeroMarquee() {
     queryFn: async () => {
       const { data } = await supabase
         .from("case_studies")
-        .select("id,title,client,cover_image")
+        .select("id,slug,title,client,cover_image")
         .order("display_order")
         .limit(8);
       return data ?? [];
@@ -97,7 +97,7 @@ export function HeroMarquee() {
     queryFn: async () => {
       const { data } = await supabase
         .from("products")
-        .select("id,title,description,images,is_active")
+        .select("id,slug,title,description,images,is_active")
         .eq("is_active", true)
         .limit(8);
       return data ?? [];
