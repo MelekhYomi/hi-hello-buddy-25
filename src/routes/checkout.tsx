@@ -145,6 +145,12 @@ function CheckoutPage() {
       return;
     }
 
+    if (payMethod === "online") {
+      clear();
+      navigate({ to: "/checkout-pay", search: { id: orderId, amount: total } });
+      return;
+    }
+
     toast.success("Order received! We'll be in touch shortly.");
     clear();
     navigate({ to: "/order-success", search: { id: orderId } });
