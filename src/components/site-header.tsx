@@ -2,7 +2,8 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { ShoppingBag } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
-import logo from "@/assets/cimperium-c-mark.png";
+import logoAsset from "@/assets/cimperium-c-mark.jpg.asset.json";
+const logo = logoAsset.url;
 
 const SECTIONS = [
   { id: "products", label: "Products" },
@@ -37,11 +38,11 @@ export function SiteHeader() {
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/75 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link to="/" className="flex items-center gap-2 group">
-          <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-imperium/40 bg-background/50 transition-all group-hover:ring-imperium">
+          <span className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-1 ring-imperium/40 transition-all group-hover:ring-imperium">
             <img
               src={logo}
               alt="C Imperium"
-              className="h-8 w-8 object-contain drop-shadow-[0_0_8px_oklch(0.85_0.18_95/0.5)]"
+              className="h-full w-full object-cover"
             />
           </span>
         </Link>

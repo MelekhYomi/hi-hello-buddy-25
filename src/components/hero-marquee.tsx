@@ -9,20 +9,21 @@ type Card = {
   subtitle?: string;
   image?: string | null;
   tag?: string;
+  href?: string;
 };
 
 const FALLBACK: Card[] = [
-  { key: "f1", kind: "about", title: "Brand Identity", subtitle: "Logos that command attention", tag: "About" },
-  { key: "f2", kind: "about", title: "Print & Packaging", subtitle: "Tactile, premium, unforgettable", tag: "About" },
-  { key: "f3", kind: "about", title: "Web Experiences", subtitle: "Sites that actually convert", tag: "About" },
-  { key: "f4", kind: "quote", title: "“They turned our brand into a presence.”", subtitle: "— Adaeze, Lagos", tag: "Client" },
-  { key: "f5", kind: "about", title: "Campaigns", subtitle: "Visuals built to dominate", tag: "About" },
-  { key: "f6", kind: "quote", title: "“Fast, sharp, strategic.”", subtitle: "— Tunde, Abuja", tag: "Client" },
+  { key: "f1", kind: "about", title: "Brand Identity", subtitle: "Logos that command attention", tag: "About", href: "/#services" },
+  { key: "f2", kind: "about", title: "Print & Packaging", subtitle: "Tactile, premium, unforgettable", tag: "About", href: "/#services" },
+  { key: "f3", kind: "about", title: "Web Experiences", subtitle: "Sites that actually convert", tag: "About", href: "/#services" },
+  { key: "f4", kind: "quote", title: "“They turned our brand into a presence.”", subtitle: "— Adaeze, Lagos", tag: "Client", href: "/#testimonials" },
+  { key: "f5", kind: "about", title: "Campaigns", subtitle: "Visuals built to dominate", tag: "About", href: "/#portfolio" },
+  { key: "f6", kind: "quote", title: "“Fast, sharp, strategic.”", subtitle: "— Tunde, Abuja", tag: "Client", href: "/#testimonials" },
 ];
 
 function CardTile({ c }: { c: Card }) {
-  return (
-    <div className="group relative h-44 w-72 shrink-0 overflow-hidden rounded-xl border border-border/60 bg-card md:h-52 md:w-80">
+  const inner = (
+    <>
       {c.image ? (
         <img
           src={c.image}
@@ -46,7 +47,13 @@ function CardTile({ c }: { c: Card }) {
           </div>
         )}
       </div>
-    </div>
+    </>
+  );
+  const cls = "group relative block h-44 w-72 shrink-0 overflow-hidden rounded-xl border border-border/60 bg-card transition hover:border-imperium md:h-52 md:w-80";
+  return c.href ? (
+    <a href={c.href} className={cls}>{inner}</a>
+  ) : (
+    <div className={cls}>{inner}</div>
   );
 }
 
@@ -77,7 +84,7 @@ export function HeroMarquee() {
     queryFn: async () => {
       const { data } = await supabase
         .from("case_studies")
-        .select("id,title,client,cover_image")
+        .select("id,slug,title,client,cover_image")
         .order("display_order")
         .limit(8);
       return data ?? [];
@@ -89,7 +96,7 @@ export function HeroMarquee() {
     queryFn: async () => {
       const { data } = await supabase
         .from("products")
-        .select("id,title,description,images,is_active")
+        .select("id,slug,title,description,images,is_active")
         .eq("is_active", true)
         .limit(8);
       return data ?? [];
@@ -115,6 +122,7 @@ export function HeroMarquee() {
       subtitle: c.client,
       image: c.cover_image,
       tag: "Work",
+      href: "/#portfolio",
     })),
     ...(products ?? []).map((p) => ({
       key: `p-${p.id}`,
@@ -123,6 +131,7 @@ export function HeroMarquee() {
       subtitle: p.description ?? undefined,
       image: p.images?.[0] ?? null,
       tag: "Product",
+      href: `/shop/${p.slug}`,
     })),
     ...(testimonials ?? []).map((t) => ({
       key: `t-${t.id}`,
@@ -130,6 +139,7 @@ export function HeroMarquee() {
       title: `“${t.quote}”`,
       subtitle: t.company ? `— ${t.name}, ${t.company}` : `— ${t.name}`,
       tag: "Client",
+      href: "/#testimonials",
     })),
   ];
 
