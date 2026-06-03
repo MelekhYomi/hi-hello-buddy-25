@@ -141,13 +141,13 @@ function CheckoutPage() {
       const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(lines)}`;
       clear();
       window.open(url, "_blank");
-      navigate({ to: "/order-success", search: { id: order.id } });
+      navigate({ to: "/order-success", search: { id: orderId } });
       return;
     }
 
     toast.success("Order received! We'll be in touch shortly.");
     clear();
-    navigate({ to: "/order-success", search: { id: order.id } });
+    navigate({ to: "/order-success", search: { id: orderId } });
   };
 
   return (
