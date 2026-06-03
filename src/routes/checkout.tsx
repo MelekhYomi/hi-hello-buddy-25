@@ -86,7 +86,9 @@ function CheckoutPage() {
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
 
     setBusy(true);
-    const { data: order, error } = await supabase.from("orders").insert({
+    const orderId = (crypto as any).randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const { error } = await supabase.from("orders").insert({
+      id: orderId,
       user_id: user?.id ?? null,
       status: "pending",
       payment_status: payMethod === "on_delivery" ? "pay_on_delivery" : payMethod === "whatsapp" ? "whatsapp_pending" : "unpaid",
@@ -98,15 +100,15 @@ function CheckoutPage() {
       customer_name: name, customer_email: email, customer_phone: phone,
       delivery_address: address, city, state: stateName, country: "Nigeria",
       notes: notes || null,
-    }).select().single();
+    });
 
-    if (error || !order) {
+    if (error) {
       setBusy(false);
-      return toast.error(error?.message ?? "Couldn't place order");
+      return toast.error(error.message ?? "Couldn't place order");
     }
 
     const orderItems = items.map((i) => ({
-      order_id: order.id,
+      order_id: orderId,
       product_id: i.id,
       title_snapshot: i.title,
       price_snapshot: i.price,
@@ -119,7 +121,7 @@ function CheckoutPage() {
     if (payMethod === "whatsapp") {
       const lines = [
         `*New order from ${name}*`,
-        `Order #${order.id.slice(0, 8)}`,
+        `Order #${orderId.slice(0, 8)}`,
         ``,
         `*Items:*`,
         ...items.map((i) => `• ${i.title} × ${i.quantity} — ${formatNaira(i.price * i.quantity)}`),
