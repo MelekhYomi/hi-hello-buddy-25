@@ -2,7 +2,8 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { ShoppingBag } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
-import logo from "@/assets/cimperium-c-mark.png";
+import logoAsset from "@/assets/cimperium-c-mark.jpg.asset.json";
+const logo = logoAsset.url;
 
 const SECTIONS = [
   { id: "products", label: "Products" },
