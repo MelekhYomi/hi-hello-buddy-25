@@ -10,6 +10,7 @@ type Card = {
   subtitle?: string;
   image?: string | null;
   tag?: string;
+  href?: string;
 };
 
 const FALLBACK: Card[] = [
