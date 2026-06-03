@@ -16,6 +16,7 @@ import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as OrderSuccessRouteImport } from './routes/order-success'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as CheckoutPayRouteImport } from './routes/checkout-pay'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -59,6 +60,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutPayRoute = CheckoutPayRouteImport.update({
+  id: '/checkout-pay',
+  path: '/checkout-pay',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -96,6 +102,7 @@ const AuthenticatedAdminAdminRoute = AuthenticatedAdminAdminRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/checkout': typeof CheckoutRoute
+  '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -143,6 +152,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/checkout'
+    | '/checkout-pay'
     | '/login'
     | '/order-success'
     | '/reset-password'
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/checkout'
+    | '/checkout-pay'
     | '/login'
     | '/order-success'
     | '/reset-password'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/checkout'
+    | '/checkout-pay'
     | '/login'
     | '/order-success'
     | '/reset-password'
@@ -189,6 +201,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CheckoutRoute: typeof CheckoutRoute
+  CheckoutPayRoute: typeof CheckoutPayRoute
   LoginRoute: typeof LoginRoute
   OrderSuccessRoute: typeof OrderSuccessRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -247,6 +260,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout-pay': {
+      id: '/checkout-pay'
+      path: '/checkout-pay'
+      fullPath: '/checkout-pay'
+      preLoaderRoute: typeof CheckoutPayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -340,6 +360,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CheckoutRoute: CheckoutRoute,
+  CheckoutPayRoute: CheckoutPayRoute,
   LoginRoute: LoginRoute,
   OrderSuccessRoute: OrderSuccessRoute,
   ResetPasswordRoute: ResetPasswordRoute,
