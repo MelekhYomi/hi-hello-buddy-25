@@ -200,8 +200,8 @@ function CheckoutPage() {
                 <label className={`flex cursor-pointer items-start gap-3 rounded-md border p-4 transition ${payMethod === "online" ? "border-imperium bg-imperium/5" : "border-border hover:border-imperium/60"}`}>
                   <input type="radio" checked={payMethod === "online"} onChange={() => setPayMethod("online")} className="mt-1 accent-[var(--imperium)]" />
                   <div>
-                    <div className="text-sm font-medium">Pay before delivery</div>
-                    <div className="text-xs text-muted-foreground">We'll send payment instructions after order confirmation. (Online card checkout coming soon.)</div>
+                    <div className="text-sm font-medium">Pay online with card</div>
+                    <div className="text-xs text-muted-foreground">Secure card payment via Stripe (demo mode — no real charge while sandbox keys are in use).</div>
                   </div>
                 </label>
                 <label className={`flex cursor-pointer items-start gap-3 rounded-md border p-4 transition ${payMethod === "on_delivery" ? "border-imperium bg-imperium/5" : "border-border hover:border-imperium/60"}`}>
