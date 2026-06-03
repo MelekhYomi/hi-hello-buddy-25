@@ -123,6 +123,7 @@ export function HeroMarquee() {
       subtitle: c.client,
       image: c.cover_image,
       tag: "Work",
+      href: "/#portfolio",
     })),
     ...(products ?? []).map((p) => ({
       key: `p-${p.id}`,
@@ -131,6 +132,7 @@ export function HeroMarquee() {
       subtitle: p.description ?? undefined,
       image: p.images?.[0] ?? null,
       tag: "Product",
+      href: `/shop/${p.slug}`,
     })),
     ...(testimonials ?? []).map((t) => ({
       key: `t-${t.id}`,
@@ -138,6 +140,7 @@ export function HeroMarquee() {
       title: `“${t.quote}”`,
       subtitle: t.company ? `— ${t.name}, ${t.company}` : `— ${t.name}`,
       tag: "Client",
+      href: "/#testimonials",
     })),
   ];
 
