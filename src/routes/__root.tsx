@@ -12,6 +12,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
 import { CartDrawer } from "@/components/cart-drawer";
 import { LeadCapturePopup } from "@/components/lead-capture-popup";
+import { CustomCursor } from "@/components/custom-cursor";
 import { useVisitorTracker } from "@/lib/use-visitor-tracker";
 
 import appCss from "../styles.css?url";
