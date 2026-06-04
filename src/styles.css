@@ -230,3 +230,140 @@
   transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
 }
 .story-link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+/* ========================================================================
+ * C Imperium reference palette + helpers (from client index.html)
+ * ========================================================================*/
+:root {
+  --ci-black: #0A0A0A;
+  --ci-dark: #111111;
+  --ci-charcoal: #1C1C1C;
+  --ci-card: #181818;
+  --ci-gold: #C9A84C;
+  --ci-gold-light: #E8D5A3;
+  --ci-gold-dim: rgba(201,168,76,0.15);
+  --ci-gray: #888888;
+  --ci-light-gray: #CCCCCC;
+  --ci-border: rgba(201,168,76,0.25);
+  --imperium-line: rgba(201,168,76,0.25);
+}
+
+/* Section label (gold prefix line) */
+.ci-section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--imperium);
+}
+.ci-section-label::before {
+  content: "";
+  width: 30px;
+  height: 1px;
+  background: var(--imperium);
+}
+
+/* Buttons (Bebas/DM Sans style) */
+.ci-btn-primary,
+.ci-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 1rem 2.2rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 1px solid transparent;
+}
+.ci-btn-primary {
+  background: var(--imperium);
+  color: var(--ci-black);
+}
+.ci-btn-primary:hover {
+  background: var(--ci-gold-light);
+  transform: translateY(-2px);
+}
+.ci-btn-outline {
+  background: transparent;
+  color: #fff;
+  border-color: rgba(255,255,255,0.2);
+}
+.ci-btn-outline:hover {
+  border-color: var(--imperium);
+  color: var(--imperium);
+}
+
+/* Value items hover */
+.ci-value-item { transition: border-color .3s; position: relative; }
+.ci-value-item::before {
+  content: ""; position: absolute; left: 0; top: 0;
+  width: 3px; height: 100%; background: var(--imperium);
+}
+.ci-value-item:hover { border-color: var(--imperium) !important; }
+
+/* Blog cards hover */
+.ci-blog-card:hover {
+  border-color: var(--imperium) !important;
+  transform: translateY(-4px);
+}
+
+/* Testimonial nav hover */
+.ci-t-nav:hover {
+  background: var(--imperium);
+  border-color: var(--imperium) !important;
+  color: var(--ci-black);
+}
+
+/* ====== Animations ====== */
+@keyframes ci-fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes ci-scrollPulse {
+  0%, 100% { opacity: 1; transform: scaleY(1); }
+  50% { opacity: 0.3; transform: scaleY(0.5); }
+}
+@keyframes ci-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ====== Custom Cursor ====== */
+.ci-cursor {
+  position: fixed; top: 0; left: 0;
+  width: 10px; height: 10px;
+  background: var(--imperium);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transition: width .2s, height .2s, opacity .2s;
+  will-change: transform;
+}
+.ci-cursor-ring {
+  position: fixed; top: 0; left: 0;
+  width: 36px; height: 36px;
+  border: 1px solid rgba(201,168,76,0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transition: width .3s, height .3s, border-color .3s;
+  will-change: transform;
+}
+.ci-cursor-ring.expand {
+  width: 60px; height: 60px;
+  border-color: var(--imperium);
+}
+body.has-custom-cursor,
+body.has-custom-cursor * {
+  cursor: none !important;
+}
+@media (pointer: coarse) {
+  .ci-cursor, .ci-cursor-ring { display: none !important; }
+}
