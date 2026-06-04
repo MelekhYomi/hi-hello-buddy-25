@@ -7,8 +7,27 @@ import { CaseStudyModal } from "@/components/case-study-modal";
 
 type CaseStudy = Database["public"]["Tables"]["case_studies"]["Row"];
 
+const FILTERS = [
+  { id: "all", label: "All Work" },
+  { id: "brand", label: "Brand Identity" },
+  { id: "print", label: "Print & Packaging" },
+  { id: "digital", label: "Digital" },
+  { id: "social", label: "Social Media" },
+];
+
+function matchFilter(industry: string | null, filter: string) {
+  if (filter === "all") return true;
+  const s = (industry ?? "").toLowerCase();
+  if (filter === "brand") return s.includes("brand") || s.includes("identity");
+  if (filter === "print") return s.includes("print") || s.includes("packag") || s.includes("merch");
+  if (filter === "digital") return s.includes("web") || s.includes("digital") || s.includes("tech");
+  if (filter === "social") return s.includes("social") || s.includes("media");
+  return true;
+}
+
 export function PortfolioSection() {
   const [open, setOpen] = useState<CaseStudy | null>(null);
+  const [filter, setFilter] = useState("all");
 
   const { data: cases, isLoading } = useQuery({
     queryKey: ["case_studies"],
@@ -22,74 +41,132 @@ export function PortfolioSection() {
     },
   });
 
+  const visible = (cases ?? []).filter((c) => matchFilter(c.industry, filter));
+
   return (
-    <section id="portfolio" className="relative overflow-hidden border-t border-border/40 py-16 md:py-20">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="text-center">
-          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
-            Selected work
+    <section
+      id="portfolio"
+      className="relative z-[2] overflow-hidden border-t border-border/40 px-6 py-24 md:px-16 md:py-32"
+      style={{ background: "var(--ci-black)" }}
+    >
+      <div className="mx-auto max-w-7xl">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="ci-section-label">Our Work</div>
+            <h2
+              className="mt-4"
+              style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: "clamp(2.5rem, 5vw, 5rem)",
+                lineHeight: 1,
+                letterSpacing: "0.02em",
+              }}
+            >
+              Selected Projects
+            </h2>
           </div>
-          <h2 className="mt-4 font-display text-5xl leading-[0.9] md:text-7xl">
-            PORTFOLIO
-          </h2>
-          <div className="mx-auto mt-6 h-px w-24 bg-imperium" />
-          <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
-            A curated selection of our most impactful branding projects across hospitality,
-            technology, fashion, and beyond.
-          </p>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Filters */}
+        <div className="mt-10 flex flex-wrap gap-3">
+          {FILTERS.map((f) => {
+            const active = filter === f.id;
+            return (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFilter(f.id)}
+                className="cursor-target px-5 py-2 text-[0.72rem] font-medium uppercase tracking-[0.1em] transition-all"
+                style={{
+                  background: active ? "var(--imperium)" : "transparent",
+                  borderWidth: 1,
+                  borderStyle: "solid",
+                  borderColor: active ? "var(--imperium)" : "var(--ci-border)",
+                  color: active ? "var(--ci-black)" : "var(--ci-gray)",
+                }}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Grid */}
+        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {isLoading &&
             Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="aspect-[4/5] animate-pulse bg-card" />
+              <div key={i} className="aspect-[4/3] animate-pulse bg-card" />
             ))}
-          {cases?.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => setOpen(c)}
-              className="group relative block aspect-[4/5] cursor-pointer overflow-hidden border border-border/60 bg-card text-left transition-all duration-300 hover:border-imperium hover:shadow-[0_0_40px_-10px_var(--imperium)]"
-            >
-              {c.cover_image ? (
-                <img
-                  src={c.cover_image}
-                  alt={`${c.title} — ${c.client}`}
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-              ) : (
+          {visible.map((c, idx) => {
+            const featured = idx === 0 || idx === 4;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setOpen(c)}
+                className={`group relative block cursor-pointer overflow-hidden text-left transition-all ${
+                  featured ? "md:col-span-2 md:aspect-[16/7]" : "aspect-[4/3]"
+                }`}
+                style={{ background: "var(--ci-charcoal)" }}
+              >
+                {c.cover_image ? (
+                  <img
+                    src={c.cover_image}
+                    alt={`${c.title} — ${c.client}`}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-3 transition-transform duration-500 group-hover:scale-105"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, var(--ci-charcoal), var(--ci-card))",
+                      color: "var(--ci-gray)",
+                    }}
+                  >
+                    <span className="text-2xl opacity-20">◆</span>
+                    <span
+                      className="italic"
+                      style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                    >
+                      {c.title}
+                    </span>
+                  </div>
+                )}
+
+                {/* Overlay */}
                 <div
-                  className="absolute inset-0"
+                  className="absolute inset-0 flex flex-col justify-end p-8 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                   style={{
-                    background: `radial-gradient(circle at 30% 40%, oklch(0.85 0.18 95 / 0.5), transparent 55%), oklch(0.08 0 0)`,
+                    background:
+                      "linear-gradient(to top, rgba(10,10,10,0.95) 0%, transparent 60%)",
                   }}
-                />
-              )}
-
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
-
-              {c.is_featured && (
-                <span className="absolute right-4 top-4 z-10 border border-imperium bg-background/60 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-imperium backdrop-blur">
-                  Featured
-                </span>
-              )}
-
-              <div className="absolute inset-x-0 bottom-0 p-6">
-                <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-imperium">
-                  {c.industry}
+                >
+                  <span className="mb-1 text-[0.65rem] uppercase tracking-[0.2em] text-imperium">
+                    {c.industry}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "'Bebas Neue', sans-serif",
+                      fontSize: "1.4rem",
+                      letterSpacing: "0.04em",
+                    }}
+                  >
+                    {c.title}
+                  </span>
                 </div>
-                <h3 className="mt-2 font-display text-2xl leading-tight md:text-3xl">
-                  {c.title}
-                </h3>
-                <div className="mt-2 text-sm text-foreground/80">{c.client}</div>
-                <div className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium transition-all group-hover:gap-4 group-hover:text-foreground">
-                  View case study
-                  <ArrowUpRight className="h-3.5 w-3.5" />
+
+                {/* Arrow */}
+                <div
+                  className="absolute top-5 right-5 flex h-9 w-9 scale-0 items-center justify-center transition-transform duration-300 group-hover:scale-100"
+                  style={{ background: "var(--imperium)" }}
+                >
+                  <ArrowUpRight className="h-4 w-4 text-charleston" strokeWidth={2.5} />
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -2,29 +2,31 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Hero } from "@/components/hero";
+import { MarqueeStrip } from "@/components/marquee-strip";
+import { AboutSection } from "@/components/about-section";
 import { ProductsSection } from "@/components/products-section";
 import { ServicesSection } from "@/components/services-section";
-import { WhySection } from "@/components/why-section";
 import { ProcessSection } from "@/components/process-section";
 import { PortfolioSection } from "@/components/portfolio-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
+import { BlogSection } from "@/components/blog-section";
 import { BookingSection } from "@/components/booking-section";
 import { ContactSection } from "@/components/contact-section";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "C Imperium Branding — From Jos to the World" },
+      { title: "C Imperium — Stand Out. Dominate." },
       {
         name: "description",
         content:
-          "Premium branding agency in Jos, Nigeria. Logo design, print & packaging, web development, and large-scale campaigns for businesses ready to dominate their market.",
+          "C Imperium is a brand transformation agency in Nigeria. Brand identity, print, packaging, web, social, and creative direction that makes brands impossible to ignore.",
       },
-      { property: "og:title", content: "C Imperium Branding — From Jos to the World" },
+      { property: "og:title", content: "C Imperium — Stand Out. Dominate." },
       {
         property: "og:description",
         content:
-          "We build brands that command attention. Strategic design, printing, and digital execution for ambitious Nigerian businesses.",
+          "Premium brand transformation. We build visual identities and brand experiences that dominate.",
       },
       { property: "og:type", content: "website" },
     ],
@@ -38,15 +40,15 @@ function HomePage() {
       <SiteHeader />
       <main>
         <Hero />
+        <MarqueeStrip />
+        <AboutSection />
         <ProductsSection />
         <ServicesSection />
-        <WhySection />
         <ProcessSection />
         <PortfolioSection />
         <TestimonialsSection />
-
+        <BlogSection />
         <BookingSection />
-
         <ContactSection />
       </main>
       <SiteFooter />

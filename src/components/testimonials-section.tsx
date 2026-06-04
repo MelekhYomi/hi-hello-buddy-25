@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Quote, Star } from "lucide-react";
 
 export function TestimonialsSection() {
+  const [index, setIndex] = useState(0);
+
   const { data: items, isLoading } = useQuery({
     queryKey: ["testimonials"],
     queryFn: async () => {
@@ -18,67 +20,133 @@ export function TestimonialsSection() {
 
   if (!isLoading && (!items || items.length === 0)) return null;
 
+  const list = items ?? [];
+  const total = list.length;
+  const go = (i: number) => setIndex(((i % total) + total) % total);
+
   return (
-    <section id="testimonials" className="border-t border-border/40 py-16 md:py-20">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="text-center">
-          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
-            Client voices
+    <section
+      id="testimonials"
+      className="relative z-[2] overflow-hidden border-t border-border/40 px-6 py-24 md:px-16 md:py-32"
+      style={{ background: "var(--ci-dark)" }}
+    >
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-16 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="ci-section-label">Client Stories</div>
+            <h2
+              className="mt-4"
+              style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: "clamp(2.5rem, 5vw, 5rem)",
+                lineHeight: 1,
+                letterSpacing: "0.02em",
+              }}
+            >
+              What Clients Say
+            </h2>
           </div>
-          <h2 className="mt-4 font-display text-5xl leading-[0.9] md:text-7xl">
-            TESTIMONIALS
-          </h2>
-          <div className="mx-auto mt-6 h-px w-24 bg-imperium" />
-          <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
-            Hear from the businesses we've transformed across Nigeria and beyond.
-          </p>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2">
-          {isLoading &&
-            Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-64 animate-pulse bg-card" />
-            ))}
-          {items?.map((t) => (
-            <figure
-              key={t.id}
-              className="group relative border border-border/60 bg-card p-8 transition-all duration-300 hover:border-imperium hover:shadow-[0_0_40px_-10px_var(--imperium)] hover:-translate-y-1"
-            >
-              <Quote className="absolute right-6 top-6 h-8 w-8 text-imperium/30" strokeWidth={1.5} />
-
-              <div className="flex items-center gap-4">
-                <img
-                  src={t.avatar_url ?? `https://i.pravatar.cc/200?u=${encodeURIComponent(t.name)}`}
-                  alt={t.name}
-                  loading="lazy"
-                  className="h-14 w-14 rounded-full border border-border object-cover"
-                />
-                <div>
-                  <div className="font-display text-lg">{t.name}</div>
-                  <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                    {t.role}, {t.company}
+        <div className="overflow-hidden">
+          <div
+            className="flex gap-8 transition-transform duration-700"
+            style={{ transform: `translateX(calc(${-index} * (min(500px, 100%) + 2rem)))` }}
+          >
+            {list.map((t) => (
+              <figure
+                key={t.id}
+                className="relative w-full flex-shrink-0 border p-10 md:w-[500px]"
+                style={{
+                  borderColor: "var(--ci-border)",
+                  background: "var(--ci-card)",
+                  minWidth: "min(500px, 100%)",
+                }}
+              >
+                <span
+                  className="absolute top-4 left-8 opacity-40"
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: "5rem",
+                    color: "var(--imperium)",
+                    lineHeight: 1,
+                  }}
+                >
+                  &ldquo;
+                </span>
+                <blockquote
+                  className="mt-6 italic leading-[1.8]"
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: "1.1rem",
+                    fontWeight: 300,
+                    color: "var(--ci-light-gray)",
+                  }}
+                >
+                  "{t.quote}"
+                </blockquote>
+                <figcaption
+                  className="mt-8 flex items-center gap-4 border-t pt-6"
+                  style={{ borderColor: "var(--ci-border)" }}
+                >
+                  <div
+                    className="flex h-11 w-11 items-center justify-center rounded-full border"
+                    style={{
+                      background: "var(--ci-gold-dim)",
+                      borderColor: "var(--ci-border)",
+                      color: "var(--imperium)",
+                      fontFamily: "'Bebas Neue', sans-serif",
+                    }}
+                  >
+                    {t.name.charAt(0)}
                   </div>
-                </div>
-              </div>
+                  <div>
+                    <div className="text-sm font-semibold">{t.name}</div>
+                    <div className="text-xs text-imperium">
+                      {t.company ? `${t.company}` : ""}
+                      {t.role ? ` — ${t.role}` : ""}
+                    </div>
+                  </div>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
 
-              <div className="mt-5 flex gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    className={
-                      i < t.rating
-                        ? "h-4 w-4 fill-imperium text-imperium"
-                        : "h-4 w-4 text-muted-foreground/40"
-                    }
-                  />
-                ))}
-              </div>
-
-              <blockquote className="mt-5 text-base italic leading-relaxed text-foreground/90">
-                "{t.quote}"
-              </blockquote>
-            </figure>
-          ))}
+        <div className="mt-12 flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => go(index - 1)}
+            aria-label="Previous"
+            className="ci-t-nav flex h-11 w-11 items-center justify-center border text-lg transition-all"
+            style={{ borderColor: "var(--ci-border)" }}
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            onClick={() => go(index + 1)}
+            aria-label="Next"
+            className="ci-t-nav flex h-11 w-11 items-center justify-center border text-lg transition-all"
+            style={{ borderColor: "var(--ci-border)" }}
+          >
+            →
+          </button>
+          <div className="ml-4 flex gap-2">
+            {list.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Go to testimonial ${i + 1}`}
+                onClick={() => setIndex(i)}
+                className="h-0.5 cursor-pointer transition-all"
+                style={{
+                  width: i === index ? 40 : 20,
+                  background: i === index ? "var(--imperium)" : "var(--ci-border)",
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
