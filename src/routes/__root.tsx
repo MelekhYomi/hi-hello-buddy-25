@@ -142,6 +142,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CartProvider>
+          <CustomCursor />
           <TrackerHost />
           <Outlet />
           <CartDrawer />
