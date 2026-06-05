@@ -116,7 +116,11 @@ export function AboutSection() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
+            Character · Competence · Capacity
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+
             {VALUES.map((v, i) => (
               <div
                 key={v}

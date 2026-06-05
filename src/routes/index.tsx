@@ -10,6 +10,7 @@ import { ProcessSection } from "@/components/process-section";
 import { PortfolioSection } from "@/components/portfolio-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { BlogSection } from "@/components/blog-section";
+import { WhySection } from "@/components/why-section";
 import { BookingSection } from "@/components/booking-section";
 import { ContactSection } from "@/components/contact-section";
 
@@ -46,6 +47,7 @@ function HomePage() {
         <ServicesSection />
         <ProcessSection />
         <PortfolioSection />
+        <WhySection />
         <TestimonialsSection />
         <BlogSection />
         <BookingSection />
