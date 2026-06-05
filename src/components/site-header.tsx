@@ -40,11 +40,12 @@ export function SiteHeader() {
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/75 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link to="/" className="flex items-center gap-2 group">
-          <span className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-1 ring-imperium/40 transition-all group-hover:ring-imperium">
+          <span className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden bg-transparent">
             <img
               src={logo}
               alt="C Imperium"
               className="h-full w-full object-cover"
+              style={{ mixBlendMode: "lighten" }}
             />
           </span>
         </Link>
