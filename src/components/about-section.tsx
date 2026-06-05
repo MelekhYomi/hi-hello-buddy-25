@@ -1,3 +1,5 @@
+import studioPhoto from "@/assets/studio-photo.jpg";
+
 const VALUES = [
   "Excellence",
   "Creativity",
@@ -5,6 +7,7 @@ const VALUES = [
   "Innovation",
   "Reliability",
   "Strategic Thinking",
+  "Premium Presentation",
 ];
 
 export function AboutSection() {
@@ -24,16 +27,14 @@ export function AboutSection() {
               borderColor: "var(--ci-border)",
             }}
           >
-            <div
-              className="flex h-full w-full flex-col items-center justify-center gap-4 italic"
-              style={{
-                color: "var(--ci-gray)",
-                fontFamily: "'Cormorant Garamond', serif",
-              }}
-            >
-              <span className="text-3xl opacity-30">◆</span>
-              <span>Insert brand / studio photo here</span>
-            </div>
+            <img
+              src={studioPhoto}
+              alt="C Imperium branding and printing studio in Nigeria"
+              loading="lazy"
+              width={896}
+              height={1184}
+              className="h-full w-full object-cover"
+            />
           </div>
           {/* Accent square */}
           <div
@@ -115,7 +116,11 @@ export function AboutSection() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
+            Character · Competence · Capacity
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+
             {VALUES.map((v, i) => (
               <div
                 key={v}
