@@ -1,31 +1,23 @@
-const POSTS = [
-  {
-    tag: "Branding",
-    date: "May 2026",
-    read: "5 min read",
-    title: "Why Your Logo Is Not Your Brand",
-    excerpt:
-      "Most businesses mistake their logo for their brand identity. Here's what true brand transformation actually means — and why it matters for your growth.",
-  },
-  {
-    tag: "Strategy",
-    date: "April 2026",
-    read: "7 min read",
-    title: "The Psychology of Colour in Brand Identity",
-    excerpt:
-      "Colour is one of the most powerful tools in a brand's arsenal. Discover how the right palette can shape perception, build trust, and drive buying decisions.",
-  },
-  {
-    tag: "Growth",
-    date: "March 2026",
-    read: "6 min read",
-    title: "5 Signs It's Time to Rebrand Your Business",
-    excerpt:
-      "Is your brand still working for you? These five indicators will tell you when a strategic rebrand isn't just an option — it's a necessity.",
-  },
-];
+import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
 
 export function BlogSection() {
+  const { data: posts } = useQuery({
+    queryKey: ["blog-posts-home"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("id, slug, title, excerpt, cover_image, tags, published_at, created_at")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false, nullsFirst: false })
+        .limit(3);
+      if (error) throw error;
+      return data;
+    },
+  });
+
   return (
     <section
       id="blog"
@@ -36,80 +28,60 @@ export function BlogSection() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <div className="ci-section-label">Branding Insights</div>
-            <h2
-              className="mt-4"
-              style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: "clamp(2.5rem, 5vw, 5rem)",
-                lineHeight: 1,
-                letterSpacing: "0.02em",
-              }}
-            >
+            <h2 className="mt-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.5rem, 5vw, 5rem)", lineHeight: 1, letterSpacing: "0.02em" }}>
               From The Studio
             </h2>
           </div>
+          <Link to="/blog" className="font-mono text-[11px] uppercase tracking-[0.25em] text-imperium hover:underline">
+            View all posts →
+          </Link>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {POSTS.map((p) => (
-            <article
-              key={p.title}
-              className="ci-blog-card group cursor-pointer overflow-hidden border transition-all"
-              style={{
-                background: "var(--ci-dark)",
-                borderColor: "var(--ci-border)",
-              }}
-            >
-              <div
-                className="relative flex aspect-video items-center justify-center overflow-hidden"
-                style={{ background: "var(--ci-charcoal)" }}
+        {(!posts || posts.length === 0) && (
+          <p className="mt-12 text-sm italic" style={{ color: "var(--ci-gray)", fontFamily: "'Cormorant Garamond', serif" }}>
+            New insights coming soon. Check back shortly.
+          </p>
+        )}
+
+        <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {posts?.map((p) => {
+            const tag = p.tags?.[0] ?? "Insights";
+            const dateStr = format(new Date(p.published_at ?? p.created_at), "MMM yyyy");
+            return (
+              <Link
+                key={p.id}
+                to="/blog/$slug"
+                params={{ slug: p.slug }}
+                className="ci-blog-card group overflow-hidden border transition-all"
+                style={{ background: "var(--ci-dark)", borderColor: "var(--ci-border)" }}
               >
-                <span
-                  className="px-4 text-center text-sm italic"
-                  style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    color: "var(--ci-gray)",
-                  }}
-                >
-                  Insert article cover image
-                </span>
-                <span
-                  className="absolute bottom-3 left-3 px-3 py-1 text-[0.6rem] font-bold uppercase tracking-[0.12em]"
-                  style={{
-                    background: "var(--imperium)",
-                    color: "var(--ci-black)",
-                  }}
-                >
-                  {p.tag}
-                </span>
-              </div>
-              <div className="p-8">
-                <div className="mb-3 text-[0.7rem] uppercase tracking-[0.12em] text-imperium">
-                  {p.date} · {p.read}
+                <div className="relative flex aspect-video items-center justify-center overflow-hidden" style={{ background: "var(--ci-charcoal)" }}>
+                  {p.cover_image ? (
+                    <img src={p.cover_image} alt={p.title} loading="lazy" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="px-4 text-center text-sm italic" style={{ fontFamily: "'Cormorant Garamond', serif", color: "var(--ci-gray)" }}>
+                      {p.title}
+                    </span>
+                  )}
+                  <span className="absolute bottom-3 left-3 px-3 py-1 text-[0.6rem] font-bold uppercase tracking-[0.12em]" style={{ background: "var(--imperium)", color: "var(--ci-black)" }}>
+                    {tag}
+                  </span>
                 </div>
-                <h3
-                  className="mb-4 transition-colors group-hover:text-imperium"
-                  style={{
-                    fontFamily: "'Bebas Neue', sans-serif",
-                    fontSize: "1.4rem",
-                    letterSpacing: "0.03em",
-                    lineHeight: 1.2,
-                  }}
-                >
-                  {p.title}
-                </h3>
-                <p
-                  className="text-sm leading-[1.7]"
-                  style={{ color: "var(--ci-gray)" }}
-                >
-                  {p.excerpt}
-                </p>
-                <span className="mt-6 inline-flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-imperium transition-all group-hover:gap-3">
-                  Read More →
-                </span>
-              </div>
-            </article>
-          ))}
+                <div className="p-8">
+                  <div className="mb-3 text-[0.7rem] uppercase tracking-[0.12em] text-imperium">{dateStr}</div>
+                  <h3 className="mb-4 transition-colors group-hover:text-imperium" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.03em", lineHeight: 1.2 }}>
+                    {p.title}
+                  </h3>
+                  {p.excerpt && (
+                    <p className="text-sm leading-[1.7]" style={{ color: "var(--ci-gray)" }}>{p.excerpt}</p>
+                  )}
+                  <span className="mt-6 inline-flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-imperium transition-all group-hover:gap-3">
+                    Read More →
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
