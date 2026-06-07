@@ -566,7 +566,7 @@ function SettingsAdmin() {
     if (asJson) {
       try { value = JSON.parse(raw); } catch { toast.error(`${key}: invalid JSON`); return; }
     }
-    const { error } = await supabase.from("site_settings").upsert({ key, value }, { onConflict: "key" });
+    const { error } = await supabase.from("site_settings").upsert({ key, value: value as never }, { onConflict: "key" });
     if (error) toast.error(error.message);
     else { toast.success(`${key} saved`); qc.invalidateQueries({ queryKey: ["admin-settings"] }); qc.invalidateQueries({ queryKey: ["site-settings"] }); setDraft((d) => { const n = { ...d }; delete n[key]; return n; }); }
   };
