@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useCart, formatNaira } from "@/lib/cart-context";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { useSiteSettings, cleanWaNumber } from "@/lib/site-settings";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({
@@ -33,6 +34,7 @@ function CheckoutPage() {
   const { user } = useAuth();
   const { items, subtotal, clear } = useCart();
   const navigate = useNavigate();
+  const { data: settings } = useSiteSettings();
 
   const [name, setName] = useState(user?.user_metadata?.display_name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
@@ -137,7 +139,7 @@ function CheckoutPage() {
         `Email: ${email}`,
         notes ? `\nNotes: ${notes}` : "",
       ].filter(Boolean).join("\n");
-      const waNumber = "2348038577654"; // TODO: replace with C Imperium WhatsApp number
+      const waNumber = cleanWaNumber(settings?.whatsapp_number) || "2348038577654";
       const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(lines)}`;
       clear();
       window.open(url, "_blank");

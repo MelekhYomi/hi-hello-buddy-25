@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      blog_posts: {
+        Row: {
+          author: string | null
+          body: string
+          cover_image: string | null
+          created_at: string
+          display_order: number
+          excerpt: string | null
+          id: string
+          is_published: boolean
+          published_at: string | null
+          slug: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string | null
+          body?: string
+          cover_image?: string | null
+          created_at?: string
+          display_order?: number
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          slug: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string | null
+          body?: string
+          cover_image?: string | null
+          created_at?: string
+          display_order?: number
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          slug?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           company: string | null
@@ -506,6 +554,51 @@ export type Database = {
           slug?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      studio_images: {
+        Row: {
+          alt: string | null
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          url: string
+        }
+        Insert: {
+          alt?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          url: string
+        }
+        Update: {
+          alt?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          url?: string
         }
         Relationships: []
       }
