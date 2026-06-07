@@ -408,6 +408,243 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <div className="bg-card p-12 text-center font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{children}</div>;
 }
 
+// ===== Blog admin =====
+interface BlogRow {
+  id: string; slug: string; title: string; excerpt: string | null;
+  cover_image: string | null; body: string; author: string | null;
+  tags: string[]; is_published: boolean; display_order: number;
+  published_at: string | null;
+}
+
+function BlogAdmin() {
+  const qc = useQueryClient();
+  const { data: posts } = useQuery({
+    queryKey: ["admin-blog"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("blog_posts").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as BlogRow[];
+    },
+  });
+  const [editing, setEditing] = useState<BlogRow | null>(null);
+  const [creating, setCreating] = useState(false);
+
+  const remove = async (id: string) => {
+    if (!confirm("Delete this post?")) return;
+    const { error } = await supabase.from("blog_posts").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-blog"] }); }
+  };
+
+  return (
+    <div className="mt-8">
+      <div className="mb-4 flex justify-end">
+        <button onClick={() => setCreating(true)} className="inline-flex items-center gap-2 border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston">
+          <Plus className="h-3 w-3" /> New post
+        </button>
+      </div>
+      <div className="space-y-px bg-border/40">
+        {(!posts || posts.length === 0) && <Empty>No posts yet</Empty>}
+        {posts?.map((p) => (
+          <article key={p.id} className="bg-card p-5">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
+              <div className="md:col-span-1">
+                {p.cover_image && <img src={p.cover_image} alt={p.title} className="aspect-square w-full rounded object-cover" />}
+              </div>
+              <div className="md:col-span-7">
+                <div className="font-display text-lg">{p.title}</div>
+                <div className="font-mono text-[10px] text-muted-foreground">/blog/{p.slug}</div>
+                {p.excerpt && <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{p.excerpt}</p>}
+              </div>
+              <div className="md:col-span-2 font-mono text-[11px] text-muted-foreground">
+                {p.is_published ? <span className="text-imperium">Published</span> : "Draft"}
+                {p.tags?.[0] && <div>#{p.tags[0]}</div>}
+              </div>
+              <div className="flex flex-col items-start gap-2 md:col-span-2 md:items-end">
+                <button onClick={() => setEditing(p)} className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"><Pencil className="h-3 w-3" /> Edit</button>
+                <button onClick={() => remove(p.id)} className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-imperium"><Trash2 className="h-3 w-3" /> Delete</button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+      {(editing || creating) && (
+        <BlogForm
+          initial={editing}
+          onClose={() => { setEditing(null); setCreating(false); }}
+          onSaved={() => { setEditing(null); setCreating(false); qc.invalidateQueries({ queryKey: ["admin-blog"] }); qc.invalidateQueries({ queryKey: ["blog-posts-home"] }); qc.invalidateQueries({ queryKey: ["blog-posts-all"] }); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function BlogForm({ initial, onClose, onSaved }: { initial: BlogRow | null; onClose: () => void; onSaved: () => void }) {
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [slug, setSlug] = useState(initial?.slug ?? "");
+  const [excerpt, setExcerpt] = useState(initial?.excerpt ?? "");
+  const [cover, setCover] = useState(initial?.cover_image ?? "");
+  const [body, setBody] = useState(initial?.body ?? "");
+  const [author, setAuthor] = useState(initial?.author ?? "C Imperium");
+  const [tags, setTags] = useState((initial?.tags ?? []).join(", "));
+  const [isPublished, setIsPublished] = useState(initial?.is_published ?? false);
+  const [busy, setBusy] = useState(false);
+
+  const save = async () => {
+    if (!title.trim() || !slug.trim()) return toast.error("Title and slug required");
+    setBusy(true);
+    const payload = {
+      title: title.trim(),
+      slug: slug.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+      excerpt: excerpt || null,
+      cover_image: cover || null,
+      body,
+      author: author || null,
+      tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
+      is_published: isPublished,
+      published_at: isPublished ? (initial?.published_at ?? new Date().toISOString()) : null,
+    };
+    const q = initial
+      ? supabase.from("blog_posts").update(payload).eq("id", initial.id)
+      : supabase.from("blog_posts").insert(payload);
+    const { error } = await q;
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else { toast.success(initial ? "Updated" : "Created"); onSaved(); }
+  };
+
+  const inp = "w-full rounded border border-border bg-card px-3 py-2 text-sm outline-none focus:border-imperium";
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur" onClick={onClose}>
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg border border-border bg-card p-6" onClick={(e) => e.stopPropagation()}>
+        <h3 className="font-display text-2xl">{initial ? "Edit post" : "New post"}</h3>
+        <div className="mt-5 space-y-3">
+          <input className={inp} placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <input className={inp} placeholder="slug-like-this" value={slug} onChange={(e) => setSlug(e.target.value)} />
+          <textarea className={`${inp} resize-none`} rows={2} placeholder="Short excerpt (1–2 sentences)" value={excerpt ?? ""} onChange={(e) => setExcerpt(e.target.value)} />
+          <input className={inp} placeholder="Cover image URL" value={cover ?? ""} onChange={(e) => setCover(e.target.value)} />
+          <textarea className={`${inp} resize-none`} rows={10} placeholder="Article body (plain text, line breaks preserved)" value={body} onChange={(e) => setBody(e.target.value)} />
+          <div className="grid grid-cols-2 gap-3">
+            <input className={inp} placeholder="Author" value={author ?? ""} onChange={(e) => setAuthor(e.target.value)} />
+            <input className={inp} placeholder="Tags (comma separated)" value={tags} onChange={(e) => setTags(e.target.value)} />
+          </div>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} /> Published</label>
+        </div>
+        <div className="mt-6 flex justify-end gap-3">
+          <button onClick={onClose} className="border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em]">Cancel</button>
+          <button onClick={save} disabled={busy} className="border border-imperium bg-imperium px-5 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-charleston disabled:opacity-50">{busy ? "Saving…" : "Save"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== Settings admin (site_settings key/value rows) =====
+function SettingsAdmin() {
+  const qc = useQueryClient();
+  const { data: rows } = useQuery({
+    queryKey: ["admin-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("site_settings").select("*").order("key");
+      if (error) throw error;
+      return data as { key: string; value: unknown }[];
+    },
+  });
+  const [draft, setDraft] = useState<Record<string, string>>({});
+
+  const get = (k: string) => {
+    if (draft[k] !== undefined) return draft[k];
+    const r = rows?.find((x) => x.key === k);
+    if (!r) return "";
+    return typeof r.value === "string" ? r.value : JSON.stringify(r.value);
+  };
+  const set = (k: string, v: string) => setDraft((d) => ({ ...d, [k]: v }));
+
+  const save = async (key: string, asJson: boolean) => {
+    const raw = get(key);
+    let value: unknown = raw;
+    if (asJson) {
+      try { value = JSON.parse(raw); } catch { toast.error(`${key}: invalid JSON`); return; }
+    }
+    const { error } = await supabase.from("site_settings").upsert({ key, value }, { onConflict: "key" });
+    if (error) toast.error(error.message);
+    else { toast.success(`${key} saved`); qc.invalidateQueries({ queryKey: ["admin-settings"] }); qc.invalidateQueries({ queryKey: ["site-settings"] }); setDraft((d) => { const n = { ...d }; delete n[key]; return n; }); }
+  };
+
+  const inp = "w-full rounded border border-border bg-card px-3 py-2 text-sm outline-none focus:border-imperium";
+
+  return (
+    <div className="mt-8 space-y-6">
+      <Field label="WhatsApp orders number" hint="International format, e.g. +2348038577654">
+        <div className="flex gap-2">
+          <input className={inp} value={get("whatsapp_number").replace(/^"|"$/g, "")} onChange={(e) => set("whatsapp_number", JSON.stringify(e.target.value))} />
+          <SaveBtn onClick={() => save("whatsapp_number", true)} />
+        </div>
+      </Field>
+
+      <Field label="Contact email">
+        <div className="flex gap-2">
+          <input className={inp} value={get("contact_email").replace(/^"|"$/g, "")} onChange={(e) => set("contact_email", JSON.stringify(e.target.value))} />
+          <SaveBtn onClick={() => save("contact_email", true)} />
+        </div>
+      </Field>
+
+      <Field label="Payment provider" hint="paystack · flutterwave · manual · off">
+        <div className="flex gap-2">
+          <select className={inp} value={get("payment_provider").replace(/^"|"$/g, "")} onChange={(e) => set("payment_provider", JSON.stringify(e.target.value))}>
+            {["paystack","flutterwave","manual","off"].map((o) => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <SaveBtn onClick={() => save("payment_provider", true)} />
+        </div>
+      </Field>
+
+      <Field label="Payment mode" hint="test or live">
+        <div className="flex gap-2">
+          <select className={inp} value={get("payment_mode").replace(/^"|"$/g, "")} onChange={(e) => set("payment_mode", JSON.stringify(e.target.value))}>
+            {["test","live"].map((o) => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <SaveBtn onClick={() => save("payment_mode", true)} />
+        </div>
+      </Field>
+
+      <Field label="Socials (JSON)" hint='e.g. {"instagram":"https://...","linkedin":"...","behance":"..."}'>
+        <textarea className={`${inp} resize-none font-mono text-xs`} rows={4} value={get("socials")} onChange={(e) => set("socials", e.target.value)} />
+        <SaveBtn onClick={() => save("socials", true)} className="mt-2" />
+      </Field>
+
+      <Field label="Hero section (JSON)" hint='Eyebrow, headline lines and subline'>
+        <textarea className={`${inp} resize-none font-mono text-xs`} rows={8} value={get("hero")} onChange={(e) => set("hero", e.target.value)} />
+        <SaveBtn onClick={() => save("hero", true)} className="mt-2" />
+      </Field>
+
+      <div className="rounded-md border border-border/60 bg-card p-5">
+        <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-imperium">Live API keys</div>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Payment provider secret keys (Paystack/Flutterwave) are stored in the secured Secrets vault — not in this table — and never reach the browser. Once provided, this admin panel toggles between test and live mode above. To rotate the keys, use Project → Secrets.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">{label}</div>
+      {hint && <div className="text-[11px] text-muted-foreground/70">{hint}</div>}
+      <div className="mt-2">{children}</div>
+    </div>
+  );
+}
+
+function SaveBtn({ onClick, className }: { onClick: () => void; className?: string }) {
+  return (
+    <button onClick={onClick} className={cn("shrink-0 border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston", className)}>
+      Save
+    </button>
+  );
+}
+
 function Stat({ label, value, sub, accent }: { label: string; value: number; sub?: string; accent?: boolean }) {
   return (
     <div className="bg-card p-5">
