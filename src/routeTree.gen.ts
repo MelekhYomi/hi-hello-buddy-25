@@ -25,6 +25,7 @@ import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/_admin'
+import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
 import { Route as AuthenticatedAdminAdminRouteImport } from './routes/_authenticated/_admin/admin'
 
 const StaffLoginRoute = StaffLoginRouteImport.update({
@@ -105,6 +106,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/_admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const ApiPublicPaystackWebhookRoute =
+  ApiPublicPaystackWebhookRouteImport.update({
+    id: '/api/public/paystack-webhook',
+    path: '/api/public/paystack-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAdminAdminRoute = AuthenticatedAdminAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -127,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
+  '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -144,6 +152,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
+  '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -164,6 +173,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/_authenticated/_admin/admin': typeof AuthenticatedAdminAdminRoute
+  '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/shop/$slug'
     | '/admin'
+    | '/api/public/paystack-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/shop/$slug'
     | '/admin'
+    | '/api/public/paystack-webhook'
   id:
     | '__root__'
     | '/'
@@ -219,6 +231,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/shop/$slug'
     | '/_authenticated/_admin/admin'
+    | '/api/public/paystack-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -234,6 +247,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StaffLoginRoute: typeof StaffLoginRoute
+  ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -350,6 +364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/paystack-webhook': {
+      id: '/api/public/paystack-webhook'
+      path: '/api/public/paystack-webhook'
+      fullPath: '/api/public/paystack-webhook'
+      preLoaderRoute: typeof ApiPublicPaystackWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/_admin/admin': {
       id: '/_authenticated/_admin/admin'
       path: '/admin'
@@ -418,17 +439,8 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StaffLoginRoute: StaffLoginRoute,
+  ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
