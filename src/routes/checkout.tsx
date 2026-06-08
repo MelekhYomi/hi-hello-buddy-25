@@ -148,10 +148,12 @@ function CheckoutPage() {
     }
 
     if (payMethod === "online") {
+      try { localStorage.setItem("ci_checkout_email", email); } catch { /* ignore */ }
       clear();
       navigate({ to: "/checkout-pay", search: { id: orderId, amount: total } });
       return;
     }
+
 
     toast.success("Order received! We'll be in touch shortly.");
     clear();
