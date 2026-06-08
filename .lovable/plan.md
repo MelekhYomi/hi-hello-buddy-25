@@ -1,86 +1,108 @@
+# Build Plan — C Imperium: Paystack, Full Admin CMS, Client Portal, Deploy Hardening
 
-# C Imperium — Pre-deployment Build Plan
-
-A lot of moving parts. I'll group the work into 5 phases so you can see (and stop) anything before we commit.
-
----
-
-## Phase 1 — Content updates you can see immediately
-(No backend changes; pure copy + image swaps so the site reflects the new agency-profile content.)
-
-1. **Logo swap (top-left)** — use the new transparent PNG you just uploaded (`CIMPERIUM_jpg_1_-_Copy-removebg-preview.png`). Replace the existing mark, drop `mix-blend-mode`, no background, no rounding.
-2. **Process section** — extend from 2 → 5 steps:
-   `01 Discovery · 02 Proposal · 03 Agreement · 04 Execution · 05 Delivery` with your exact copy.
-3. **Who We Are / About** — replace with the new "Brand Transformation company…" copy + brand promise: *"We help brands become impossible to ignore."*
-4. **Core Values** — add "Character · Competence · Capacity" tagline + 7 values list.
-5. **Services** — 6 cards: Brand Identity, Print & Packaging, Social Media, Web Development, Brand Strategy, Outdoor & Campaign.
-6. **Pricing strip** — show the price overview block + the rush-job disclaimer.
-7. **Partnership Terms** — new small section: Payment Structure, No-Refund, Revisions, Timelines & Rush Fees.
-8. **Why C Imperium** — 5 numbered reasons.
-9. **Testimonials** — seed with the Zenith Bank quote.
-10. **Studio photo placeholder** — generate a Nigerian branding/print studio image and drop it where "Insert brand / studio photo here" currently sits.
+This is a large multi-phase build. I'll execute in order, ship each phase, and confirm before moving on.
 
 ---
 
-## Phase 2 — Backend-managed content (the big one)
+## Phase A — Deploy hardening (Netlify + Vercel + GitHub)
 
-Make the following editable from the **Admin panel** (`/admin`), so non-devs can change copy/images without redeploying:
+Goal: zero deploy errors from either host. Project is built for Cloudflare Workers (SSR + server functions); Netlify/Vercel will run as **SPA fallback** (server functions won't execute there — only Lovable Cloud / Workers does). I'll make that explicit and safe.
 
-| Section | Model |
-|---|---|
-| Site settings (logo, nav labels, footer, socials, hero headline/sub/CTA, brand promise) | `site_settings` (single row, key/value JSON) |
-| Who We Are / About | `about_content` |
-| Studio gallery (slideshow under "Insert studio photo") | `studio_images` (ordered, image URLs) |
-| Services (already in DB — extend admin CRUD) | `services` |
-| Products / Collections (already in DB — extend admin CRUD) | `products` |
-| Projects / Portfolio | `projects` (already exists — extend admin) |
-| Client stories / Testimonials | `testimonials` (extend admin CRUD) |
-| Branding insights (Blog) | `blog_posts` (new: title, slug, cover, body, published_at) |
-| Process steps | `process_steps` |
-| Core values | `core_values` |
-| Pricing rows | `pricing_items` |
-| Partnership terms | `partnership_terms` |
-| Why-us reasons | `why_reasons` |
-| Cart/payment/delivery config (Stripe keys, WhatsApp number, delivery zones & fees, COD toggle) | `commerce_settings` (admin-only read/write) |
-
-Storage bucket `site-media` for image uploads from admin.
-
-Each table: RLS — public read for published rows, admin/staff write via `has_role(auth.uid(),'admin'|'staff')`.
+- Verify `netlify.toml` (already exists, SPA redirect set) — add `[build.environment] NODE_VERSION = "20"`.
+- Replace `vercel.json` with a clean SPA rewrite config + Node 20.
+- Add `public/_redirects` fallback (already present — verify `/* /index.html 200`).
+- Add `DEPLOYMENT.md` at repo root explaining: Lovable Publish = full SSR; Netlify/Vercel = SPA only (server fns, sitemap, /api/* routes won't run there). Lists env vars needed.
+- Add `.nvmrc` (`20`) so GitHub-driven deploys pin Node.
+- Confirm `package.json` build command works headless.
 
 ---
 
-## Phase 3 — Cart, checkout & payments
+## Phase B — Paystack integration (test + live, admin-controlled)
 
-1. Fix the RLS "new row violates row-level security policy for table orders" — ensure anon/auth insert policy matches the actual `user_id` column (null-friendly for guest checkout).
-2. **Delivery methods** read from `commerce_settings.delivery_zones` (Lagos / Abuja / Jos / Nationwide with fees). Admin-editable.
-3. **WhatsApp checkout** — compose order summary message → `https://wa.me/<configured number>?text=…`. Number editable from admin.
-4. **Online payment** — wire real Stripe (test mode). Server route `/api/public/stripe-webhook` confirms `payment_status=paid`. Keys (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY`, mode toggle test/live) stored as secrets — admin toggles mode in `commerce_settings`; rotating actual keys still happens through the Secrets UI (keys can never be exposed to the browser).
-5. Order confirmation email/WhatsApp link on success.
-
-> Note: Lovable's seamless Stripe Payments integration is the recommended path here. Want me to enable that (no Stripe account/keys needed, test mode immediately) instead of BYOK? I'll ask before flipping the switch.
-
----
-
-## Phase 4 — PWA, mobile nav, deployment
-
-1. **Mobile nav** — current header collapses but has no menu. Add a flexbox hamburger drawer (anchors + cart + Book CTA + sign-in/dashboard).
-2. **PWA install validation** — verify `manifest.webmanifest`, icons (192/512), `theme-color`, `apple-touch-icon`, `display:standalone`, `start_url=/`. Test "Add to Home Screen" on iOS/Android.
-3. **Blog nav** — currently scrolls to `#blog` anchor. Verify the section exists and the in-page link works; add a `/blog` route only if you want full posts (Phase 2 builds the data model).
-4. **Cursor** — already global; quick sanity pass on `/admin`, `/checkout`, `/login`.
-5. **Netlify deployment smoke test** — build, check `_redirects`, manifest headers, run `vite build`, browse preview to verify no 404s on refresh, no SSR-only crashes.
+- DB migration: extend `site_settings` seeds — `paystack` key with `{ public_key_test, public_key_live, mode: 'test'|'live' }`. **Secret keys NEVER in DB** — kept in Lovable Cloud secrets.
+- Add secrets: `PAYSTACK_SECRET_KEY_TEST`, `PAYSTACK_SECRET_KEY_LIVE`, `PAYSTACK_WEBHOOK_SECRET` via `secrets--add_secret` (user enters values).
+- Server fn `initPaystackTransaction` (`src/lib/paystack.functions.ts`) — creates Paystack transaction, returns `authorization_url`. Reads mode from `site_settings`, picks the right secret key.
+- Server fn `verifyPaystackTransaction` — verifies ref, updates `orders.payment_status='paid'`, decrements stock.
+- Public webhook route `src/routes/api/public/paystack-webhook.ts` — HMAC-SHA512 signature verify, idempotent order update.
+- Wire `checkout-pay.tsx` to call `initPaystackTransaction` → redirect to `authorization_url`.
+- `order-success.tsx` calls `verifyPaystackTransaction` with `?reference=...` from Paystack callback.
 
 ---
 
-## Phase 5 — Open questions before I start
+## Phase C — Full Admin CMS expansion
 
-1. **Stripe path** — seamless Lovable Payments (recommended, no account needed) OR your own Stripe keys (BYOK)?
-2. **Blog** — full `/blog` + `/blog/:slug` routes now, or just an editable in-page section for this release?
-3. **Studio gallery image** — should I AI-generate a Nigerian print-studio photo as the placeholder, or do you have real photos to upload?
-4. **WhatsApp number** — what's the destination number for orders?
+Extend `src/routes/_authenticated/_admin/admin.tsx` with tabs (each = CRUD form backed by existing tables):
+
+1. **Services** — title, description, icon, price_min/max, features[], display_order, is_active.
+2. **Products** — title, slug, description, price, compare_at_price, images[] (upload to `site-media`), stock, category, is_featured, is_active.
+3. **Categories** — name, slug, order.
+4. **Case Studies / Projects** — client, industry, title, slug, cover, challenge, solution, results, gallery[], is_featured.
+5. **Testimonials** — name, role, company, quote, rating, avatar, order.
+6. **Studio Images** — upload + reorder + toggle active (powers About section gallery).
+7. **Delivery Zones** — name, fee, eta, free_above, is_active.
+8. **Blog** — (already done — keep).
+9. **Settings expansion**:
+   - WhatsApp number + bot link template
+   - Paystack: mode toggle (test/live) + public keys (writeable). Secret keys: read-only status indicator ("configured ✓" / "missing — add in Cloud Secrets").
+   - Contact email, socials JSON
+   - Hero copy JSON
+   - Process steps (editable array)
+   - Why-us reasons (editable array)
+   - About copy + values list
+   - Footer copy
+10. **Orders** tab — view all orders, update `status` / `delivery_status` / mark paid.
+11. **Bookings** tab — view consultation bookings, status update.
+12. **Contacts / Leads** — read inbox, mark read.
+
+Storage: create public `site-media` bucket with RLS (anyone read, admin/staff write). Image picker component reused everywhere.
+
+Frontend sections (Hero, Process, Why, About, Footer) rewired to read from `site_settings` with sensible fallbacks so nothing breaks if a key is missing.
 
 ---
 
-## Suggested execution order
-Phase 1 (today) → Phase 5 answers → Phase 2 migrations + admin UI → Phase 3 cart/payments → Phase 4 PWA + deploy smoke test.
+## Phase D — Auth: admin & client portal
 
-Approve to start with Phase 1 + the 4 questions above, or tell me to re-shape any phase.
+- **Admin login hardening**: existing `/staff-login` works. Add password-reset flow (already have `/reset-password` route — wire "Forgot password?" link).
+- **Email OTP** for admin: enable Supabase magic-link as backup admin sign-in (`/staff-login` adds "Email me a sign-in link"). SMS/WhatsApp OTP requires a paid Twilio/Termii setup — I'll **note** this and leave a config slot in admin → settings, but won't wire third-party SMS until you supply credentials.
+- **Client portal** (new routes under `_authenticated/`):
+  - `/account` — profile (display name, phone, address)
+  - `/account/orders` — order history (already partly via `orders` RLS scoped to `user_id`)
+  - `/account/bookings` — past consultations
+  - Header: when logged-in customer, show "My Account" instead of "Sign in"
+- **Signup flow** at `/signup` already exists — add email verification copy + Google OAuth button (uses Lovable broker).
+- Configure Google social auth via `supabase--configure_social_auth` once you confirm.
+
+---
+
+## Phase E — End-to-end QA
+
+- Run security scan + Supabase linter, fix any new warnings from migrations.
+- Click-test: cart → checkout → Paystack test card → success page → order in admin.
+- WhatsApp checkout path still works (reads number from settings).
+- Mobile nav + PWA install verified.
+- Blog nav verified.
+- Cursor visible everywhere including admin.
+
+---
+
+## What I need from you (blocking items)
+
+1. **Paystack keys** — when I reach Phase B, I'll trigger the secrets dialog for `PAYSTACK_SECRET_KEY_TEST`, `PAYSTACK_SECRET_KEY_LIVE`, `PAYSTACK_WEBHOOK_SECRET`. Public keys (`pk_test_…`, `pk_live_…`) you can paste into Admin → Settings after deploy.
+2. **Google OAuth** — confirm you want it enabled for customer signup (recommended).
+3. **SMS/WhatsApp OTP** — confirm you want this; if yes I'll add a Termii or Twilio connector slot. Otherwise email-link OTP only for now.
+4. **Studio gallery photos** — you said you'd upload yourself; the new admin Studio Images tab will let you do that.
+
+---
+
+## Execution order
+
+I'll ship in this sequence, posting one update per phase so you can sanity-check:
+
+1. **Phase A** (deploy hardening) — small, fast.
+2. **Phase C migrations + storage bucket** (no breaking changes; everything reads with fallbacks).
+3. **Phase C admin UI** (tabs added incrementally).
+4. **Phase B** (Paystack — needs you to confirm + secrets).
+5. **Phase D** (client portal + Google OAuth).
+6. **Phase E** (QA pass + deploy smoke test).
+
+Reply **"approve"** to start with Phase A, or call out anything to change first.
