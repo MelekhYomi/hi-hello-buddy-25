@@ -146,6 +146,19 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  // Supabase recovery links land on the Site URL (root) with a hash
+  // (#access_token=...&type=recovery or #error=...). Forward to /reset-password
+  // so the user can complete or retry the flow.
+  if (typeof window !== "undefined") {
+    const h = window.location.hash;
+    if (
+      window.location.pathname === "/" &&
+      (h.includes("type=recovery") || h.includes("error_code=otp_expired"))
+    ) {
+      window.location.replace("/reset-password" + h);
+    }
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
