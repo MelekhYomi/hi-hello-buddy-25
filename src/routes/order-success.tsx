@@ -8,10 +8,10 @@ import { verifyPaystackTransaction } from "@/lib/paystack.functions";
 
 export const Route = createFileRoute("/order-success")({
   head: () => ({ meta: [{ title: "Order received — C Imperium" }] }),
-  validateSearch: (s: Record<string, unknown>) => ({
-    id: typeof s.id === "string" ? s.id : "",
-    reference: typeof s.reference === "string" ? s.reference : "",
-    trxref: typeof s.trxref === "string" ? s.trxref : "",
+  validateSearch: (s: Record<string, unknown>): { id?: string; reference?: string; trxref?: string } => ({
+    id: typeof s.id === "string" ? s.id : undefined,
+    reference: typeof s.reference === "string" ? s.reference : undefined,
+    trxref: typeof s.trxref === "string" ? s.trxref : undefined,
   }),
   component: OrderSuccess,
 });

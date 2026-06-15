@@ -3,7 +3,10 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
-const logo = "/cimperium-c-mark.png";
+import logoAsset from "@/assets/cimperium-c-mark.png.asset.json";
+
+const isProd = typeof process !== "undefined" ? process.env.NODE_ENV === "production" : (import.meta.env ? import.meta.env.PROD : false);
+const logo = isProd ? "/cimperium-c-mark.png" : (logoAsset?.url || "/cimperium-c-mark.png");
 
 const SECTIONS = [
   { id: "about", label: "About" },

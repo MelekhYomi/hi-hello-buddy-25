@@ -13,12 +13,12 @@ export const Route = createFileRoute("/login")({
       { name: "description", content: "Sign in to manage your bookings with C Imperium Branding." },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>) => ({
-    redirect: typeof s.redirect === "string" ? s.redirect : "/dashboard",
+  validateSearch: (s: Record<string, unknown>): { redirect?: string } => ({
+    redirect: typeof s.redirect === "string" ? s.redirect : undefined,
   }),
   beforeLoad: async ({ search }) => {
     const { data } = await supabase.auth.getSession();
-    if (data.session) throw redirect({ to: search.redirect });
+    if (data.session) throw redirect({ to: search.redirect || "/dashboard" });
   },
   component: LoginPage,
 });
@@ -50,7 +50,7 @@ function LoginPage() {
       return;
     }
     toast.success("Welcome back.");
-    navigate({ to: search.redirect });
+    navigate({ to: search.redirect || "/dashboard" });
   };
 
   return (

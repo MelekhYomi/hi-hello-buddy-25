@@ -18,9 +18,9 @@ export function TestimonialsSection() {
     },
   });
 
-  if (!isLoading && (!items || items.length === 0)) return null;
+  if (!items || items.length === 0) return null;
 
-  const list = items ?? [];
+  const list = items;
   const total = list.length;
   const go = (i: number) => setIndex(((i % total) + total) % total);
 

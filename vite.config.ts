@@ -5,7 +5,7 @@ const target =
   : process.env.NETLIFY ? "netlify"
   : process.env.DEPLOY_TARGET === "node" ? "node-server"
   : process.env.DEPLOY_TARGET === "static" ? "static"
-  : "cloudflare-module";
+  : undefined;
 
 export default defineConfig({
   tanstackStart: {
@@ -13,5 +13,5 @@ export default defineConfig({
     // Increase the limit to 1000kB (1MB)
     chunkSizeWarningLimit: 1000,
   },
-  nitro: { preset: target },
+  ...(target ? { nitro: { preset: target } } : {}),
 });
