@@ -27,10 +27,11 @@ async function getMode(): Promise<"test" | "live"> {
 }
 
 function secretFor(mode: "test" | "live"): string {
+  const cfEnv = typeof globalThis !== "undefined" ? (globalThis as any)._cf_env : undefined;
   const key =
     mode === "live"
-      ? process.env.PAYSTACK_SECRET_KEY_LIVE
-      : process.env.PAYSTACK_SECRET_KEY_TEST;
+      ? (cfEnv?.PAYSTACK_SECRET_KEY_LIVE || (typeof process !== "undefined" ? process.env.PAYSTACK_SECRET_KEY_LIVE : undefined))
+      : (cfEnv?.PAYSTACK_SECRET_KEY_TEST || (typeof process !== "undefined" ? process.env.PAYSTACK_SECRET_KEY_TEST : undefined));
   if (!key) throw new Error(`Paystack ${mode} secret key is not configured`);
   return key;
 }

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Quote, Sparkles } from "lucide-react";
@@ -79,6 +80,11 @@ function Row({ items, reverse, duration }: { items: Card[]; reverse?: boolean; d
 }
 
 export function HeroMarquee() {
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const { data: cases } = useQuery({
     queryKey: ["hero-cases"],
     queryFn: async () => {
@@ -114,34 +120,36 @@ export function HeroMarquee() {
     },
   });
 
-  const cards: Card[] = [
-    ...(cases ?? []).map((c) => ({
-      key: `c-${c.id}`,
-      kind: "work" as const,
-      title: c.title,
-      subtitle: c.client,
-      image: c.cover_image,
-      tag: "Work",
-      href: "/#portfolio",
-    })),
-    ...(products ?? []).map((p) => ({
-      key: `p-${p.id}`,
-      kind: "product" as const,
-      title: p.title,
-      subtitle: p.description ?? undefined,
-      image: p.images?.[0] ?? null,
-      tag: "Product",
-      href: `/shop/${p.slug}`,
-    })),
-    ...(testimonials ?? []).map((t) => ({
-      key: `t-${t.id}`,
-      kind: "quote" as const,
-      title: `“${t.quote}”`,
-      subtitle: t.company ? `— ${t.name}, ${t.company}` : `— ${t.name}`,
-      tag: "Client",
-      href: "/#testimonials",
-    })),
-  ];
+  const cards: Card[] = !isMounted
+    ? FALLBACK
+    : [
+        ...(cases ?? []).map((c) => ({
+          key: `c-${c.id}`,
+          kind: "work" as const,
+          title: c.title,
+          subtitle: c.client,
+          image: c.cover_image,
+          tag: "Work",
+          href: "/#portfolio",
+        })),
+        ...(products ?? []).map((p) => ({
+          key: `p-${p.id}`,
+          kind: "product" as const,
+          title: p.title,
+          subtitle: p.description ?? undefined,
+          image: p.images?.[0] ?? null,
+          tag: "Product",
+          href: `/shop/${p.slug}`,
+        })),
+        ...(testimonials ?? []).map((t) => ({
+          key: `t-${t.id}`,
+          kind: "quote" as const,
+          title: `“${t.quote}”`,
+          subtitle: t.company ? `— ${t.name}, ${t.company}` : `— ${t.name}`,
+          tag: "Client",
+          href: "/#testimonials",
+        })),
+      ];
 
   const all = cards.length >= 4 ? cards : [...cards, ...FALLBACK];
   const half = Math.ceil(all.length / 2);

@@ -1,9 +1,15 @@
+import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 
 export function BlogSection() {
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const { data: posts } = useQuery({
     queryKey: ["blog-posts-home"],
     queryFn: async () => {
@@ -37,16 +43,27 @@ export function BlogSection() {
           </Link>
         </div>
 
-        {(!posts || posts.length === 0) && (
+        {(!isMounted || !posts || posts.length === 0) && (
           <p className="mt-12 text-sm italic" style={{ color: "var(--ci-gray)", fontFamily: "'Cormorant Garamond', serif" }}>
             New insights coming soon. Check back shortly.
           </p>
         )}
 
         <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {posts?.map((p) => {
+          {isMounted && posts?.map((p) => {
             const tag = p.tags?.[0] ?? "Insights";
-            const dateStr = format(new Date(p.published_at ?? p.created_at), "MMM yyyy");
+            let dateStr = "";
+            try {
+              const dateVal = p.published_at ?? p.created_at;
+              if (dateVal) {
+                const dateObj = new Date(dateVal);
+                if (!isNaN(dateObj.getTime())) {
+                  dateStr = format(dateObj, "MMM yyyy");
+                }
+              }
+            } catch (err) {
+              console.error("Error formatting date:", err);
+            }
             return (
               <Link
                 key={p.id}

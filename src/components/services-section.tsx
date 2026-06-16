@@ -73,7 +73,7 @@ export function ServicesSection() {
                 )}
 
                 <ul className="mt-5 flex-1 space-y-2">
-                  {s.features.map((f) => (
+                  {(s.features ?? []).map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-foreground/80">
                       <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-imperium" strokeWidth={2} />
                       {f}

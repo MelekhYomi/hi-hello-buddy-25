@@ -4,9 +4,19 @@ import type { Database } from './types';
 
 function createSupabaseClient() {
   // Use import.meta.env for client-side (Vite build-time replacement)
-  // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+  // Fall back to globalThis._cf_env (for Cloudflare Worker context) or process.env for SSR (server-side rendering)
+  const cfEnv = typeof globalThis !== 'undefined' ? (globalThis as any)._cf_env : undefined;
+  const SUPABASE_URL =
+    import.meta.env.VITE_SUPABASE_URL ||
+    cfEnv?.VITE_SUPABASE_URL ||
+    cfEnv?.SUPABASE_URL ||
+    (typeof process !== 'undefined' ? process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL : undefined);
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    cfEnv?.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    cfEnv?.SUPABASE_PUBLISHABLE_KEY ||
+    (typeof process !== 'undefined' ? process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY : undefined);
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [

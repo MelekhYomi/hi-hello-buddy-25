@@ -56,7 +56,18 @@ function BlogPostPage() {
             )}
             <h1 className="mt-4 font-display text-4xl leading-[1.05] md:text-6xl">{post.title}</h1>
             <div className="mt-6 flex flex-wrap items-center gap-4 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              <span>{format(new Date(post.published_at ?? post.created_at), "MMM d, yyyy")}</span>
+              <span>{(() => {
+                try {
+                  const val = post.published_at ?? post.created_at;
+                  if (val) {
+                    const d = new Date(val);
+                    if (!isNaN(d.getTime())) return format(d, "MMM d, yyyy");
+                  }
+                } catch (e) {
+                  console.error(e);
+                }
+                return "";
+              })()}</span>
               {post.author && <><span>·</span><span>{post.author}</span></>}
             </div>
             {post.cover_image && (

@@ -5,7 +5,7 @@ const target =
   : process.env.NETLIFY ? "netlify"
   : process.env.DEPLOY_TARGET === "node" ? "node-server"
   : process.env.DEPLOY_TARGET === "static" ? "static"
-  : undefined;
+  : (process.env.NODE_ENV === "production" ? "cloudflare-module" : undefined);
 
 export default defineConfig({
   tanstackStart: {

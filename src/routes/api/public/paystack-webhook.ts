@@ -6,10 +6,11 @@ import { createHmac, timingSafeEqual } from "crypto";
 
 function verify(rawBody: string, signature: string | null): boolean {
   if (!signature) return false;
+  const cfEnv = typeof globalThis !== "undefined" ? (globalThis as any)._cf_env : undefined;
   const candidates = [
-    process.env.PAYSTACK_WEBHOOK_SECRET,
-    process.env.PAYSTACK_SECRET_KEY_LIVE,
-    process.env.PAYSTACK_SECRET_KEY_TEST,
+    cfEnv?.PAYSTACK_WEBHOOK_SECRET || (typeof process !== "undefined" ? process.env.PAYSTACK_WEBHOOK_SECRET : undefined),
+    cfEnv?.PAYSTACK_SECRET_KEY_LIVE || (typeof process !== "undefined" ? process.env.PAYSTACK_SECRET_KEY_LIVE : undefined),
+    cfEnv?.PAYSTACK_SECRET_KEY_TEST || (typeof process !== "undefined" ? process.env.PAYSTACK_SECRET_KEY_TEST : undefined),
   ].filter((v): v is string => !!v);
 
   const sig = Buffer.from(signature, "hex");

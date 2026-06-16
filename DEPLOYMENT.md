@@ -1,57 +1,50 @@
 # Deployment Guide — C Imperium
 
-## TL;DR
+This project is built using TanStack Start and Nitro, supporting **Full Server-Side Rendering (SSR)** on both **Lovable Publish (Cloudflare Workers)** and **Vercel**. All pages, server functions, dynamic `/api/*` endpoints (e.g. Paystack webhook), and metadata are fully functional.
 
-| Host                       | Status   | What works                                  | What doesn't                                          |
-| -------------------------- | -------- | ------------------------------------------- | ----------------------------------------------------- |
-| **Lovable Publish** (recommended) | Full SSR | Everything: pages, server fns, /api/*, sitemap | —                                                     |
-| **Netlify** (from GitHub)  | SPA only | All pages, client-side data, Supabase reads | Server functions, /api/* routes, /sitemap.xml         |
-| **Vercel** (from GitHub)   | SPA only | All pages, client-side data, Supabase reads | Server functions, /api/* routes, /sitemap.xml         |
+## TL;DR Deployment Table
 
-This project is built for **Cloudflare Workers** (the Lovable Publish target).
-Netlify and Vercel are supported as a static SPA fallback — useful for previews
-or staging, but the Paystack webhook and other server-side endpoints will only
-work on the Lovable-published URL.
+| Host | Architecture | What Works | Configuration Requirements |
+| :--- | :--- | :--- | :--- |
+| **Lovable Publish** | Full SSR (Workers) | **Everything**: pages, server functions, `/api/*` webhooks, `/sitemap.xml` | Managed automatically via Lovable. Configure secret keys in Lovable Cloud. |
+| **Vercel** (GitHub hook) | Full SSR (Serverless) | **Everything**: pages, server functions, `/api/*` webhooks, `/sitemap.xml` | Set build to automatic/blank (do **NOT** use `dist` as output directory). |
+| **Netlify** (GitHub hook) | SPA Static | Pages, client-side data, client Supabase reads | Traditional static/SPA. Server functions and server `/api/*` webhooks are unavailable. |
 
-## Required environment variables (Netlify / Vercel)
+---
 
-Set these in the host's dashboard before building. Use the **same values** that
-are in `.env` (these are the publishable / non-secret variables only):
+## Lovable Publish (Cloudflare Workers)
 
+This is the primary and recommended production target.
+- **Environment**: V8 Isolate (Cloudflare Workers).
+- **Environment Variables**: Managed under **Lovable Cloud → Secrets** or **Cloudflare dashboard**. Since Workers do not have `process.env`, they receive variables inside the request context, which are captured on `globalThis._cf_env` during boot.
+
+---
+
+## Vercel Deployment (Full SSR)
+
+Our Nitro-backed compiler dynamically outputs Vercel's Serverless Build Output API structure (`.vercel/output`) when building on Vercel.
+
+### Vercel Project Setup:
+1. **Connect Repo**: Import your GitHub repository into Vercel.
+2. **Build Settings**:
+   - **Framework Preset**: Choose **Other** or **TanStack Start / Nitro** (if detected).
+   - **Build Command**: `npm run build` or `bun run build`.
+   - **Output Directory**: **Leave BLANK / DEFAULT** (Do **NOT** set to `dist`). Vercel will automatically discover the `.vercel/output` directory compiled by Nitro.
+3. **Environment Variables**:
+   Under **Project Settings → Environment Variables**, add the following credentials:
+   - `VITE_SUPABASE_URL` — Public Supabase URL
+   - `VITE_SUPABASE_PUBLISHABLE_KEY` — Public Supabase anon key
+   - `SUPABASE_SERVICE_ROLE_KEY` — (Server-side/Secret) Admin bypass key
+   - `PAYSTACK_SECRET_KEY_TEST` — Paystack test secret key
+   - `PAYSTACK_SECRET_KEY_LIVE` — Paystack live secret key
+   - `PAYSTACK_WEBHOOK_SECRET` — (Optional) For secure Paystack webhook timing verification
+
+---
+
+## Webhooks & Paystack Callbacks
+
+Configure your Paystack Dashboard's Webhook URL to point to the active production URL:
 ```
-VITE_SUPABASE_URL=https://qskyzzlnhrzcoldnsxjq.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=<copy from .env>
-VITE_SUPABASE_PROJECT_ID=qskyzzlnhrzcoldnsxjq
+https://<your-production-domain>/api/public/paystack-webhook
 ```
-
-**Never** put `SUPABASE_SERVICE_ROLE_KEY`, `PAYSTACK_SECRET_KEY_*`, or any
-other secret in the host. Secrets stay in **Lovable Cloud → Secrets**.
-
-## Node version
-
-Pinned to **Node 20** via `.nvmrc`, `netlify.toml`, and `package.json` engines.
-If a deploy fails with a Node version error, confirm the host honors `.nvmrc`.
-
-## Build command
-
-`bun run build` — works headlessly. Output: `dist/`.
-
-## GitHub → Netlify / Vercel
-
-1. Connect the GitHub repo in the host dashboard.
-2. Build command: `bun run build` (or `npm run build` if the host doesn't have bun).
-3. Output dir: `dist`.
-4. Add the env vars above.
-5. Deploy. SPA redirects are handled by `netlify.toml` / `vercel.json` /
-   `public/_redirects` — page refresh on any route returns `index.html`.
-
-## Webhooks & Paystack callbacks
-
-Configure Paystack webhook URL to the **Lovable-published domain** only:
-
-```
-https://<your-domain>.lovable.app/api/public/paystack-webhook
-```
-
-The Netlify/Vercel URL won't receive webhooks (those routes are server-side
-only on Workers).
+Because full SSR is enabled on both Vercel and Cloudflare, both environments will process incoming webhook signals flawlessly to update order tables in real-time.

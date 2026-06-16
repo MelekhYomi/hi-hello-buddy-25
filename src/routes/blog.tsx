@@ -50,7 +50,18 @@ function BlogIndex() {
         <div className="mt-14 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {posts?.map((p) => {
             const tag = p.tags?.[0] ?? "Insights";
-            const dateStr = format(new Date(p.published_at ?? p.created_at), "MMM d, yyyy");
+            let dateStr = "";
+            try {
+              const dateVal = p.published_at ?? p.created_at;
+              if (dateVal) {
+                const dateObj = new Date(dateVal);
+                if (!isNaN(dateObj.getTime())) {
+                  dateStr = format(dateObj, "MMM d, yyyy");
+                }
+              }
+            } catch (err) {
+              console.error("Error formatting date:", err);
+            }
             return (
               <Link
                 key={p.id}
