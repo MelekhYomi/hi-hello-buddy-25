@@ -20,12 +20,15 @@ const BOOKING_STATUSES = ["pending", "confirmed", "completed", "cancelled"] as c
 const ORDER_STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"] as const;
 const PAY_STATUSES = ["unpaid", "paid", "pay_on_delivery", "whatsapp_pending", "refunded"] as const;
 
-type Tab = "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings";
+type Tab = "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments";
 
 function AdminPage() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isSuperAdmin } = useAuth();
   const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>("bookings");
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>("all");
+  const [orderPayFilter, setOrderPayFilter] = useState<string>("all");
+  const [orderSearch, setOrderSearch] = useState("");
 
   const bookings = useQuery({
     queryKey: ["admin-bookings"],
