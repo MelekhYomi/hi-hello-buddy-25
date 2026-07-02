@@ -7,6 +7,7 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   signOut: () => Promise<void>;
 }
 
