@@ -4,9 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 // ---------- helpers ----------
 async function assertRole(
-  supabase: Awaited<ReturnType<typeof requireSupabaseAuth>> extends never
-    ? never
-    : any, // context.supabase
+  supabase: any,
   userId: string,
   role: "admin" | "super_admin",
 ) {
