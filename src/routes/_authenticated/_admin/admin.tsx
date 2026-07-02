@@ -165,6 +165,10 @@ function AdminPage() {
           <TabButton active={tab === "contacts"} onClick={() => setTab("contacts")}>
             Messages {unreadContacts > 0 && <span className="ml-2 inline-flex h-4 min-w-4 items-center justify-center bg-imperium px-1 text-[9px] text-charleston">{unreadContacts}</span>}
           </TabButton>
+          <TabButton active={tab === "payments"} onClick={() => setTab("payments")}>Payments</TabButton>
+          <TabButton active={tab === "users"} onClick={() => setTab("users")}>
+            Users {isSuperAdmin && <span className="ml-1 font-mono text-[8px] text-imperium">★</span>}
+          </TabButton>
           <TabButton active={tab === "settings"} onClick={() => setTab("settings")}>Settings</TabButton>
         </div>
 
