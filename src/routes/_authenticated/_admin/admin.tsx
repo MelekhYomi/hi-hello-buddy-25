@@ -202,43 +202,73 @@ function AdminPage() {
         )}
 
         {tab === "orders" && (
-          <div className="mt-8 space-y-px bg-border/40">
-            {orders.isLoading && <Empty>Loading…</Empty>}
-            {orders.data?.length === 0 && <Empty>No orders yet</Empty>}
-            {orders.data?.map((o) => (
-              <article key={o.id} className="bg-card p-6">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                  <div className="md:col-span-3">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{format(new Date(o.created_at), "MMM d, yyyy HH:mm")}</div>
-                    <div className="mt-1 font-display text-lg">#{o.id.slice(0, 8)}</div>
-                    <div className="mt-2 text-sm">{o.customer_name}</div>
-                    <div className="font-mono text-[10px] text-muted-foreground">{o.customer_email}</div>
-                    <div className="font-mono text-[10px] text-muted-foreground">{o.customer_phone}</div>
-                  </div>
-                  <div className="md:col-span-5">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-imperium">Items</div>
-                    <ul className="mt-1 space-y-0.5 text-sm">
-                      {o.order_items?.map((it) => (
-                        <li key={it.id} className="flex justify-between gap-4"><span>{it.title_snapshot} × {it.quantity}</span><span className="font-mono">{formatNaira(it.price_snapshot * it.quantity)}</span></li>
-                      ))}
-                    </ul>
-                    <div className="mt-2 text-xs text-muted-foreground">{o.delivery_address}, {o.city}, {o.state}</div>
-                    {o.notes && <div className="mt-2 text-xs italic text-muted-foreground">"{o.notes}"</div>}
-                  </div>
-                  <div className="flex flex-col items-start gap-2 md:col-span-4 md:items-end">
-                    <div className="font-display text-2xl text-imperium">{formatNaira(o.total)}</div>
-                    <select value={o.status} onChange={(e) => updateOrder(o.id, { status: e.target.value })} className="border border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium">
-                      {ORDER_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                    <select value={o.payment_status} onChange={(e) => updateOrder(o.id, { payment_status: e.target.value })} className="border border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium">
-                      {PAY_STATUSES.map((s) => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}
-                    </select>
-                  </div>
-                </div>
-              </article>
-            ))}
+          <div className="mt-8">
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <input value={orderSearch} onChange={(e) => setOrderSearch(e.target.value)} placeholder="Search name, email, ref…" className="min-w-[220px] flex-1 border border-border bg-card px-3 py-2 font-mono text-[11px] outline-none focus:border-imperium" />
+              <select value={orderStatusFilter} onChange={(e) => setOrderStatusFilter(e.target.value)} className="border border-border bg-card px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium">
+                <option value="all">All statuses</option>
+                {ORDER_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <select value={orderPayFilter} onChange={(e) => setOrderPayFilter(e.target.value)} className="border border-border bg-card px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium">
+                <option value="all">All payment</option>
+                {PAY_STATUSES.map((s) => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}
+              </select>
+            </div>
+            <div className="space-y-px bg-border/40">
+              {orders.isLoading && <Empty>Loading…</Empty>}
+              {(() => {
+                const filtered = (orders.data ?? []).filter((o) => {
+                  if (orderStatusFilter !== "all" && o.status !== orderStatusFilter) return false;
+                  if (orderPayFilter !== "all" && o.payment_status !== orderPayFilter) return false;
+                  if (orderSearch) {
+                    const s = orderSearch.toLowerCase();
+                    return [o.customer_name, o.customer_email, o.payment_ref, o.id]
+                      .filter(Boolean).some((v) => String(v).toLowerCase().includes(s));
+                  }
+                  return true;
+                });
+                if (!orders.isLoading && filtered.length === 0) return <Empty>No orders match</Empty>;
+                return filtered.map((o) => (
+                  <article key={o.id} className="bg-card p-6">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                      <div className="md:col-span-3">
+                        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{format(new Date(o.created_at), "MMM d, yyyy HH:mm")}</div>
+                        <div className="mt-1 font-display text-lg">#{o.id.slice(0, 8)}</div>
+                        <div className="mt-2 text-sm">{o.customer_name}</div>
+                        <div className="font-mono text-[10px] text-muted-foreground">{o.customer_email}</div>
+                        <div className="font-mono text-[10px] text-muted-foreground">{o.customer_phone}</div>
+                        {o.payment_ref && <div className="mt-1 font-mono text-[9px] text-muted-foreground">ref: {o.payment_ref}</div>}
+                      </div>
+                      <div className="md:col-span-5">
+                        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-imperium">Items</div>
+                        <ul className="mt-1 space-y-0.5 text-sm">
+                          {o.order_items?.map((it) => (
+                            <li key={it.id} className="flex justify-between gap-4"><span>{it.title_snapshot} × {it.quantity}</span><span className="font-mono">{formatNaira(it.price_snapshot * it.quantity)}</span></li>
+                          ))}
+                        </ul>
+                        <div className="mt-2 text-xs text-muted-foreground">{o.delivery_address}, {o.city}, {o.state}</div>
+                        {o.notes && <div className="mt-2 text-xs italic text-muted-foreground">"{o.notes}"</div>}
+                      </div>
+                      <div className="flex flex-col items-start gap-2 md:col-span-4 md:items-end">
+                        <div className="font-display text-2xl text-imperium">{formatNaira(o.total)}</div>
+                        <select value={o.status} onChange={(e) => updateOrder(o.id, { status: e.target.value })} className="border border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium">
+                          {ORDER_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                        <select value={o.payment_status} onChange={(e) => updateOrder(o.id, { payment_status: e.target.value })} className="border border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium">
+                          {PAY_STATUSES.map((s) => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}
+                        </select>
+                        <RefundButton orderId={o.id} disabled={o.payment_status === "refunded"} />
+                      </div>
+                    </div>
+                  </article>
+                ));
+              })()}
+            </div>
           </div>
         )}
+
+        {tab === "users" && <UsersAdmin isSuperAdmin={isSuperAdmin} />}
+        {tab === "payments" && <PaymentsAdmin />}
 
         {tab === "products" && <ProductsAdmin products={products.data ?? []} onChange={() => qc.invalidateQueries({ queryKey: ["admin-products"] })} />}
 
