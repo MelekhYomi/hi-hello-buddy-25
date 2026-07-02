@@ -17,6 +17,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   useEffect(() => {
     // Listener FIRST to avoid missed events
@@ -29,10 +30,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .from("user_roles")
             .select("role")
             .eq("user_id", s.user.id);
-          setIsAdmin(!!data?.some((r) => r.role === "admin"));
+          const roles = (data ?? []).map((r) => r.role);
+          setIsAdmin(roles.includes("admin") || roles.includes("super_admin"));
+          setIsSuperAdmin(roles.includes("super_admin"));
         }, 0);
       } else {
         setIsAdmin(false);
+        setIsSuperAdmin(false);
       }
     });
 
@@ -50,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ session, user: session?.user ?? null, loading, isAdmin, signOut }}
+      value={{ session, user: session?.user ?? null, loading, isAdmin, isSuperAdmin, signOut }}
     >
       {children}
     </AuthContext.Provider>
