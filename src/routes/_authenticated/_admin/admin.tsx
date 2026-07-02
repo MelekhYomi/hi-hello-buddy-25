@@ -697,3 +697,265 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
     <button onClick={onClick} className={cn("relative -mb-px border-b-2 pb-4 transition-colors", active ? "border-imperium text-foreground" : "border-transparent text-muted-foreground hover:text-foreground")}>{children}</button>
   );
 }
+
+// ---------- Refund + Users + Payments ----------
+import { refundOrder, listUsers, grantRole, revokeRole, sendPasswordReset, paystackProbe } from "@/lib/admin.functions";
+
+function RefundButton({ orderId, disabled }: { orderId: string; disabled?: boolean }) {
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState(false);
+  const onClick = async () => {
+    if (!confirm("Issue a refund for this order? If it was paid via Paystack we'll call their refund API; otherwise it is marked as refunded manually.")) return;
+    setBusy(true);
+    try {
+      const res = await refundOrder({ data: { orderId } });
+      toast.success(res.mode === "paystack" ? "Paystack refund queued" : "Order marked refunded");
+      qc.invalidateQueries({ queryKey: ["admin-orders"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Refund failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <button onClick={onClick} disabled={disabled || busy} className="border border-border px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:border-imperium hover:text-imperium disabled:opacity-40">
+      {busy ? "…" : "Refund"}
+    </button>
+  );
+}
+
+function UsersAdmin({ isSuperAdmin }: { isSuperAdmin: boolean }) {
+  const qc = useQueryClient();
+  const users = useQuery({
+    queryKey: ["admin-users"],
+    queryFn: async () => await listUsers(),
+  });
+  const [search, setSearch] = useState("");
+
+  const toggle = async (userId: string, role: "admin" | "staff" | "customer" | "super_admin", have: boolean) => {
+    try {
+      if (have) await revokeRole({ data: { userId, role } });
+      else await grantRole({ data: { userId, role } });
+      qc.invalidateQueries({ queryKey: ["admin-users"] });
+      toast.success("Roles updated");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    }
+  };
+
+  const reset = async (email: string) => {
+    try {
+      await sendPasswordReset({ data: { email, redirectTo: `${window.location.origin}/reset-password` } });
+      toast.success(`Recovery link sent to ${email}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    }
+  };
+
+  const filtered = (users.data ?? []).filter((u) => !search || u.email.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div className="mt-8">
+      {!isSuperAdmin && (
+        <div className="mb-4 border border-imperium/40 bg-imperium/5 p-3 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium">
+          Read-only · super_admin required to change roles or send resets
+        </div>
+      )}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search email…" className="min-w-[240px] flex-1 border border-border bg-card px-3 py-2 font-mono text-[11px] outline-none focus:border-imperium" />
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{filtered.length} users</span>
+      </div>
+      <div className="space-y-px bg-border/40">
+        {users.isLoading && <Empty>Loading…</Empty>}
+        {!users.isLoading && filtered.length === 0 && <Empty>No users</Empty>}
+        {filtered.map((u) => {
+          const has = (r: string) => u.roles.includes(r);
+          return (
+            <article key={u.id} className="bg-card p-5">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                <div className="md:col-span-4">
+                  <div className="font-display text-base">{u.email}</div>
+                  <div className="font-mono text-[10px] text-muted-foreground">joined {format(new Date(u.created_at), "MMM d, yyyy")}</div>
+                  <div className="font-mono text-[10px] text-muted-foreground">last seen {u.last_sign_in_at ? format(new Date(u.last_sign_in_at), "MMM d, HH:mm") : "—"}</div>
+                </div>
+                <div className="md:col-span-5">
+                  <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Roles</div>
+                  <div className="flex flex-wrap gap-2">
+                    {(["super_admin", "admin", "staff", "customer"] as const).map((r) => (
+                      <button
+                        key={r}
+                        disabled={!isSuperAdmin}
+                        onClick={() => toggle(u.id, r, has(r))}
+                        className={cn(
+                          "border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors",
+                          has(r) ? "border-imperium bg-imperium text-charleston" : "border-border text-muted-foreground hover:border-foreground",
+                          !isSuperAdmin && "opacity-50 cursor-not-allowed",
+                        )}
+                      >
+                        {r.replace("_", " ")}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex md:col-span-3 md:justify-end">
+                  <button
+                    disabled={!isSuperAdmin}
+                    onClick={() => reset(u.email)}
+                    className="inline-flex items-center gap-2 border border-border px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:border-imperium hover:text-imperium disabled:opacity-40"
+                  >
+                    <Mail className="h-3 w-3" /> Send reset
+                  </button>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function PaymentsAdmin() {
+  const qc = useQueryClient();
+  const { data: settings } = useQuery({
+    queryKey: ["admin-payment-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("site_settings").select("*").in("key", ["paystack", "payment_provider", "payment_mode", "termii"]);
+      if (error) throw error;
+      return data as { key: string; value: any }[];
+    },
+  });
+  const paystack = (settings?.find((s) => s.key === "paystack")?.value as { public_key_test?: string; public_key_live?: string; mode?: string } | undefined) ?? {};
+  const termii = (settings?.find((s) => s.key === "termii")?.value as { enabled?: boolean; whatsapp?: boolean; sms?: boolean; sender_id?: string } | undefined) ?? {};
+
+  const [ps, setPs] = useState<{ mode: string; public_key_test: string; public_key_live: string }>({
+    mode: paystack.mode ?? "test",
+    public_key_test: paystack.public_key_test ?? "",
+    public_key_live: paystack.public_key_live ?? "",
+  });
+  const [tm, setTm] = useState({
+    enabled: !!termii.enabled,
+    whatsapp: !!termii.whatsapp,
+    sms: !!termii.sms,
+    sender_id: termii.sender_id ?? "CImperium",
+  });
+  const [probeEmail, setProbeEmail] = useState("");
+  const [probeUrl, setProbeUrl] = useState<string | null>(null);
+  const [probing, setProbing] = useState(false);
+
+  // sync state when server data arrives
+  const syncedRef = { current: false } as { current: boolean };
+  if (!syncedRef.current && settings) {
+    // Only apply once — noop after first paint
+  }
+
+  const savePaystack = async () => {
+    const { error } = await supabase.from("site_settings").upsert({ key: "paystack", value: ps as never }, { onConflict: "key" });
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Paystack settings saved");
+      qc.invalidateQueries({ queryKey: ["admin-payment-settings"] });
+      qc.invalidateQueries({ queryKey: ["site-settings"] });
+    }
+  };
+
+  const saveTermii = async () => {
+    const { error } = await supabase.from("site_settings").upsert({ key: "termii", value: tm as never }, { onConflict: "key" });
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Termii settings saved");
+      qc.invalidateQueries({ queryKey: ["admin-payment-settings"] });
+    }
+  };
+
+  const runProbe = async () => {
+    if (!probeEmail) { toast.error("Enter an email"); return; }
+    setProbing(true);
+    setProbeUrl(null);
+    try {
+      const res = await paystackProbe({ data: { email: probeEmail } });
+      setProbeUrl(res.authorizationUrl);
+      toast.success(`Test ₦100 initialized (${res.reference})`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Probe failed");
+    } finally {
+      setProbing(false);
+    }
+  };
+
+  const webhookUrl = typeof window !== "undefined" ? `${window.location.origin}/api/public/paystack-webhook` : "";
+  const inp = "w-full border border-border bg-card px-3 py-2 text-sm outline-none focus:border-imperium";
+
+  return (
+    <div className="mt-8 space-y-8">
+      <section className="border border-border/60 bg-card p-6">
+        <h3 className="font-display text-2xl">Paystack</h3>
+        <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Server keeps secret keys · public keys shown to browser</p>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <Field label="Mode">
+            <select value={ps.mode} onChange={(e) => setPs((p) => ({ ...p, mode: e.target.value }))} className={inp}>
+              <option value="test">test</option>
+              <option value="live">live</option>
+            </select>
+          </Field>
+          <Field label="Currency"><input disabled value="NGN" className={cn(inp, "opacity-60")} /></Field>
+          <Field label="Public key — test" hint="pk_test_...">
+            <input value={ps.public_key_test} onChange={(e) => setPs((p) => ({ ...p, public_key_test: e.target.value }))} className={inp} />
+          </Field>
+          <Field label="Public key — live" hint="pk_live_...">
+            <input value={ps.public_key_live} onChange={(e) => setPs((p) => ({ ...p, public_key_live: e.target.value }))} className={inp} />
+          </Field>
+        </div>
+        <SaveBtn className="mt-4" onClick={savePaystack} />
+
+        <div className="mt-6">
+          <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Webhook URL</div>
+          <div className="mt-1 flex gap-2">
+            <input readOnly value={webhookUrl} className={cn(inp, "font-mono text-xs")} />
+            <button onClick={() => { navigator.clipboard.writeText(webhookUrl); toast.success("Copied"); }} className="border border-border px-3 font-mono text-[10px] uppercase tracking-[0.2em] hover:border-foreground">Copy</button>
+          </div>
+          <p className="mt-1 text-[11px] text-muted-foreground">Paste this into Paystack → Settings → API Keys & Webhooks.</p>
+        </div>
+
+        <div className="mt-6 border-t border-border/60 pt-6">
+          <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-imperium">Send test ₦100 probe</div>
+          <p className="mt-1 text-[11px] text-muted-foreground">Initializes a live transaction against your test secret key.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <input value={probeEmail} onChange={(e) => setProbeEmail(e.target.value)} placeholder="probe@example.com" className={cn(inp, "max-w-xs")} />
+            <button onClick={runProbe} disabled={probing} className="border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston disabled:opacity-50">{probing ? "…" : "Run probe"}</button>
+          </div>
+          {probeUrl && (
+            <a href={probeUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block break-all font-mono text-xs text-imperium underline">
+              Open Paystack checkout →
+            </a>
+          )}
+        </div>
+      </section>
+
+      <section className="border border-border/60 bg-card p-6">
+        <h3 className="font-display text-2xl">Termii — WhatsApp / SMS</h3>
+        <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">OTP + transactional messaging channels</p>
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <label className="flex items-center gap-3">
+            <input type="checkbox" checked={tm.enabled} onChange={(e) => setTm((t) => ({ ...t, enabled: e.target.checked }))} />
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em]">Termii enabled</span>
+          </label>
+          <Field label="Sender ID">
+            <input value={tm.sender_id} onChange={(e) => setTm((t) => ({ ...t, sender_id: e.target.value }))} className={inp} />
+          </Field>
+          <label className="flex items-center gap-3">
+            <input type="checkbox" checked={tm.whatsapp} onChange={(e) => setTm((t) => ({ ...t, whatsapp: e.target.checked }))} />
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em]">WhatsApp channel</span>
+          </label>
+          <label className="flex items-center gap-3">
+            <input type="checkbox" checked={tm.sms} onChange={(e) => setTm((t) => ({ ...t, sms: e.target.checked }))} />
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em]">SMS channel</span>
+          </label>
+        </div>
+        <SaveBtn className="mt-4" onClick={saveTermii} />
+        <p className="mt-3 text-[11px] text-muted-foreground">Termii API key lives in Secrets vault (TERMII_API_KEY). Toggle channels here and the send-OTP server function will honour them.</p>
+      </section>
+    </div>
+  );
+}
