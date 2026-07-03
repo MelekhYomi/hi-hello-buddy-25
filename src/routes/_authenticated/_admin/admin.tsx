@@ -963,3 +963,252 @@ function PaymentsAdmin() {
     </div>
   );
 }
+
+// ================= Testimonials =================
+interface TestimonialRow {
+  id: string; name: string; role: string | null; company: string | null;
+  quote: string; rating: number | null; avatar_url: string | null;
+  display_order: number; is_published: boolean;
+}
+
+function TestimonialsAdmin() {
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["admin-testimonials"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("testimonials").select("*").order("display_order");
+      if (error) throw error;
+      return data as TestimonialRow[];
+    },
+  });
+  const [editing, setEditing] = useState<TestimonialRow | null>(null);
+  const [creating, setCreating] = useState(false);
+  const remove = async (id: string) => {
+    if (!confirm("Delete this testimonial?")) return;
+    const { error } = await supabase.from("testimonials").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-testimonials"] }); }
+  };
+  return (
+    <div className="mt-8">
+      <div className="mb-4 flex justify-end">
+        <button onClick={() => setCreating(true)} className="inline-flex items-center gap-2 border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"><Plus className="h-3 w-3" /> New testimonial</button>
+      </div>
+      <div className="space-y-px bg-border/40">
+        {(!data || data.length === 0) && <Empty>No testimonials yet</Empty>}
+        {data?.map((t) => (
+          <article key={t.id} className="bg-card p-5">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
+              <div className="md:col-span-1">{t.avatar_url && <img src={t.avatar_url} alt={t.name} className="aspect-square w-full rounded-full object-cover" />}</div>
+              <div className="md:col-span-7">
+                <div className="font-display text-lg">{t.name}</div>
+                <div className="font-mono text-[10px] text-muted-foreground">{[t.role, t.company].filter(Boolean).join(" · ") || "—"}</div>
+                <p className="mt-1 line-clamp-2 text-sm italic text-muted-foreground">"{t.quote}"</p>
+              </div>
+              <div className="md:col-span-2 font-mono text-[11px] text-muted-foreground">
+                {"★".repeat(t.rating ?? 5)}<br />
+                {t.is_published ? <span className="text-imperium">Published</span> : "Draft"} · #{t.display_order}
+              </div>
+              <div className="flex flex-col items-start gap-2 md:col-span-2 md:items-end">
+                <button onClick={() => setEditing(t)} className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"><Pencil className="h-3 w-3" /> Edit</button>
+                <button onClick={() => remove(t.id)} className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-imperium"><Trash2 className="h-3 w-3" /> Delete</button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+      {(editing || creating) && (
+        <TestimonialForm
+          initial={editing}
+          onClose={() => { setEditing(null); setCreating(false); }}
+          onSaved={() => { setEditing(null); setCreating(false); qc.invalidateQueries({ queryKey: ["admin-testimonials"] }); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function TestimonialForm({ initial, onClose, onSaved }: { initial: TestimonialRow | null; onClose: () => void; onSaved: () => void }) {
+  const [name, setName] = useState(initial?.name ?? "");
+  const [role, setRole] = useState(initial?.role ?? "");
+  const [company, setCompany] = useState(initial?.company ?? "");
+  const [quote, setQuote] = useState(initial?.quote ?? "");
+  const [rating, setRating] = useState(initial?.rating ?? 5);
+  const [avatar, setAvatar] = useState(initial?.avatar_url ?? "");
+  const [order, setOrder] = useState(initial?.display_order ?? 0);
+  const [isPublished, setIsPublished] = useState(initial?.is_published ?? true);
+  const [busy, setBusy] = useState(false);
+  const save = async () => {
+    if (!name.trim() || !quote.trim()) { toast.error("Name and quote are required"); return; }
+    setBusy(true);
+    const payload = {
+      name: name.trim(),
+      role: role || null,
+      company: company || null,
+      quote: quote.trim(),
+      rating: Math.min(5, Math.max(1, Math.round(rating))),
+      avatar_url: avatar || null,
+      display_order: Math.round(order),
+      is_published: isPublished,
+    };
+    const q = initial
+      ? supabase.from("testimonials").update(payload).eq("id", initial.id)
+      : supabase.from("testimonials").insert(payload);
+    const { error } = await q;
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else { toast.success(initial ? "Updated" : "Created"); onSaved(); }
+  };
+  const inp = "w-full rounded border border-border bg-card px-3 py-2 text-sm outline-none focus:border-imperium";
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur" onClick={onClose}>
+      <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-lg border border-border bg-card p-6" onClick={(e) => e.stopPropagation()}>
+        <h3 className="font-display text-2xl">{initial ? "Edit testimonial" : "New testimonial"}</h3>
+        <div className="mt-5 space-y-3">
+          <input className={inp} placeholder="Client name" value={name} onChange={(e) => setName(e.target.value)} />
+          <div className="grid grid-cols-2 gap-3">
+            <input className={inp} placeholder="Role (e.g. Founder)" value={role ?? ""} onChange={(e) => setRole(e.target.value)} />
+            <input className={inp} placeholder="Company" value={company ?? ""} onChange={(e) => setCompany(e.target.value)} />
+          </div>
+          <textarea className={`${inp} resize-none`} rows={4} placeholder="Quote" value={quote} onChange={(e) => setQuote(e.target.value)} />
+          <input className={inp} placeholder="Avatar URL (optional)" value={avatar ?? ""} onChange={(e) => setAvatar(e.target.value)} />
+          <div className="grid grid-cols-2 gap-3">
+            <input className={inp} type="number" min={1} max={5} placeholder="Rating (1–5)" value={rating} onChange={(e) => setRating(+e.target.value)} />
+            <input className={inp} type="number" placeholder="Display order" value={order} onChange={(e) => setOrder(+e.target.value)} />
+          </div>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} /> Published</label>
+        </div>
+        <div className="mt-6 flex justify-end gap-3">
+          <button onClick={onClose} className="border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em]">Cancel</button>
+          <button onClick={save} disabled={busy} className="border border-imperium bg-imperium px-5 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-charleston disabled:opacity-50">{busy ? "Saving…" : "Save"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ================= Studio Images =================
+interface StudioRow { id: string; url: string; alt: string | null; display_order: number; is_active: boolean }
+
+function StudioImagesAdmin() {
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["admin-studio"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("studio_images").select("*").order("display_order");
+      if (error) throw error;
+      return data as StudioRow[];
+    },
+  });
+  const [editing, setEditing] = useState<StudioRow | null>(null);
+  const [creating, setCreating] = useState(false);
+  const remove = async (id: string) => {
+    if (!confirm("Delete this image?")) return;
+    const { error } = await supabase.from("studio_images").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-studio"] }); }
+  };
+  const toggle = async (row: StudioRow) => {
+    const { error } = await supabase.from("studio_images").update({ is_active: !row.is_active }).eq("id", row.id);
+    if (error) toast.error(error.message);
+    else qc.invalidateQueries({ queryKey: ["admin-studio"] });
+  };
+  return (
+    <div className="mt-8">
+      <div className="mb-4 flex items-center justify-between">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Powers the About section gallery · lower display order shows first</p>
+        <button onClick={() => setCreating(true)} className="inline-flex items-center gap-2 border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"><Plus className="h-3 w-3" /> Add image</button>
+      </div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {(!data || data.length === 0) && <div className="col-span-full"><Empty>No studio images yet</Empty></div>}
+        {data?.map((row) => (
+          <div key={row.id} className={cn("group relative overflow-hidden border border-border bg-card", !row.is_active && "opacity-40")}>
+            <img src={row.url} alt={row.alt ?? ""} className="aspect-square w-full object-cover" />
+            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-background/80 p-2 backdrop-blur">
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">#{row.display_order}</span>
+              <div className="flex gap-2">
+                <button onClick={() => toggle(row)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">{row.is_active ? "Hide" : "Show"}</button>
+                <button onClick={() => setEditing(row)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"><Pencil className="h-3 w-3" /></button>
+                <button onClick={() => remove(row.id)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-imperium"><Trash2 className="h-3 w-3" /></button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {(editing || creating) && (
+        <StudioImageForm
+          initial={editing}
+          onClose={() => { setEditing(null); setCreating(false); }}
+          onSaved={() => { setEditing(null); setCreating(false); qc.invalidateQueries({ queryKey: ["admin-studio"] }); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function StudioImageForm({ initial, onClose, onSaved }: { initial: StudioRow | null; onClose: () => void; onSaved: () => void }) {
+  const [url, setUrl] = useState(initial?.url ?? "");
+  const [alt, setAlt] = useState(initial?.alt ?? "");
+  const [order, setOrder] = useState(initial?.display_order ?? 0);
+  const [isActive, setIsActive] = useState(initial?.is_active ?? true);
+  const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const onFile = async (file: File) => {
+    setUploading(true);
+    try {
+      const path = `studio/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const { error: upErr } = await supabase.storage.from("site-media").upload(path, file, { upsert: false });
+      if (upErr) throw upErr;
+      const { data: signed, error: signErr } = await supabase.storage.from("site-media").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (signErr) throw signErr;
+      setUrl(signed.signedUrl);
+      toast.success("Uploaded");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const save = async () => {
+    if (!url.trim()) { toast.error("Image URL is required"); return; }
+    setBusy(true);
+    const payload = { url: url.trim(), alt: alt || null, display_order: Math.round(order), is_active: isActive };
+    const q = initial
+      ? supabase.from("studio_images").update(payload).eq("id", initial.id)
+      : supabase.from("studio_images").insert(payload);
+    const { error } = await q;
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else { toast.success(initial ? "Updated" : "Created"); onSaved(); }
+  };
+
+  const inp = "w-full rounded border border-border bg-card px-3 py-2 text-sm outline-none focus:border-imperium";
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur" onClick={onClose}>
+      <div className="w-full max-w-lg rounded-lg border border-border bg-card p-6" onClick={(e) => e.stopPropagation()}>
+        <h3 className="font-display text-2xl">{initial ? "Edit image" : "Add studio image"}</h3>
+        <div className="mt-5 space-y-3">
+          <div>
+            <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); }} />
+              {uploading ? "Uploading…" : "Upload from device"}
+            </label>
+            <span className="ml-3 text-[11px] text-muted-foreground">or paste a URL below</span>
+          </div>
+          <input className={inp} placeholder="Image URL" value={url} onChange={(e) => setUrl(e.target.value)} />
+          {url && <img src={url} alt="preview" className="max-h-48 rounded border border-border object-cover" />}
+          <input className={inp} placeholder="Alt text (accessibility)" value={alt ?? ""} onChange={(e) => setAlt(e.target.value)} />
+          <input className={inp} type="number" placeholder="Display order" value={order} onChange={(e) => setOrder(+e.target.value)} />
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} /> Active (show on site)</label>
+        </div>
+        <div className="mt-6 flex justify-end gap-3">
+          <button onClick={onClose} className="border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em]">Cancel</button>
+          <button onClick={save} disabled={busy || uploading} className="border border-imperium bg-imperium px-5 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-charleston disabled:opacity-50">{busy ? "Saving…" : "Save"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
