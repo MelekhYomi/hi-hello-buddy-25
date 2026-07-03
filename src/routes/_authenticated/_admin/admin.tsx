@@ -1043,8 +1043,8 @@ function TestimonialForm({ initial, onClose, onSaved }: { initial: TestimonialRo
     setBusy(true);
     const payload = {
       name: name.trim(),
-      role: role || null,
-      company: company || null,
+      role: role ?? "",
+      company: company ?? "",
       quote: quote.trim(),
       rating: Math.min(5, Math.max(1, Math.round(rating))),
       avatar_url: avatar || null,
