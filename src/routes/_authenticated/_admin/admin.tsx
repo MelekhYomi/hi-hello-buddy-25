@@ -20,7 +20,7 @@ const BOOKING_STATUSES = ["pending", "confirmed", "completed", "cancelled"] as c
 const ORDER_STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"] as const;
 const PAY_STATUSES = ["unpaid", "paid", "pay_on_delivery", "whatsapp_pending", "refunded"] as const;
 
-type Tab = "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments";
+type Tab = "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials";
 
 function AdminPage() {
   const { user, signOut, isSuperAdmin } = useAuth();
@@ -161,6 +161,8 @@ function AdminPage() {
           <TabButton active={tab === "orders"} onClick={() => setTab("orders")}>Orders</TabButton>
           <TabButton active={tab === "products"} onClick={() => setTab("products")}>Products</TabButton>
           <TabButton active={tab === "blog"} onClick={() => setTab("blog")}>Blog</TabButton>
+          <TabButton active={tab === "testimonials"} onClick={() => setTab("testimonials")}>Testimonials</TabButton>
+          <TabButton active={tab === "studio"} onClick={() => setTab("studio")}>Studio images</TabButton>
           <TabButton active={tab === "leads"} onClick={() => setTab("leads")}>Leads</TabButton>
           <TabButton active={tab === "contacts"} onClick={() => setTab("contacts")}>
             Messages {unreadContacts > 0 && <span className="ml-2 inline-flex h-4 min-w-4 items-center justify-center bg-imperium px-1 text-[9px] text-charleston">{unreadContacts}</span>}
@@ -273,6 +275,8 @@ function AdminPage() {
         {tab === "products" && <ProductsAdmin products={products.data ?? []} onChange={() => qc.invalidateQueries({ queryKey: ["admin-products"] })} />}
 
         {tab === "blog" && <BlogAdmin />}
+        {tab === "testimonials" && <TestimonialsAdmin />}
+        {tab === "studio" && <StudioImagesAdmin />}
         {tab === "settings" && <SettingsAdmin />}
 
         {tab === "leads" && (
