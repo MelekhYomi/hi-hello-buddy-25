@@ -20,7 +20,7 @@ const BOOKING_STATUSES = ["pending", "confirmed", "completed", "cancelled"] as c
 const ORDER_STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"] as const;
 const PAY_STATUSES = ["unpaid", "paid", "pay_on_delivery", "whatsapp_pending", "refunded"] as const;
 
-type Tab = "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies";
+type Tab = "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies" | "categories" | "delivery";
 
 function AdminPage() {
   const { user, signOut, isSuperAdmin } = useAuth();
@@ -162,6 +162,8 @@ function AdminPage() {
           <TabButton active={tab === "products"} onClick={() => setTab("products")}>Products</TabButton>
           <TabButton active={tab === "services"} onClick={() => setTab("services")}>Services</TabButton>
           <TabButton active={tab === "case_studies"} onClick={() => setTab("case_studies")}>Case studies</TabButton>
+          <TabButton active={tab === "categories"} onClick={() => setTab("categories")}>Categories</TabButton>
+          <TabButton active={tab === "delivery"} onClick={() => setTab("delivery")}>Delivery zones</TabButton>
           <TabButton active={tab === "blog"} onClick={() => setTab("blog")}>Blog</TabButton>
           <TabButton active={tab === "testimonials"} onClick={() => setTab("testimonials")}>Testimonials</TabButton>
           <TabButton active={tab === "studio"} onClick={() => setTab("studio")}>Studio images</TabButton>
@@ -279,6 +281,8 @@ function AdminPage() {
         {tab === "blog" && <BlogAdmin />}
         {tab === "services" && <ServicesAdmin />}
         {tab === "case_studies" && <CaseStudiesAdmin />}
+        {tab === "categories" && <CategoriesAdmin />}
+        {tab === "delivery" && <DeliveryZonesAdmin />}
         {tab === "testimonials" && <TestimonialsAdmin />}
         {tab === "studio" && <StudioImagesAdmin />}
         {tab === "settings" && <SettingsAdmin />}
@@ -1525,6 +1529,215 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
         <div className="mt-6 flex justify-end gap-3">
           <button onClick={onClose} className="border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em]">Cancel</button>
           <button onClick={save} disabled={busy || uploading !== null} className="border border-imperium bg-imperium px-5 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-charleston disabled:opacity-50">{busy ? "Saving…" : "Save"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ================= Categories =================
+interface CategoryRow { id: string; name: string; slug: string; display_order: number }
+
+function CategoriesAdmin() {
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["admin-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("product_categories").select("*").order("display_order");
+      if (error) throw error;
+      return data as CategoryRow[];
+    },
+  });
+  const [editing, setEditing] = useState<CategoryRow | null>(null);
+  const [creating, setCreating] = useState(false);
+  const remove = async (id: string) => {
+    if (!confirm("Delete this category? Products referencing it will be uncategorised.")) return;
+    const { error } = await supabase.from("product_categories").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-categories"] }); }
+  };
+  return (
+    <div className="mt-8">
+      <div className="mb-4 flex items-center justify-between">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Shop taxonomy · lower display order shows first</p>
+        <button onClick={() => setCreating(true)} className="inline-flex items-center gap-2 border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"><Plus className="h-3 w-3" /> Add category</button>
+      </div>
+      <div className="border border-border bg-card">
+        {(!data || data.length === 0) && <Empty>No categories yet</Empty>}
+        {data?.map((row) => (
+          <div key={row.id} className="flex items-center justify-between border-b border-border p-4 last:border-b-0">
+            <div>
+              <div className="font-display text-base">{row.name}</div>
+              <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">/{row.slug} · #{row.display_order}</div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setEditing(row)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"><Pencil className="h-3 w-3" /></button>
+              <button onClick={() => remove(row.id)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-imperium"><Trash2 className="h-3 w-3" /></button>
+            </div>
+          </div>
+        ))}
+      </div>
+      {(editing || creating) && (
+        <CategoryForm
+          initial={editing}
+          onClose={() => { setEditing(null); setCreating(false); }}
+          onSaved={() => { setEditing(null); setCreating(false); qc.invalidateQueries({ queryKey: ["admin-categories"] }); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function CategoryForm({ initial, onClose, onSaved }: { initial: CategoryRow | null; onClose: () => void; onSaved: () => void }) {
+  const [name, setName] = useState(initial?.name ?? "");
+  const [slug, setSlug] = useState(initial?.slug ?? "");
+  const [order, setOrder] = useState(initial?.display_order ?? 0);
+  const [busy, setBusy] = useState(false);
+
+  const save = async () => {
+    if (!name.trim() || !slug.trim()) return toast.error("Name and slug are required");
+    setBusy(true);
+    const payload = { name: name.trim(), slug: slug.trim(), display_order: Math.round(order) };
+    const q = initial
+      ? supabase.from("product_categories").update(payload).eq("id", initial.id)
+      : supabase.from("product_categories").insert(payload);
+    const { error } = await q;
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else { toast.success(initial ? "Updated" : "Created"); onSaved(); }
+  };
+
+  const inp = "w-full rounded border border-border bg-card px-3 py-2 text-sm outline-none focus:border-imperium";
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur" onClick={onClose}>
+      <div className="w-full max-w-md rounded-lg border border-border bg-card p-6" onClick={(e) => e.stopPropagation()}>
+        <h3 className="font-display text-2xl">{initial ? "Edit category" : "New category"}</h3>
+        <div className="mt-5 space-y-3">
+          <input className={inp} placeholder="Name (e.g. Apparel)" value={name} onChange={(e) => setName(e.target.value)} />
+          <input className={inp} placeholder="Slug (e.g. apparel)" value={slug} onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))} />
+          <input className={inp} type="number" placeholder="Display order" value={order} onChange={(e) => setOrder(+e.target.value)} />
+        </div>
+        <div className="mt-6 flex justify-end gap-3">
+          <button onClick={onClose} className="border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em]">Cancel</button>
+          <button onClick={save} disabled={busy} className="border border-imperium bg-imperium px-5 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-charleston disabled:opacity-50">{busy ? "Saving…" : "Save"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ================= Delivery Zones =================
+interface ZoneRow {
+  id: string; name: string; fee: number;
+  free_above_amount: number | null; eta_days: string | null;
+  is_active: boolean; display_order: number;
+}
+
+function DeliveryZonesAdmin() {
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["admin-zones"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("delivery_zones").select("*").order("display_order");
+      if (error) throw error;
+      return data as ZoneRow[];
+    },
+  });
+  const [editing, setEditing] = useState<ZoneRow | null>(null);
+  const [creating, setCreating] = useState(false);
+  const remove = async (id: string) => {
+    if (!confirm("Delete this zone?")) return;
+    const { error } = await supabase.from("delivery_zones").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-zones"] }); }
+  };
+  const toggle = async (row: ZoneRow) => {
+    const { error } = await supabase.from("delivery_zones").update({ is_active: !row.is_active }).eq("id", row.id);
+    if (error) toast.error(error.message);
+    else qc.invalidateQueries({ queryKey: ["admin-zones"] });
+  };
+  return (
+    <div className="mt-8">
+      <div className="mb-4 flex items-center justify-between">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Shipping fees at checkout · free shipping kicks in above threshold</p>
+        <button onClick={() => setCreating(true)} className="inline-flex items-center gap-2 border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"><Plus className="h-3 w-3" /> Add zone</button>
+      </div>
+      <div className="border border-border bg-card">
+        {(!data || data.length === 0) && <Empty>No delivery zones yet</Empty>}
+        {data?.map((row) => (
+          <div key={row.id} className={cn("flex items-center justify-between border-b border-border p-4 last:border-b-0", !row.is_active && "opacity-50")}>
+            <div>
+              <div className="font-display text-base">{row.name}</div>
+              <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                {formatNaira(row.fee)} · {row.eta_days ?? "no ETA"} · #{row.display_order}
+                {row.free_above_amount ? ` · free above ${formatNaira(row.free_above_amount)}` : ""}
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => toggle(row)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">{row.is_active ? "Disable" : "Enable"}</button>
+              <button onClick={() => setEditing(row)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"><Pencil className="h-3 w-3" /></button>
+              <button onClick={() => remove(row.id)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-imperium"><Trash2 className="h-3 w-3" /></button>
+            </div>
+          </div>
+        ))}
+      </div>
+      {(editing || creating) && (
+        <ZoneForm
+          initial={editing}
+          onClose={() => { setEditing(null); setCreating(false); }}
+          onSaved={() => { setEditing(null); setCreating(false); qc.invalidateQueries({ queryKey: ["admin-zones"] }); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function ZoneForm({ initial, onClose, onSaved }: { initial: ZoneRow | null; onClose: () => void; onSaved: () => void }) {
+  const [name, setName] = useState(initial?.name ?? "");
+  const [fee, setFee] = useState<string>(initial?.fee?.toString() ?? "");
+  const [freeAbove, setFreeAbove] = useState<string>(initial?.free_above_amount?.toString() ?? "");
+  const [eta, setEta] = useState(initial?.eta_days ?? "");
+  const [order, setOrder] = useState(initial?.display_order ?? 0);
+  const [isActive, setIsActive] = useState(initial?.is_active ?? true);
+  const [busy, setBusy] = useState(false);
+
+  const save = async () => {
+    if (!name.trim()) return toast.error("Name is required");
+    if (!fee.trim() || Number.isNaN(parseInt(fee, 10))) return toast.error("Fee is required (NGN, whole number)");
+    setBusy(true);
+    const payload = {
+      name: name.trim(),
+      fee: parseInt(fee, 10),
+      free_above_amount: freeAbove ? parseInt(freeAbove, 10) : null,
+      eta_days: eta.trim() || null,
+      display_order: Math.round(order),
+      is_active: isActive,
+    };
+    const q = initial
+      ? supabase.from("delivery_zones").update(payload).eq("id", initial.id)
+      : supabase.from("delivery_zones").insert(payload);
+    const { error } = await q;
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else { toast.success(initial ? "Updated" : "Created"); onSaved(); }
+  };
+
+  const inp = "w-full rounded border border-border bg-card px-3 py-2 text-sm outline-none focus:border-imperium";
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur" onClick={onClose}>
+      <div className="w-full max-w-md rounded-lg border border-border bg-card p-6" onClick={(e) => e.stopPropagation()}>
+        <h3 className="font-display text-2xl">{initial ? "Edit delivery zone" : "New delivery zone"}</h3>
+        <div className="mt-5 space-y-3">
+          <input className={inp} placeholder="Name (e.g. Lagos mainland)" value={name} onChange={(e) => setName(e.target.value)} />
+          <input className={inp} type="number" placeholder="Fee (NGN)" value={fee} onChange={(e) => setFee(e.target.value)} />
+          <input className={inp} type="number" placeholder="Free above (NGN, optional)" value={freeAbove} onChange={(e) => setFreeAbove(e.target.value)} />
+          <input className={inp} placeholder="ETA (e.g. 2-3 days)" value={eta} onChange={(e) => setEta(e.target.value)} />
+          <input className={inp} type="number" placeholder="Display order" value={order} onChange={(e) => setOrder(+e.target.value)} />
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} /> Active</label>
+        </div>
+        <div className="mt-6 flex justify-end gap-3">
+          <button onClick={onClose} className="border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em]">Cancel</button>
+          <button onClick={save} disabled={busy} className="border border-imperium bg-imperium px-5 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-charleston disabled:opacity-50">{busy ? "Saving…" : "Save"}</button>
         </div>
       </div>
     </div>
