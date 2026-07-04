@@ -162,6 +162,8 @@ function AdminPage() {
           <TabButton active={tab === "products"} onClick={() => setTab("products")}>Products</TabButton>
           <TabButton active={tab === "services"} onClick={() => setTab("services")}>Services</TabButton>
           <TabButton active={tab === "case_studies"} onClick={() => setTab("case_studies")}>Case studies</TabButton>
+          <TabButton active={tab === "categories"} onClick={() => setTab("categories")}>Categories</TabButton>
+          <TabButton active={tab === "delivery"} onClick={() => setTab("delivery")}>Delivery zones</TabButton>
           <TabButton active={tab === "blog"} onClick={() => setTab("blog")}>Blog</TabButton>
           <TabButton active={tab === "testimonials"} onClick={() => setTab("testimonials")}>Testimonials</TabButton>
           <TabButton active={tab === "studio"} onClick={() => setTab("studio")}>Studio images</TabButton>
