@@ -20,7 +20,7 @@ const BOOKING_STATUSES = ["pending", "confirmed", "completed", "cancelled"] as c
 const ORDER_STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"] as const;
 const PAY_STATUSES = ["unpaid", "paid", "pay_on_delivery", "whatsapp_pending", "refunded"] as const;
 
-type Tab = "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies";
+type Tab = "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies" | "categories" | "delivery";
 
 function AdminPage() {
   const { user, signOut, isSuperAdmin } = useAuth();
