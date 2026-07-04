@@ -277,6 +277,8 @@ function AdminPage() {
         {tab === "products" && <ProductsAdmin products={products.data ?? []} onChange={() => qc.invalidateQueries({ queryKey: ["admin-products"] })} />}
 
         {tab === "blog" && <BlogAdmin />}
+        {tab === "services" && <ServicesAdmin />}
+        {tab === "case_studies" && <CaseStudiesAdmin />}
         {tab === "testimonials" && <TestimonialsAdmin />}
         {tab === "studio" && <StudioImagesAdmin />}
         {tab === "settings" && <SettingsAdmin />}
