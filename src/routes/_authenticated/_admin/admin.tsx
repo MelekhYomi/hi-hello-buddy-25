@@ -1216,3 +1216,317 @@ function StudioImageForm({ initial, onClose, onSaved }: { initial: StudioRow | n
   );
 }
 
+
+// ================= Services =================
+interface ServiceRow {
+  id: string; slug: string; title: string; description: string; icon: string;
+  price_min: number | null; price_max: number | null; features: string[];
+  display_order: number; is_active: boolean;
+}
+
+function ServicesAdmin() {
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["admin-services"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("services").select("*").order("display_order");
+      if (error) throw error;
+      return data as ServiceRow[];
+    },
+  });
+  const [editing, setEditing] = useState<ServiceRow | null>(null);
+  const [creating, setCreating] = useState(false);
+  const remove = async (id: string) => {
+    if (!confirm("Delete this service?")) return;
+    const { error } = await supabase.from("services").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-services"] }); }
+  };
+  const toggle = async (row: ServiceRow) => {
+    const { error } = await supabase.from("services").update({ is_active: !row.is_active }).eq("id", row.id);
+    if (error) toast.error(error.message);
+    else qc.invalidateQueries({ queryKey: ["admin-services"] });
+  };
+  return (
+    <div className="mt-8">
+      <div className="mb-4 flex items-center justify-between">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Editable service cards · lower display order shows first</p>
+        <button onClick={() => setCreating(true)} className="inline-flex items-center gap-2 border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"><Plus className="h-3 w-3" /> Add service</button>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        {(!data || data.length === 0) && <div className="md:col-span-2"><Empty>No services yet</Empty></div>}
+        {data?.map((row) => (
+          <div key={row.id} className={cn("border border-border bg-card p-4", !row.is_active && "opacity-50")}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-display text-lg">{row.title}</div>
+                <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">/{row.slug} · #{row.display_order}</div>
+                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{row.description}</p>
+                {(row.price_min || row.price_max) && (
+                  <div className="mt-2 text-xs text-foreground">
+                    {row.price_min ? formatNaira(row.price_min) : "—"} – {row.price_max ? formatNaira(row.price_max) : "—"}
+                  </div>
+                )}
+                {row.features?.length > 0 && (
+                  <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                    {row.features.slice(0, 3).map((f, i) => <li key={i}>· {f}</li>)}
+                  </ul>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <button onClick={() => toggle(row)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">{row.is_active ? "Hide" : "Show"}</button>
+                <button onClick={() => setEditing(row)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"><Pencil className="h-3 w-3" /></button>
+                <button onClick={() => remove(row.id)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-imperium"><Trash2 className="h-3 w-3" /></button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {(editing || creating) && (
+        <ServiceForm
+          initial={editing}
+          onClose={() => { setEditing(null); setCreating(false); }}
+          onSaved={() => { setEditing(null); setCreating(false); qc.invalidateQueries({ queryKey: ["admin-services"] }); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function ServiceForm({ initial, onClose, onSaved }: { initial: ServiceRow | null; onClose: () => void; onSaved: () => void }) {
+  const [slug, setSlug] = useState(initial?.slug ?? "");
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [description, setDescription] = useState(initial?.description ?? "");
+  const [icon, setIcon] = useState(initial?.icon ?? "");
+  const [priceMin, setPriceMin] = useState<string>(initial?.price_min?.toString() ?? "");
+  const [priceMax, setPriceMax] = useState<string>(initial?.price_max?.toString() ?? "");
+  const [features, setFeatures] = useState((initial?.features ?? []).join("\n"));
+  const [order, setOrder] = useState(initial?.display_order ?? 0);
+  const [isActive, setIsActive] = useState(initial?.is_active ?? true);
+  const [busy, setBusy] = useState(false);
+
+  const save = async () => {
+    if (!slug.trim() || !title.trim() || !description.trim() || !icon.trim()) {
+      return toast.error("Slug, title, description and icon are required");
+    }
+    setBusy(true);
+    const payload = {
+      slug: slug.trim(), title: title.trim(), description: description.trim(), icon: icon.trim(),
+      price_min: priceMin ? parseInt(priceMin, 10) : null,
+      price_max: priceMax ? parseInt(priceMax, 10) : null,
+      features: features.split("\n").map((s) => s.trim()).filter(Boolean),
+      display_order: Math.round(order), is_active: isActive,
+    };
+    const q = initial
+      ? supabase.from("services").update(payload).eq("id", initial.id)
+      : supabase.from("services").insert(payload);
+    const { error } = await q;
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else { toast.success(initial ? "Updated" : "Created"); onSaved(); }
+  };
+
+  const inp = "w-full rounded border border-border bg-card px-3 py-2 text-sm outline-none focus:border-imperium";
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur" onClick={onClose}>
+      <div className="w-full max-w-lg rounded-lg border border-border bg-card p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <h3 className="font-display text-2xl">{initial ? "Edit service" : "New service"}</h3>
+        <div className="mt-5 space-y-3">
+          <input className={inp} placeholder="Slug (e.g. brand-identity)" value={slug} onChange={(e) => setSlug(e.target.value)} />
+          <input className={inp} placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <textarea className={inp} rows={3} placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <input className={inp} placeholder="Icon name (lucide, e.g. palette)" value={icon} onChange={(e) => setIcon(e.target.value)} />
+          <div className="grid grid-cols-2 gap-2">
+            <input className={inp} type="number" placeholder="Price min (NGN)" value={priceMin} onChange={(e) => setPriceMin(e.target.value)} />
+            <input className={inp} type="number" placeholder="Price max (NGN)" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} />
+          </div>
+          <textarea className={inp} rows={4} placeholder="Features (one per line)" value={features} onChange={(e) => setFeatures(e.target.value)} />
+          <input className={inp} type="number" placeholder="Display order" value={order} onChange={(e) => setOrder(+e.target.value)} />
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} /> Active</label>
+        </div>
+        <div className="mt-6 flex justify-end gap-3">
+          <button onClick={onClose} className="border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em]">Cancel</button>
+          <button onClick={save} disabled={busy} className="border border-imperium bg-imperium px-5 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-charleston disabled:opacity-50">{busy ? "Saving…" : "Save"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ================= Case Studies =================
+interface CaseStudyRow {
+  id: string; slug: string; title: string; client: string; industry: string;
+  cover_image: string | null; challenge: string | null; solution: string | null; results: string | null;
+  is_featured: boolean; display_order: number; gallery_images: string[];
+}
+
+function CaseStudiesAdmin() {
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["admin-case-studies"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("case_studies").select("*").order("display_order");
+      if (error) throw error;
+      return data as CaseStudyRow[];
+    },
+  });
+  const [editing, setEditing] = useState<CaseStudyRow | null>(null);
+  const [creating, setCreating] = useState(false);
+  const remove = async (id: string) => {
+    if (!confirm("Delete this case study?")) return;
+    const { error } = await supabase.from("case_studies").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-case-studies"] }); }
+  };
+  const toggleFeatured = async (row: CaseStudyRow) => {
+    const { error } = await supabase.from("case_studies").update({ is_featured: !row.is_featured }).eq("id", row.id);
+    if (error) toast.error(error.message);
+    else qc.invalidateQueries({ queryKey: ["admin-case-studies"] });
+  };
+  return (
+    <div className="mt-8">
+      <div className="mb-4 flex items-center justify-between">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Portfolio work · featured items surface in the portfolio section</p>
+        <button onClick={() => setCreating(true)} className="inline-flex items-center gap-2 border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"><Plus className="h-3 w-3" /> Add case study</button>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {(!data || data.length === 0) && <div className="md:col-span-2 xl:col-span-3"><Empty>No case studies yet</Empty></div>}
+        {data?.map((row) => (
+          <div key={row.id} className="overflow-hidden border border-border bg-card">
+            {row.cover_image && <img src={row.cover_image} alt={row.title} className="aspect-[4/3] w-full object-cover" />}
+            <div className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-display text-lg">{row.title}</div>
+                  <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{row.client} · {row.industry} · #{row.display_order}</div>
+                  {row.is_featured && <span className="mt-2 inline-block border border-imperium px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-imperium">Featured</span>}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button onClick={() => toggleFeatured(row)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">{row.is_featured ? "Unfeature" : "Feature"}</button>
+                  <button onClick={() => setEditing(row)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"><Pencil className="h-3 w-3" /></button>
+                  <button onClick={() => remove(row.id)} className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-imperium"><Trash2 className="h-3 w-3" /></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {(editing || creating) && (
+        <CaseStudyForm
+          initial={editing}
+          onClose={() => { setEditing(null); setCreating(false); }}
+          onSaved={() => { setEditing(null); setCreating(false); qc.invalidateQueries({ queryKey: ["admin-case-studies"] }); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | null; onClose: () => void; onSaved: () => void }) {
+  const [slug, setSlug] = useState(initial?.slug ?? "");
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [client, setClient] = useState(initial?.client ?? "");
+  const [industry, setIndustry] = useState(initial?.industry ?? "");
+  const [cover, setCover] = useState(initial?.cover_image ?? "");
+  const [challenge, setChallenge] = useState(initial?.challenge ?? "");
+  const [solution, setSolution] = useState(initial?.solution ?? "");
+  const [results, setResults] = useState(initial?.results ?? "");
+  const [gallery, setGallery] = useState((initial?.gallery_images ?? []).join("\n"));
+  const [order, setOrder] = useState(initial?.display_order ?? 0);
+  const [featured, setFeatured] = useState(initial?.is_featured ?? false);
+  const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState<null | "cover" | "gallery">(null);
+
+  const uploadOne = async (file: File): Promise<string> => {
+    const path = `case-studies/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+    const { error: upErr } = await supabase.storage.from("site-media").upload(path, file, { upsert: false });
+    if (upErr) throw upErr;
+    const { data: signed, error: signErr } = await supabase.storage.from("site-media").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+    if (signErr) throw signErr;
+    return signed.signedUrl;
+  };
+
+  const onCoverFile = async (file: File) => {
+    setUploading("cover");
+    try { setCover(await uploadOne(file)); toast.success("Uploaded"); }
+    catch (e) { toast.error(e instanceof Error ? e.message : "Upload failed"); }
+    finally { setUploading(null); }
+  };
+  const onGalleryFile = async (file: File) => {
+    setUploading("gallery");
+    try {
+      const url = await uploadOne(file);
+      setGallery((g) => (g ? g + "\n" + url : url));
+      toast.success("Added to gallery");
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Upload failed"); }
+    finally { setUploading(null); }
+  };
+
+  const save = async () => {
+    if (!slug.trim() || !title.trim() || !client.trim() || !industry.trim()) {
+      return toast.error("Slug, title, client and industry are required");
+    }
+    setBusy(true);
+    const payload = {
+      slug: slug.trim(), title: title.trim(), client: client.trim(), industry: industry.trim(),
+      cover_image: cover.trim() || null,
+      challenge: challenge.trim() || null,
+      solution: solution.trim() || null,
+      results: results.trim() || null,
+      gallery_images: gallery.split("\n").map((s) => s.trim()).filter(Boolean),
+      display_order: Math.round(order), is_featured: featured,
+    };
+    const q = initial
+      ? supabase.from("case_studies").update(payload).eq("id", initial.id)
+      : supabase.from("case_studies").insert(payload);
+    const { error } = await q;
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else { toast.success(initial ? "Updated" : "Created"); onSaved(); }
+  };
+
+  const inp = "w-full rounded border border-border bg-card px-3 py-2 text-sm outline-none focus:border-imperium";
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur" onClick={onClose}>
+      <div className="w-full max-w-2xl rounded-lg border border-border bg-card p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <h3 className="font-display text-2xl">{initial ? "Edit case study" : "New case study"}</h3>
+        <div className="mt-5 space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <input className={inp} placeholder="Slug" value={slug} onChange={(e) => setSlug(e.target.value)} />
+            <input className={inp} placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <input className={inp} placeholder="Client" value={client} onChange={(e) => setClient(e.target.value)} />
+            <input className={inp} placeholder="Industry" value={industry} onChange={(e) => setIndustry(e.target.value)} />
+          </div>
+          <div>
+            <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onCoverFile(f); }} />
+              {uploading === "cover" ? "Uploading…" : "Upload cover"}
+            </label>
+            <span className="ml-3 text-[11px] text-muted-foreground">or paste cover URL below</span>
+          </div>
+          <input className={inp} placeholder="Cover image URL" value={cover} onChange={(e) => setCover(e.target.value)} />
+          {cover && <img src={cover} alt="cover" className="max-h-48 rounded border border-border object-cover" />}
+          <textarea className={inp} rows={3} placeholder="Challenge" value={challenge} onChange={(e) => setChallenge(e.target.value)} />
+          <textarea className={inp} rows={3} placeholder="Solution" value={solution} onChange={(e) => setSolution(e.target.value)} />
+          <textarea className={inp} rows={3} placeholder="Results" value={results} onChange={(e) => setResults(e.target.value)} />
+          <div>
+            <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onGalleryFile(f); }} />
+              {uploading === "gallery" ? "Uploading…" : "Add gallery image"}
+            </label>
+            <span className="ml-3 text-[11px] text-muted-foreground">appends URL below</span>
+          </div>
+          <textarea className={inp} rows={4} placeholder="Gallery image URLs (one per line)" value={gallery} onChange={(e) => setGallery(e.target.value)} />
+          <div className="grid grid-cols-2 gap-2">
+            <input className={inp} type="number" placeholder="Display order" value={order} onChange={(e) => setOrder(+e.target.value)} />
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} /> Featured</label>
+          </div>
+        </div>
+        <div className="mt-6 flex justify-end gap-3">
+          <button onClick={onClose} className="border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em]">Cancel</button>
+          <button onClick={save} disabled={busy || uploading !== null} className="border border-imperium bg-imperium px-5 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-charleston disabled:opacity-50">{busy ? "Saving…" : "Save"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
