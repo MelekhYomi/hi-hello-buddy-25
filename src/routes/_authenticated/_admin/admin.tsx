@@ -281,6 +281,8 @@ function AdminPage() {
         {tab === "blog" && <BlogAdmin />}
         {tab === "services" && <ServicesAdmin />}
         {tab === "case_studies" && <CaseStudiesAdmin />}
+        {tab === "categories" && <CategoriesAdmin />}
+        {tab === "delivery" && <DeliveryZonesAdmin />}
         {tab === "testimonials" && <TestimonialsAdmin />}
         {tab === "studio" && <StudioImagesAdmin />}
         {tab === "settings" && <SettingsAdmin />}
