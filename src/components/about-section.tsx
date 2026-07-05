@@ -1,6 +1,7 @@
 import studioPhoto from "@/assets/studio-photo.jpg";
+import { useSiteSettings } from "@/lib/site-settings";
 
-const VALUES = [
+const DEFAULT_VALUES = [
   "Excellence",
   "Creativity",
   "Professionalism",
@@ -10,7 +11,26 @@ const VALUES = [
   "Premium Presentation",
 ];
 
+const DEFAULT_ABOUT = {
+  eyebrow: "Who We Are",
+  heading_line1: "We Don't Just",
+  heading_highlight: "Design.",
+  heading_line3: "We Transform.",
+  body1:
+    "C Imperium is a brand transformation company focused on helping businesses, ministries, organizations, and individuals build premium visual identities and impactful brand experiences.",
+  body2:
+    "We believe every brand has the potential to be impossible to ignore. Our job is to unlock that potential — through strategy, design, and flawless execution.",
+  quote: "We help brands become impossible to ignore.",
+  values_label: "Character · Competence · Capacity",
+  values: DEFAULT_VALUES,
+};
+
 export function AboutSection() {
+  const { data: settings } = useSiteSettings();
+  const raw = (settings as Record<string, unknown> | undefined)?.about as Partial<typeof DEFAULT_ABOUT> | undefined;
+  const about = { ...DEFAULT_ABOUT, ...(raw ?? {}) };
+  const values = Array.isArray(about.values) && about.values.length ? about.values : DEFAULT_VALUES;
+
   return (
     <section
       id="about"
