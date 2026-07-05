@@ -490,24 +490,30 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           created_at: string
           display_name: string | null
           id: string
           phone: string | null
+          phone_verified: boolean
           updated_at: string
         }
         Insert: {
+          address?: string | null
           created_at?: string
           display_name?: string | null
           id: string
           phone?: string | null
+          phone_verified?: boolean
           updated_at?: string
         }
         Update: {
+          address?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
           phone?: string | null
+          phone_verified?: boolean
           updated_at?: string
         }
         Relationships: []
