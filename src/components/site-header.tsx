@@ -20,7 +20,7 @@ const SECTIONS = [
 ];
 
 export function SiteHeader() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const { count, setOpen } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
