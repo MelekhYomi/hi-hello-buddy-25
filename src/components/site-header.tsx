@@ -20,7 +20,7 @@ const SECTIONS = [
 ];
 
 export function SiteHeader() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const { count, setOpen } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
@@ -59,7 +59,11 @@ export function SiteHeader() {
           ))}
           {user ? (
             <>
-              <Link to="/dashboard" className="story-link text-muted-foreground hover:text-foreground transition-colors">Dashboard</Link>
+              {isAdmin ? (
+                <Link to="/dashboard" className="story-link text-muted-foreground hover:text-foreground transition-colors">Dashboard</Link>
+              ) : (
+                <Link to="/account" className="story-link text-muted-foreground hover:text-foreground transition-colors">My Account</Link>
+              )}
               <button onClick={() => signOut()} className="story-link text-muted-foreground hover:text-foreground transition-colors">Sign out</button>
             </>
           ) : (
@@ -110,7 +114,11 @@ export function SiteHeader() {
             ))}
             {user ? (
               <>
-                <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center py-2.5 text-muted-foreground hover:text-foreground">Dashboard</Link>
+                {isAdmin ? (
+                  <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center py-2.5 text-muted-foreground hover:text-foreground">Dashboard</Link>
+                ) : (
+                  <Link to="/account" onClick={() => setMenuOpen(false)} className="flex items-center py-2.5 text-muted-foreground hover:text-foreground">My Account</Link>
+                )}
                 <button onClick={() => { setMenuOpen(false); signOut(); }} className="flex items-center py-2.5 text-left text-muted-foreground hover:text-foreground">Sign out</button>
               </>
             ) : (
