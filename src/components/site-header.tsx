@@ -114,7 +114,11 @@ export function SiteHeader() {
             ))}
             {user ? (
               <>
-                <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center py-2.5 text-muted-foreground hover:text-foreground">Dashboard</Link>
+                {isAdmin ? (
+                  <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center py-2.5 text-muted-foreground hover:text-foreground">Dashboard</Link>
+                ) : (
+                  <Link to="/account" onClick={() => setMenuOpen(false)} className="flex items-center py-2.5 text-muted-foreground hover:text-foreground">My Account</Link>
+                )}
                 <button onClick={() => { setMenuOpen(false); signOut(); }} className="flex items-center py-2.5 text-left text-muted-foreground hover:text-foreground">Sign out</button>
               </>
             ) : (
