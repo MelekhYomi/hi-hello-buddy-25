@@ -1,6 +1,7 @@
 import studioPhoto from "@/assets/studio-photo.jpg";
+import { useSiteSettings } from "@/lib/site-settings";
 
-const VALUES = [
+const DEFAULT_VALUES = [
   "Excellence",
   "Creativity",
   "Professionalism",
@@ -10,7 +11,26 @@ const VALUES = [
   "Premium Presentation",
 ];
 
+const DEFAULT_ABOUT = {
+  eyebrow: "Who We Are",
+  heading_line1: "We Don't Just",
+  heading_highlight: "Design.",
+  heading_line3: "We Transform.",
+  body1:
+    "C Imperium is a brand transformation company focused on helping businesses, ministries, organizations, and individuals build premium visual identities and impactful brand experiences.",
+  body2:
+    "We believe every brand has the potential to be impossible to ignore. Our job is to unlock that potential — through strategy, design, and flawless execution.",
+  quote: "We help brands become impossible to ignore.",
+  values_label: "Character · Competence · Capacity",
+  values: DEFAULT_VALUES,
+};
+
 export function AboutSection() {
+  const { data: settings } = useSiteSettings();
+  const raw = (settings as Record<string, unknown> | undefined)?.about as Partial<typeof DEFAULT_ABOUT> | undefined;
+  const about = { ...DEFAULT_ABOUT, ...(raw ?? {}) };
+  const values = Array.isArray(about.values) && about.values.length ? about.values : DEFAULT_VALUES;
+
   return (
     <section
       id="about"
@@ -58,7 +78,7 @@ export function AboutSection() {
 
         {/* Copy */}
         <div>
-          <div className="ci-section-label">Who We Are</div>
+          <div className="ci-section-label">{about.eyebrow}</div>
           <h2
             className="mt-4 mb-6"
             style={{
@@ -68,11 +88,11 @@ export function AboutSection() {
               letterSpacing: "0.02em",
             }}
           >
-            We Don't Just
+            {about.heading_line1}
             <br />
-            <span className="text-imperium">Design.</span>
+            <span className="text-imperium">{about.heading_highlight}</span>
             <br />
-            We Transform.
+            {about.heading_line3}
           </h2>
           <p
             className="mb-6 text-base font-light leading-[1.9]"
@@ -81,9 +101,7 @@ export function AboutSection() {
               color: "var(--ci-light-gray)",
             }}
           >
-            C Imperium is a brand transformation company focused on helping
-            businesses, ministries, organizations, and individuals build premium
-            visual identities and impactful brand experiences.
+            {about.body1}
           </p>
           <p
             className="mb-8 text-base font-light leading-[1.9]"
@@ -92,9 +110,7 @@ export function AboutSection() {
               color: "var(--ci-gray)",
             }}
           >
-            We believe every brand has the potential to be impossible to ignore.
-            Our job is to unlock that potential — through strategy, design, and
-            flawless execution.
+            {about.body2}
           </p>
 
           <div
@@ -112,16 +128,17 @@ export function AboutSection() {
                 color: "var(--ci-gold-light)",
               }}
             >
-              "We help brands become impossible to ignore."
+              "{about.quote}"
             </p>
           </div>
 
+
           <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
-            Character · Competence · Capacity
+            {about.values_label}
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
 
-            {VALUES.map((v, i) => (
+            {values.map((v: string, i: number) => (
               <div
                 key={v}
                 className="ci-value-item relative overflow-hidden border px-5 py-4 transition-colors"

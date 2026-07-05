@@ -1,4 +1,8 @@
-const REASONS = [
+import { useSiteSettings } from "@/lib/site-settings";
+
+type Reason = { n: string; title: string; body: string };
+
+const DEFAULTS: Reason[] = [
   { n: "01", title: "Strategy-First Thinking", body: "Design serves your business goals — not the other way around." },
   { n: "02", title: "Premium Quality Standard", body: "On every project, every time. No shortcuts." },
   { n: "03", title: "Clear, Structured Process", body: "Defined timelines, transparent steps, zero surprises." },
@@ -7,6 +11,10 @@ const REASONS = [
 ];
 
 export function WhySection() {
+  const { data: settings } = useSiteSettings();
+  const raw = (settings as Record<string, unknown> | undefined)?.why;
+  const reasons: Reason[] = Array.isArray(raw) && raw.length ? (raw as Reason[]) : DEFAULTS;
+
   return (
     <section id="why" className="relative border-t border-border/40 py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-6">
@@ -20,7 +28,7 @@ export function WhySection() {
         </div>
 
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-          {REASONS.map(({ n, title, body }) => (
+          {reasons.map(({ n, title, body }) => (
             <article key={n} className="group border border-border/60 bg-card p-6 transition-all hover:border-imperium hover:-translate-y-1">
               <div className="font-display text-4xl text-imperium/30 leading-none">{n}</div>
               <h3 className="mt-5 font-display text-lg tracking-tight">{title}</h3>
