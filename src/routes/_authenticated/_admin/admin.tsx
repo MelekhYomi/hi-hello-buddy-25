@@ -666,6 +666,26 @@ function SettingsAdmin() {
         <SaveBtn onClick={() => save("hero", true)} className="mt-2" />
       </Field>
 
+      <Field label="Process steps (JSON)" hint='Array of {n,title,body}'>
+        <textarea className={`${inp} resize-none font-mono text-xs`} rows={8} value={get("process")} onChange={(e) => set("process", e.target.value)} />
+        <SaveBtn onClick={() => save("process", true)} className="mt-2" />
+      </Field>
+
+      <Field label="Why-us reasons (JSON)" hint='Array of {n,title,body}'>
+        <textarea className={`${inp} resize-none font-mono text-xs`} rows={8} value={get("why")} onChange={(e) => set("why", e.target.value)} />
+        <SaveBtn onClick={() => save("why", true)} className="mt-2" />
+      </Field>
+
+      <Field label="About section (JSON)" hint='{heading, body, values:[{title,body}]}'>
+        <textarea className={`${inp} resize-none font-mono text-xs`} rows={8} value={get("about")} onChange={(e) => set("about", e.target.value)} />
+        <SaveBtn onClick={() => save("about", true)} className="mt-2" />
+      </Field>
+
+      <Field label="Footer copy (JSON)" hint='{tagline, address, copyright}'>
+        <textarea className={`${inp} resize-none font-mono text-xs`} rows={6} value={get("footer")} onChange={(e) => set("footer", e.target.value)} />
+        <SaveBtn onClick={() => save("footer", true)} className="mt-2" />
+      </Field>
+
       <div className="rounded-md border border-border/60 bg-card p-5">
         <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-imperium">Live API keys</div>
         <p className="mt-2 text-sm text-muted-foreground">
