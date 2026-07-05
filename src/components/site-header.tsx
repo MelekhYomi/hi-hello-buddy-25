@@ -59,7 +59,11 @@ export function SiteHeader() {
           ))}
           {user ? (
             <>
-              <Link to="/dashboard" className="story-link text-muted-foreground hover:text-foreground transition-colors">Dashboard</Link>
+              {isAdmin ? (
+                <Link to="/dashboard" className="story-link text-muted-foreground hover:text-foreground transition-colors">Dashboard</Link>
+              ) : (
+                <Link to="/account" className="story-link text-muted-foreground hover:text-foreground transition-colors">My Account</Link>
+              )}
               <button onClick={() => signOut()} className="story-link text-muted-foreground hover:text-foreground transition-colors">Sign out</button>
             </>
           ) : (
