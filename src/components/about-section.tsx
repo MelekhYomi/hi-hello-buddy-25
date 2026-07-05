@@ -137,11 +137,11 @@ export function AboutSection() {
           </div>
 
           <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
-            Character · Competence · Capacity
+            {about.values_label}
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
 
-            {VALUES.map((v, i) => (
+            {values.map((v: string, i: number) => (
               <div
                 key={v}
                 className="ci-value-item relative overflow-hidden border px-5 py-4 transition-colors"
