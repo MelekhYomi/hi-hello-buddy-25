@@ -237,7 +237,7 @@ function CheckoutPage() {
           </div>
         )}
 
-        <form onSubmit={submit} className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12">
+        <form data-checkout onSubmit={submit} className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7 space-y-6">
             <Section title="Contact">
               <div className="grid gap-4 sm:grid-cols-2">
