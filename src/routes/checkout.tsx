@@ -193,6 +193,50 @@ function CheckoutPage() {
         <h1 className="font-display text-4xl md:text-5xl">CHECKOUT.</h1>
         <div className="mt-2 h-px w-24 bg-imperium" />
 
+        {pinId && !phoneVerified && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6">
+            <div className="w-full max-w-sm border border-imperium/40 bg-card p-6">
+              <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-imperium">Verify phone</div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Enter the 6-digit code we sent to {phone} via{" "}
+                {otp.data?.channel === "whatsapp" ? "WhatsApp" : "SMS"}.
+              </p>
+              <input
+                className="mt-4 w-full border border-border bg-background px-3 py-3 font-mono text-base tracking-widest outline-none focus:border-imperium"
+                value={pin}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                placeholder="123456"
+                autoFocus
+              />
+              <div className="mt-4 flex gap-2">
+                <button
+                  disabled={busy || pin.length < 4}
+                  onClick={async () => {
+                    setBusy(true);
+                    const r = await verify({ data: { pinId, pin } });
+                    setBusy(false);
+                    if (!r.ok) return toast.error("Invalid code");
+                    setPhoneVerified(true);
+                    setPinId(null);
+                    toast.success("Verified — placing your order…");
+                    // Auto-submit
+                    document.querySelector<HTMLFormElement>("form[data-checkout]")?.requestSubmit();
+                  }}
+                  className="flex-1 bg-imperium py-3 font-mono text-[11px] uppercase tracking-[0.25em] text-primary-foreground disabled:opacity-50"
+                >
+                  {busy ? "Verifying…" : "Verify & place order"}
+                </button>
+                <button
+                  onClick={() => setPinId(null)}
+                  className="border border-border px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={submit} className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7 space-y-6">
             <Section title="Contact">
