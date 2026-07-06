@@ -125,7 +125,6 @@ function SignupPage() {
               value={phone}
               onChange={setPhone}
               autoComplete="tel"
-              required={false}
             />
             <Field label="Password" type="password" value={password} onChange={setPassword} autoComplete="new-password" />
 
