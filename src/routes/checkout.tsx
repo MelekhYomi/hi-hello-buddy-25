@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, type FormEvent } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { CheckCircle2, ShoppingBag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +10,7 @@ import { useCart, formatNaira } from "@/lib/cart-context";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useSiteSettings, cleanWaNumber } from "@/lib/site-settings";
+import { sendPhoneOtp, verifyPhoneOtpPublic, termiiStatus } from "@/lib/termii.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({
