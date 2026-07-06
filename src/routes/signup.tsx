@@ -115,19 +115,59 @@ function SignupPage() {
           Create your account
         </p>
 
-        <form onSubmit={submit} className="mt-10 space-y-5">
-          <Field label="Full name" type="text" value={displayName} onChange={setDisplayName} autoComplete="name" />
-          <Field label="Email" type="email" value={email} onChange={setEmail} autoComplete="email" />
-          <Field label="Password" type="password" value={password} onChange={setPassword} autoComplete="new-password" />
+        {!pinId ? (
+          <form onSubmit={submit} className="mt-10 space-y-5">
+            <Field label="Full name" type="text" value={displayName} onChange={setDisplayName} autoComplete="name" />
+            <Field label="Email" type="email" value={email} onChange={setEmail} autoComplete="email" />
+            <Field
+              label={`Phone${otp.data?.enabled ? " (we'll verify via " + (otp.data.channel === "whatsapp" ? "WhatsApp" : "SMS") + ")" : " (optional)"}`}
+              type="tel"
+              value={phone}
+              onChange={setPhone}
+              autoComplete="tel"
+              required={false}
+            />
+            <Field label="Password" type="password" value={password} onChange={setPassword} autoComplete="new-password" />
 
-          <button
-            type="submit"
-            disabled={busy}
-            className="mt-2 w-full bg-imperium py-3 font-mono text-[11px] uppercase tracking-[0.25em] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            {busy ? "Creating…" : "Create account"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={busy}
+              className="mt-2 w-full bg-imperium py-3 font-mono text-[11px] uppercase tracking-[0.25em] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              {busy ? "Creating…" : "Create account"}
+            </button>
+          </form>
+        ) : (
+          <div className="mt-10 space-y-5 border border-imperium/40 bg-imperium/5 p-5">
+            <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-imperium">Verify phone</div>
+            <p className="text-sm text-muted-foreground">
+              Enter the 6-digit code we sent to {phone}.
+            </p>
+            <input
+              className="w-full border border-border bg-background px-3 py-3 font-mono text-base tracking-widest outline-none focus:border-imperium"
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
+              placeholder="123456"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={confirmOtp}
+                disabled={busy || pin.length < 4}
+                className="flex-1 bg-imperium py-3 font-mono text-[11px] uppercase tracking-[0.25em] text-primary-foreground disabled:opacity-50"
+              >
+                {busy ? "Verifying…" : "Verify & continue"}
+              </button>
+              <button
+                onClick={finish}
+                type="button"
+                className="border border-border px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="my-6 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
           <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />
