@@ -1,8 +1,11 @@
 import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { sendPhoneOtp, verifyPhoneOtpPublic, termiiStatus } from "@/lib/termii.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/signup")({
@@ -23,18 +26,34 @@ const schema = z.object({
   displayName: z.string().trim().min(2, "Name is too short").max(80),
   email: z.string().trim().email("Enter a valid email").max(255),
   password: z.string().min(6, "Password is at least 6 characters").max(128),
+  phone: z.string().trim().max(30).optional().or(z.literal("")),
 });
 
 function SignupPage() {
   const navigate = useNavigate();
+  const send = useServerFn(sendPhoneOtp);
+  const verify = useServerFn(verifyPhoneOtpPublic);
+  const status = useServerFn(termiiStatus);
+  const otp = useQuery({ queryKey: ["termii-status"], queryFn: () => status(), staleTime: 60_000 });
+
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // OTP step state
+  const [pinId, setPinId] = useState<string | null>(null);
+  const [pin, setPin] = useState("");
+
+  const finish = () => {
+    toast.success("Account created. Welcome to the empire.");
+    navigate({ to: "/dashboard" });
+  };
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const parsed = schema.safeParse({ displayName, email, password });
+    const parsed = schema.safeParse({ displayName, email, password, phone });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
       return;
@@ -45,17 +64,45 @@ function SignupPage() {
       password: parsed.data.password,
       options: {
         emailRedirectTo: `${window.location.origin}/dashboard`,
-        data: { display_name: parsed.data.displayName },
+        data: { display_name: parsed.data.displayName, phone: parsed.data.phone || null },
       },
     });
-    setBusy(false);
     if (error) {
+      setBusy(false);
       toast.error(error.message);
       return;
     }
-    toast.success("Account created. Welcome to the empire.");
-    navigate({ to: "/dashboard" });
+    // If Termii is enabled and phone provided, send OTP; otherwise skip.
+    if (otp.data?.enabled && parsed.data.phone) {
+      const r = await send({ data: { phone: parsed.data.phone } });
+      setBusy(false);
+      if (!r.ok) {
+        toast.message("Phone verification unavailable — continuing.");
+        finish();
+      } else {
+        setPinId(r.pinId);
+        toast.success("Code sent — verify to finish");
+      }
+      return;
+    }
+    setBusy(false);
+    finish();
   };
+
+  const confirmOtp = async () => {
+    if (!pinId) return;
+    setBusy(true);
+    const r = await verify({ data: { pinId, pin } });
+    setBusy(false);
+    if (!r.ok) return toast.error("Invalid code");
+    // Mark verified on the profile
+    const { data: sess } = await supabase.auth.getUser();
+    if (sess.user) {
+      await supabase.from("profiles").update({ phone, phone_verified: true }).eq("id", sess.user.id);
+    }
+    finish();
+  };
+
 
   return (
     <div className="grain relative flex min-h-screen items-center justify-center bg-background px-6 py-16">
