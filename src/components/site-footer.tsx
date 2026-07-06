@@ -6,7 +6,7 @@ const DEFAULT_FOOTER = {
     "Design. Branding. Print. Web. Building brands that command attention — from Jos, Nigeria to the global stage.",
   address_line1: "Jos, Plateau State",
   address_line2: "Nigeria",
-  copyright: `© ${new Date().getFullYear()} C Imperium Branding`,
+  copyright: "© 2026 C Imperium Branding",
 };
 
 const DEFAULT_SOCIALS = {

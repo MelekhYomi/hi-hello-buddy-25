@@ -1,8 +1,11 @@
 import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { sendPhoneOtp, verifyPhoneOtpPublic, termiiStatus } from "@/lib/termii.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/signup")({
@@ -23,18 +26,34 @@ const schema = z.object({
   displayName: z.string().trim().min(2, "Name is too short").max(80),
   email: z.string().trim().email("Enter a valid email").max(255),
   password: z.string().min(6, "Password is at least 6 characters").max(128),
+  phone: z.string().trim().max(30).optional().or(z.literal("")),
 });
 
 function SignupPage() {
   const navigate = useNavigate();
+  const send = useServerFn(sendPhoneOtp);
+  const verify = useServerFn(verifyPhoneOtpPublic);
+  const status = useServerFn(termiiStatus);
+  const otp = useQuery({ queryKey: ["termii-status"], queryFn: () => status(), staleTime: 60_000 });
+
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // OTP step state
+  const [pinId, setPinId] = useState<string | null>(null);
+  const [pin, setPin] = useState("");
+
+  const finish = () => {
+    toast.success("Account created. Welcome to the empire.");
+    navigate({ to: "/dashboard" });
+  };
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const parsed = schema.safeParse({ displayName, email, password });
+    const parsed = schema.safeParse({ displayName, email, password, phone });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
       return;
@@ -45,17 +64,45 @@ function SignupPage() {
       password: parsed.data.password,
       options: {
         emailRedirectTo: `${window.location.origin}/dashboard`,
-        data: { display_name: parsed.data.displayName },
+        data: { display_name: parsed.data.displayName, phone: parsed.data.phone || null },
       },
     });
-    setBusy(false);
     if (error) {
+      setBusy(false);
       toast.error(error.message);
       return;
     }
-    toast.success("Account created. Welcome to the empire.");
-    navigate({ to: "/dashboard" });
+    // If Termii is enabled and phone provided, send OTP; otherwise skip.
+    if (otp.data?.enabled && parsed.data.phone) {
+      const r = await send({ data: { phone: parsed.data.phone } });
+      setBusy(false);
+      if (!r.ok) {
+        toast.message("Phone verification unavailable — continuing.");
+        finish();
+      } else {
+        setPinId(r.pinId);
+        toast.success("Code sent — verify to finish");
+      }
+      return;
+    }
+    setBusy(false);
+    finish();
   };
+
+  const confirmOtp = async () => {
+    if (!pinId) return;
+    setBusy(true);
+    const r = await verify({ data: { pinId, pin } });
+    setBusy(false);
+    if (!r.ok) return toast.error("Invalid code");
+    // Mark verified on the profile
+    const { data: sess } = await supabase.auth.getUser();
+    if (sess.user) {
+      await supabase.from("profiles").update({ phone, phone_verified: true }).eq("id", sess.user.id);
+    }
+    finish();
+  };
+
 
   return (
     <div className="grain relative flex min-h-screen items-center justify-center bg-background px-6 py-16">
@@ -68,19 +115,58 @@ function SignupPage() {
           Create your account
         </p>
 
-        <form onSubmit={submit} className="mt-10 space-y-5">
-          <Field label="Full name" type="text" value={displayName} onChange={setDisplayName} autoComplete="name" />
-          <Field label="Email" type="email" value={email} onChange={setEmail} autoComplete="email" />
-          <Field label="Password" type="password" value={password} onChange={setPassword} autoComplete="new-password" />
+        {!pinId ? (
+          <form onSubmit={submit} className="mt-10 space-y-5">
+            <Field label="Full name" type="text" value={displayName} onChange={setDisplayName} autoComplete="name" />
+            <Field label="Email" type="email" value={email} onChange={setEmail} autoComplete="email" />
+            <Field
+              label={`Phone${otp.data?.enabled ? " (we'll verify via " + (otp.data.channel === "whatsapp" ? "WhatsApp" : "SMS") + ")" : " (optional)"}`}
+              type="tel"
+              value={phone}
+              onChange={setPhone}
+              autoComplete="tel"
+            />
+            <Field label="Password" type="password" value={password} onChange={setPassword} autoComplete="new-password" />
 
-          <button
-            type="submit"
-            disabled={busy}
-            className="mt-2 w-full bg-imperium py-3 font-mono text-[11px] uppercase tracking-[0.25em] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            {busy ? "Creating…" : "Create account"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={busy}
+              className="mt-2 w-full bg-imperium py-3 font-mono text-[11px] uppercase tracking-[0.25em] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              {busy ? "Creating…" : "Create account"}
+            </button>
+          </form>
+        ) : (
+          <div className="mt-10 space-y-5 border border-imperium/40 bg-imperium/5 p-5">
+            <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-imperium">Verify phone</div>
+            <p className="text-sm text-muted-foreground">
+              Enter the 6-digit code we sent to {phone}.
+            </p>
+            <input
+              className="w-full border border-border bg-background px-3 py-3 font-mono text-base tracking-widest outline-none focus:border-imperium"
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
+              placeholder="123456"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={confirmOtp}
+                disabled={busy || pin.length < 4}
+                className="flex-1 bg-imperium py-3 font-mono text-[11px] uppercase tracking-[0.25em] text-primary-foreground disabled:opacity-50"
+              >
+                {busy ? "Verifying…" : "Verify & continue"}
+              </button>
+              <button
+                onClick={finish}
+                type="button"
+                className="border border-border px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="my-6 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
           <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />

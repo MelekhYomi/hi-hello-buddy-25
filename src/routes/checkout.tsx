@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, type FormEvent } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { CheckCircle2, ShoppingBag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +10,7 @@ import { useCart, formatNaira } from "@/lib/cart-context";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useSiteSettings, cleanWaNumber } from "@/lib/site-settings";
+import { sendPhoneOtp, verifyPhoneOtpPublic, termiiStatus } from "@/lib/termii.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({
@@ -46,6 +48,15 @@ function CheckoutPage() {
   const [payMethod, setPayMethod] = useState<"online" | "on_delivery" | "whatsapp">("online");
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // Optional phone verification (only enforced if Termii is enabled)
+  const send = useServerFn(sendPhoneOtp);
+  const verify = useServerFn(verifyPhoneOtpPublic);
+  const status = useServerFn(termiiStatus);
+  const otp = useQuery({ queryKey: ["termii-status"], queryFn: () => status(), staleTime: 60_000 });
+  const [pinId, setPinId] = useState<string | null>(null);
+  const [pin, setPin] = useState("");
+  const [phoneVerified, setPhoneVerified] = useState(false);
 
   const { data: zones } = useQuery({
     queryKey: ["delivery-zones"],
@@ -86,6 +97,21 @@ function CheckoutPage() {
       payment_method: payMethod, notes,
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
+
+    // Optional Termii phone verification gate — only when Termii is enabled AND user hasn't verified yet
+    if (otp.data?.enabled && !phoneVerified && !pinId) {
+      setBusy(true);
+      const r = await send({ data: { phone } });
+      setBusy(false);
+      if (!r.ok) {
+        // Termii failed — degrade gracefully, do not block the order
+        toast.message("Phone verification unavailable — continuing.");
+      } else {
+        setPinId(r.pinId);
+        toast.success("We sent a code to your phone — verify to place the order.");
+        return;
+      }
+    }
 
     setBusy(true);
     const orderId = (crypto as any).randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -167,7 +193,51 @@ function CheckoutPage() {
         <h1 className="font-display text-4xl md:text-5xl">CHECKOUT.</h1>
         <div className="mt-2 h-px w-24 bg-imperium" />
 
-        <form onSubmit={submit} className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12">
+        {pinId && !phoneVerified && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6">
+            <div className="w-full max-w-sm border border-imperium/40 bg-card p-6">
+              <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-imperium">Verify phone</div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Enter the 6-digit code we sent to {phone} via{" "}
+                {otp.data?.channel === "whatsapp" ? "WhatsApp" : "SMS"}.
+              </p>
+              <input
+                className="mt-4 w-full border border-border bg-background px-3 py-3 font-mono text-base tracking-widest outline-none focus:border-imperium"
+                value={pin}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                placeholder="123456"
+                autoFocus
+              />
+              <div className="mt-4 flex gap-2">
+                <button
+                  disabled={busy || pin.length < 4}
+                  onClick={async () => {
+                    setBusy(true);
+                    const r = await verify({ data: { pinId, pin } });
+                    setBusy(false);
+                    if (!r.ok) return toast.error("Invalid code");
+                    setPhoneVerified(true);
+                    setPinId(null);
+                    toast.success("Verified — placing your order…");
+                    // Auto-submit
+                    document.querySelector<HTMLFormElement>("form[data-checkout]")?.requestSubmit();
+                  }}
+                  className="flex-1 bg-imperium py-3 font-mono text-[11px] uppercase tracking-[0.25em] text-primary-foreground disabled:opacity-50"
+                >
+                  {busy ? "Verifying…" : "Verify & place order"}
+                </button>
+                <button
+                  onClick={() => setPinId(null)}
+                  className="border border-border px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <form data-checkout onSubmit={submit} className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7 space-y-6">
             <Section title="Contact">
               <div className="grid gap-4 sm:grid-cols-2">

@@ -86,6 +86,24 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+// Public verify — for guest checkout / signup flows (no auth required, no profile write)
+export const verifyPhoneOtpPublic = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z.object({ pinId: z.string().min(4), pin: z.string().regex(/^\d{4,8}$/) }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const cfg = await getTermiiConfig();
+    if (!cfg.enabled || !cfg.apiKey) return { ok: false as const, reason: "termii_disabled" as const };
+    const res = await fetch("https://api.ng.termii.com/api/sms/otp/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ api_key: cfg.apiKey, pin_id: data.pinId, pin: data.pin }),
+    });
+    const json = (await res.json()) as { verified?: boolean | string };
+    const ok = json.verified === true || json.verified === "True";
+    return ok ? { ok: true as const } : { ok: false as const, reason: "invalid_pin" as const };
+  });
+
 // Public helper — is Termii enabled? So UI can hide the verify step.
 export const termiiStatus = createServerFn({ method: "GET" }).handler(async () => {
   const cfg = await getTermiiConfig();
