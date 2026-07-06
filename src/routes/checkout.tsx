@@ -98,6 +98,21 @@ function CheckoutPage() {
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
 
+    // Optional Termii phone verification gate — only when Termii is enabled AND user hasn't verified yet
+    if (otp.data?.enabled && !phoneVerified && !pinId) {
+      setBusy(true);
+      const r = await send({ data: { phone } });
+      setBusy(false);
+      if (!r.ok) {
+        // Termii failed — degrade gracefully, do not block the order
+        toast.message("Phone verification unavailable — continuing.");
+      } else {
+        setPinId(r.pinId);
+        toast.success("We sent a code to your phone — verify to place the order.");
+        return;
+      }
+    }
+
     setBusy(true);
     const orderId = (crypto as any).randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const { error } = await supabase.from("orders").insert({
