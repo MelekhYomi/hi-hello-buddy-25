@@ -49,6 +49,15 @@ function CheckoutPage() {
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // Optional phone verification (only enforced if Termii is enabled)
+  const send = useServerFn(sendPhoneOtp);
+  const verify = useServerFn(verifyPhoneOtpPublic);
+  const status = useServerFn(termiiStatus);
+  const otp = useQuery({ queryKey: ["termii-status"], queryFn: () => status(), staleTime: 60_000 });
+  const [pinId, setPinId] = useState<string | null>(null);
+  const [pin, setPin] = useState("");
+  const [phoneVerified, setPhoneVerified] = useState(false);
+
   const { data: zones } = useQuery({
     queryKey: ["delivery-zones"],
     queryFn: async () => {
