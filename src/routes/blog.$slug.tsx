@@ -6,8 +6,52 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ArrowLeft } from "lucide-react";
 
+const SITE = "https://hi-hello-buddy-25.lovable.app";
+
 export const Route = createFileRoute("/blog/$slug")({
-  head: () => ({ meta: [{ title: "Article — C Imperium" }] }),
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("blog_posts")
+      .select("slug,title,excerpt,cover_image,published_at")
+      .eq("slug", params.slug)
+      .eq("is_published", true)
+      .maybeSingle();
+    if (!data) throw notFound();
+    return data;
+  },
+  head: ({ params, loaderData }) => {
+    const url = `${SITE}/blog/${params.slug}`;
+    if (!loaderData) {
+      return { meta: [{ title: "Article not found — C Imperium" }, { name: "robots", content: "noindex" }] };
+    }
+    const title = `${loaderData.title} — C Imperium`;
+    const desc = (loaderData.excerpt ?? "").slice(0, 155) || "Insights from C Imperium Branding.";
+    const img = loaderData.cover_image;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
+        ...(img ? [{ property: "og:image", content: img }, { name: "twitter:image", content: img }] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [{
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: loaderData.title,
+          description: desc,
+          image: img,
+          datePublished: loaderData.published_at,
+          url,
+        }),
+      }],
+    };
+  },
   component: BlogPostPage,
   notFoundComponent: () => (
     <div className="grain relative min-h-screen bg-background">

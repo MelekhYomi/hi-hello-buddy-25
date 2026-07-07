@@ -11,14 +11,13 @@ export const Route = createFileRoute("/sitemap.xml")({
         const staticEntries: Entry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/shop", changefreq: "daily", priority: "0.9" },
-          { path: "/login", changefreq: "yearly", priority: "0.3" },
-          { path: "/signup", changefreq: "yearly", priority: "0.3" },
+          { path: "/blog", changefreq: "weekly", priority: "0.8" },
         ];
 
-        const { data: products } = await supabase
-          .from("products")
-          .select("slug, updated_at")
-          .eq("is_active", true);
+        const [{ data: products }, { data: posts }] = await Promise.all([
+          supabase.from("products").select("slug, updated_at").eq("is_active", true),
+          supabase.from("blog_posts").select("slug, updated_at, published_at").eq("is_published", true),
+        ]);
 
         const productEntries: Entry[] = (products ?? []).map((p) => ({
           path: `/shop/${p.slug}`,
@@ -27,7 +26,14 @@ export const Route = createFileRoute("/sitemap.xml")({
           priority: "0.7",
         }));
 
-        const all = [...staticEntries, ...productEntries];
+        const blogEntries: Entry[] = (posts ?? []).map((p) => ({
+          path: `/blog/${p.slug}`,
+          lastmod: (p.published_at ?? p.updated_at)?.slice(0, 10),
+          changefreq: "monthly",
+          priority: "0.6",
+        }));
+
+        const all = [...staticEntries, ...productEntries, ...blogEntries];
 
         const urls = all.map((e) =>
           [
