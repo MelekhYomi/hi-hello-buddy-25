@@ -7,8 +7,51 @@ import { useCart, formatNaira } from "@/lib/cart-context";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
+const SITE = "https://hi-hello-buddy-25.lovable.app";
+
 export const Route = createFileRoute("/shop/$slug")({
-  head: ({ params }) => ({ meta: [{ title: `${params.slug} — Shop` }] }),
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("products")
+      .select("slug,title,description,images,price")
+      .eq("slug", params.slug)
+      .eq("is_active", true)
+      .maybeSingle();
+    if (!data) throw notFound();
+    return data;
+  },
+  head: ({ params, loaderData }) => {
+    const url = `${SITE}/shop/${params.slug}`;
+    if (!loaderData) {
+      return { meta: [{ title: "Product not found — C Imperium" }, { name: "robots", content: "noindex" }] };
+    }
+    const title = `${loaderData.title} — C Imperium Shop`;
+    const desc = (loaderData.description ?? "").slice(0, 155) || "Premium branded merchandise by C Imperium.";
+    const img = loaderData.images?.[0];
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        ...(img ? [{ property: "og:image", content: img }, { name: "twitter:image", content: img }] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [{
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: loaderData.title,
+          description: desc,
+          image: img,
+          offers: { "@type": "Offer", price: loaderData.price, priceCurrency: "NGN", url },
+        }),
+      }],
+    };
+  },
   component: ProductPage,
   errorComponent: ({ error }) => <div className="p-12 text-center">{error.message}</div>,
   notFoundComponent: () => (
