@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { verifyPaystackTransaction } from "@/lib/paystack.functions";
 
 export const Route = createFileRoute("/order-success")({
-  head: () => ({ meta: [{ title: "Order received — C Imperium" }] }),
+  head: () => ({ meta: [{ title: "Order received — C Imperium" }, { name: "robots", content: "noindex" }] }),
   validateSearch: (s: Record<string, unknown>): { id?: string; reference?: string; trxref?: string } => ({
     id: typeof s.id === "string" ? s.id : undefined,
     reference: typeof s.reference === "string" ? s.reference : undefined,

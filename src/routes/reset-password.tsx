@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: [{ title: "Reset password — C Imperium Branding" }] }),
+  head: () => ({ meta: [{ title: "Reset password — C Imperium Branding" }, { name: "robots", content: "noindex" }] }),
   component: ResetPasswordPage,
 });
 

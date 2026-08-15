@@ -12,7 +12,11 @@ export const Route = createFileRoute("/blog")({
       { name: "description", content: "Branding insights, strategy, and creative direction from the C Imperium studio." },
       { property: "og:title", content: "Branding Insights — C Imperium" },
       { property: "og:description", content: "Branding insights, strategy, and creative direction from the C Imperium studio." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://hi-hello-buddy-25.lovable.app/blog" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://hi-hello-buddy-25.lovable.app/blog" }],
   }),
   component: BlogIndex,
 });

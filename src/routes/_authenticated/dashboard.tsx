@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — C Imperium Branding" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — C Imperium Branding" }, { name: "robots", content: "noindex" }] }),
   component: DashboardPage,
 });
 
