@@ -14,7 +14,7 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/checkout-pay")({
-  head: () => ({ meta: [{ title: "Secure Payment — C Imperium" }] }),
+  head: () => ({ meta: [{ title: "Secure Payment — C Imperium" }, { name: "robots", content: "noindex" }] }),
   validateSearch: (s) => searchSchema.parse(s),
   component: PayPage,
 });

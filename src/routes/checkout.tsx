@@ -14,7 +14,7 @@ import { sendPhoneOtp, verifyPhoneOtpPublic, termiiStatus } from "@/lib/termii.f
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({
-  head: () => ({ meta: [{ title: "Checkout — C Imperium Branding" }] }),
+  head: () => ({ meta: [{ title: "Checkout — C Imperium Branding" }, { name: "robots", content: "noindex" }] }),
   component: CheckoutPage,
 });
 
