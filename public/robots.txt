@@ -5,5 +5,9 @@ Disallow: /admin
 Disallow: /staff-login
 Disallow: /dashboard
 Disallow: /checkout
+Disallow: /checkout-pay
+Disallow: /order-success
+Disallow: /account
+Disallow: /reset-password
 
 Sitemap: https://hi-hello-buddy-25.lovable.app/sitemap.xml

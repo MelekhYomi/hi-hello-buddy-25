@@ -30,7 +30,10 @@ export const Route = createFileRoute("/")({
           "Premium brand transformation. We build visual identities and brand experiences that dominate.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://hi-hello-buddy-25.lovable.app/" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://hi-hello-buddy-25.lovable.app/" }],
   }),
   component: HomePage,
 });
