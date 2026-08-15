@@ -27,6 +27,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/_admin'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
+import { Route as ApiPublicProvisionAdminRouteImport } from './routes/api/public/provision-admin'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
 import { Route as AuthenticatedAccountOrdersRouteImport } from './routes/_authenticated/account.orders'
 import { Route as AuthenticatedAccountBookingsRouteImport } from './routes/_authenticated/account.bookings'
@@ -121,6 +122,11 @@ const AuthenticatedAccountIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAccountRoute,
   } as any)
+const ApiPublicProvisionAdminRoute = ApiPublicProvisionAdminRouteImport.update({
+  id: '/api/public/provision-admin',
+  path: '/api/public/provision-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaystackWebhookRoute =
   ApiPublicPaystackWebhookRouteImport.update({
     id: '/api/public/paystack-webhook',
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
   '/account/orders': typeof AuthenticatedAccountOrdersRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
+  '/api/public/provision-admin': typeof ApiPublicProvisionAdminRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
 }
 export interface FileRoutesByTo {
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
   '/account/orders': typeof AuthenticatedAccountOrdersRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
+  '/api/public/provision-admin': typeof ApiPublicProvisionAdminRoute
   '/account': typeof AuthenticatedAccountIndexRoute
 }
 export interface FileRoutesById {
@@ -211,6 +219,7 @@ export interface FileRoutesById {
   '/_authenticated/account/bookings': typeof AuthenticatedAccountBookingsRoute
   '/_authenticated/account/orders': typeof AuthenticatedAccountOrdersRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
+  '/api/public/provision-admin': typeof ApiPublicProvisionAdminRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
 }
 export interface FileRouteTypes {
@@ -235,6 +244,7 @@ export interface FileRouteTypes {
     | '/account/bookings'
     | '/account/orders'
     | '/api/public/paystack-webhook'
+    | '/api/public/provision-admin'
     | '/account/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/account/bookings'
     | '/account/orders'
     | '/api/public/paystack-webhook'
+    | '/api/public/provision-admin'
     | '/account'
   id:
     | '__root__'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account/bookings'
     | '/_authenticated/account/orders'
     | '/api/public/paystack-webhook'
+    | '/api/public/provision-admin'
     | '/_authenticated/account/'
   fileRoutesById: FileRoutesById
 }
@@ -297,6 +309,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StaffLoginRoute: typeof StaffLoginRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
+  ApiPublicProvisionAdminRoute: typeof ApiPublicProvisionAdminRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -427,6 +440,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountIndexRouteImport
       parentRoute: typeof AuthenticatedAccountRoute
     }
+    '/api/public/provision-admin': {
+      id: '/api/public/provision-admin'
+      path: '/api/public/provision-admin'
+      fullPath: '/api/public/provision-admin'
+      preLoaderRoute: typeof ApiPublicProvisionAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/paystack-webhook': {
       id: '/api/public/paystack-webhook'
       path: '/api/public/paystack-webhook'
@@ -534,6 +554,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StaffLoginRoute: StaffLoginRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
+  ApiPublicProvisionAdminRoute: ApiPublicProvisionAdminRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
