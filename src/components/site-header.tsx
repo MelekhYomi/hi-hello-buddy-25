@@ -81,7 +81,7 @@ export function SiteHeader() {
             )}
           </button>
           <a href="#book" onClick={goToSection("book")} className="btn-cta hidden h-9 px-4 md:inline-flex">
-            Book Consultation
+            Let's Talk
           </a>
           <button
             onClick={() => setMenuOpen((v) => !v)}
@@ -121,7 +121,7 @@ export function SiteHeader() {
               <Link to="/login" onClick={() => setMenuOpen(false)} className="flex items-center py-2.5 text-muted-foreground hover:text-foreground">Get Started</Link>
             )}
             <a href="#book" onClick={goToSection("book")} className="btn-cta mt-3 h-11 w-full justify-center">
-              Book Consultation
+              Let's Talk
             </a>
           </nav>
         </div>
