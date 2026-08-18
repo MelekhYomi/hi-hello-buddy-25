@@ -63,7 +63,7 @@ export function SiteHeader() {
               <button onClick={() => signOut()} className="story-link text-muted-foreground hover:text-foreground transition-colors">Sign out</button>
             </>
           ) : (
-            <Link to="/login" className="story-link text-muted-foreground hover:text-foreground transition-colors">Sign in</Link>
+            <Link to="/login" className="story-link text-muted-foreground hover:text-foreground transition-colors">Get Started</Link>
           )}
         </nav>
 
@@ -118,7 +118,7 @@ export function SiteHeader() {
                 <button onClick={() => { setMenuOpen(false); signOut(); }} className="flex items-center py-2.5 text-left text-muted-foreground hover:text-foreground">Sign out</button>
               </>
             ) : (
-              <Link to="/login" onClick={() => setMenuOpen(false)} className="flex items-center py-2.5 text-muted-foreground hover:text-foreground">Sign in</Link>
+              <Link to="/login" onClick={() => setMenuOpen(false)} className="flex items-center py-2.5 text-muted-foreground hover:text-foreground">Get Started</Link>
             )}
             <a href="#book" onClick={goToSection("book")} className="btn-cta mt-3 h-11 w-full justify-center">
               Book Consultation
