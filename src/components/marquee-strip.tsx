@@ -18,7 +18,7 @@ export function MarqueeStrip() {
           <span
             key={i}
             className="flex items-center gap-8 px-8 font-display text-base tracking-[0.1em] text-charleston"
-            style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+            style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             {t}
             <span className="text-xs">✦</span>

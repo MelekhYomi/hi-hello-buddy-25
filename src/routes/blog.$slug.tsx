@@ -126,7 +126,7 @@ function BlogPostPage() {
             )}
             <div
               className="prose prose-invert mt-10 max-w-none whitespace-pre-wrap text-base leading-[1.85] text-foreground/85"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+              style={{ fontFamily: "'Poppins', sans-serif" }}
             >
               {post.body}
             </div>

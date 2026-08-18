@@ -34,7 +34,7 @@ export function BlogSection() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <div className="ci-section-label">Branding Insights</div>
-            <h2 className="mt-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.5rem, 5vw, 5rem)", lineHeight: 1, letterSpacing: "0.02em" }}>
+            <h2 className="mt-4" style={{ fontFamily: "'Poppins', sans-serif", fontSize: "clamp(2.5rem, 5vw, 5rem)", lineHeight: 1, letterSpacing: "0.02em" }}>
               From The Studio
             </h2>
           </div>
@@ -44,7 +44,7 @@ export function BlogSection() {
         </div>
 
         {(!isMounted || !posts || posts.length === 0) && (
-          <p className="mt-12 text-sm italic" style={{ color: "var(--ci-gray)", fontFamily: "'Cormorant Garamond', serif" }}>
+          <p className="mt-12 text-sm italic" style={{ color: "var(--ci-gray)", fontFamily: "'Poppins', sans-serif" }}>
             New insights coming soon. Check back shortly.
           </p>
         )}
@@ -76,7 +76,7 @@ export function BlogSection() {
                   {p.cover_image ? (
                     <img src={p.cover_image} alt={p.title} loading="lazy" className="h-full w-full object-cover" />
                   ) : (
-                    <span className="px-4 text-center text-sm italic" style={{ fontFamily: "'Cormorant Garamond', serif", color: "var(--ci-gray)" }}>
+                    <span className="px-4 text-center text-sm italic" style={{ fontFamily: "'Poppins', sans-serif", color: "var(--ci-gray)" }}>
                       {p.title}
                     </span>
                   )}
@@ -86,7 +86,7 @@ export function BlogSection() {
                 </div>
                 <div className="p-8">
                   <div className="mb-3 text-[0.7rem] uppercase tracking-[0.12em] text-imperium">{dateStr}</div>
-                  <h3 className="mb-4 transition-colors group-hover:text-imperium" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "0.03em", lineHeight: 1.2 }}>
+                  <h3 className="mb-4 transition-colors group-hover:text-imperium" style={{ fontFamily: "'Poppins', sans-serif", fontSize: "1.4rem", letterSpacing: "0.03em", lineHeight: 1.2 }}>
                     {p.title}
                   </h3>
                   {p.excerpt && (

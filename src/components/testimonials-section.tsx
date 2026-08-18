@@ -38,7 +38,7 @@ export function TestimonialsSection() {
             <h2
               className="mt-4"
               style={{
-                fontFamily: "'Bebas Neue', sans-serif",
+                fontFamily: "'Poppins', sans-serif",
                 fontSize: "clamp(2.5rem, 5vw, 5rem)",
                 lineHeight: 1,
                 letterSpacing: "0.02em",
@@ -57,7 +57,7 @@ export function TestimonialsSection() {
         ) : total === 0 ? (
           <p
             className="text-sm italic"
-            style={{ color: "var(--ci-gray)", fontFamily: "'Cormorant Garamond', serif" }}
+            style={{ color: "var(--ci-gray)", fontFamily: "'Poppins', sans-serif" }}
           >
             New client stories coming soon. Check back shortly.
           </p>
@@ -81,7 +81,7 @@ export function TestimonialsSection() {
                     <span
                       className="absolute top-4 left-8 opacity-40"
                       style={{
-                        fontFamily: "'Cormorant Garamond', serif",
+                        fontFamily: "'Poppins', sans-serif",
                         fontSize: "5rem",
                         color: "var(--imperium)",
                         lineHeight: 1,
@@ -92,7 +92,7 @@ export function TestimonialsSection() {
                     <blockquote
                       className="mt-6 italic leading-[1.8]"
                       style={{
-                        fontFamily: "'Cormorant Garamond', serif",
+                        fontFamily: "'Poppins', sans-serif",
                         fontSize: "1.1rem",
                         fontWeight: 300,
                         color: "var(--ci-light-gray)",
@@ -110,7 +110,7 @@ export function TestimonialsSection() {
                           background: "var(--ci-gold-dim)",
                           borderColor: "var(--ci-border)",
                           color: "var(--imperium)",
-                          fontFamily: "'Bebas Neue', sans-serif",
+                          fontFamily: "'Poppins', sans-serif",
                         }}
                       >
                         {(t.name || "").charAt(0)}
