@@ -8,14 +8,11 @@ import logoAsset from "@/assets/cimperium-c-mark.png.asset.json";
 const logo = logoAsset?.url || "/cimperium-c-mark.png";
 
 const SECTIONS = [
-  { id: "about", label: "About" },
+  { id: "about", label: "About Us" },
   { id: "products", label: "Products" },
   { id: "services", label: "Services" },
   { id: "portfolio", label: "Portfolio" },
-  { id: "testimonials", label: "Testimonials" },
   { id: "blog", label: "Blog" },
-  { id: "book", label: "Book" },
-  { id: "contact", label: "Contact" },
 ];
 
 export function SiteHeader() {
