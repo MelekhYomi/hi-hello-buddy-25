@@ -67,7 +67,7 @@ export function AboutSection() {
             style={{
               background: "var(--imperium)",
               color: "var(--ci-black)",
-              fontFamily: "'Bebas Neue', sans-serif",
+              fontFamily: "'Poppins', sans-serif",
               writingMode: "vertical-rl",
               transform: "rotate(180deg)",
             }}
@@ -82,7 +82,7 @@ export function AboutSection() {
           <h2
             className="mt-4 mb-6"
             style={{
-              fontFamily: "'Bebas Neue', sans-serif",
+              fontFamily: "'Poppins', sans-serif",
               fontSize: "clamp(2.5rem, 5vw, 5rem)",
               lineHeight: 1,
               letterSpacing: "0.02em",
@@ -97,7 +97,7 @@ export function AboutSection() {
           <p
             className="mb-6 text-base font-light leading-[1.9]"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
+              fontFamily: "'Poppins', sans-serif",
               color: "var(--ci-light-gray)",
             }}
           >
@@ -106,7 +106,7 @@ export function AboutSection() {
           <p
             className="mb-8 text-base font-light leading-[1.9]"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
+              fontFamily: "'Poppins', sans-serif",
               color: "var(--ci-gray)",
             }}
           >
@@ -123,7 +123,7 @@ export function AboutSection() {
             <p
               className="italic"
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
+                fontFamily: "'Poppins', sans-serif",
                 fontSize: "1.15rem",
                 color: "var(--ci-gold-light)",
               }}
@@ -147,7 +147,7 @@ export function AboutSection() {
                 <span
                   className="absolute top-2 right-3"
                   style={{
-                    fontFamily: "'Bebas Neue', sans-serif",
+                    fontFamily: "'Poppins', sans-serif",
                     fontSize: "1.8rem",
                     color: "var(--ci-gold-dim)",
                   }}

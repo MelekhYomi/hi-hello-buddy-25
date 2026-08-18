@@ -56,7 +56,7 @@ export function PortfolioSection() {
             <h2
               className="mt-4"
               style={{
-                fontFamily: "'Bebas Neue', sans-serif",
+                fontFamily: "'Poppins', sans-serif",
                 fontSize: "clamp(2.5rem, 5vw, 5rem)",
                 lineHeight: 1,
                 letterSpacing: "0.02em",
@@ -128,7 +128,7 @@ export function PortfolioSection() {
                     <span className="text-2xl opacity-20">◆</span>
                     <span
                       className="italic"
-                      style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                      style={{ fontFamily: "'Poppins', sans-serif" }}
                     >
                       {c.title}
                     </span>
@@ -148,7 +148,7 @@ export function PortfolioSection() {
                   </span>
                   <span
                     style={{
-                      fontFamily: "'Bebas Neue', sans-serif",
+                      fontFamily: "'Poppins', sans-serif",
                       fontSize: "1.4rem",
                       letterSpacing: "0.04em",
                     }}

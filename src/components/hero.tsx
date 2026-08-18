@@ -48,7 +48,7 @@ export function Hero() {
         <h1
           className="mb-8 opacity-0"
           style={{
-            fontFamily: "'Bebas Neue', sans-serif",
+            fontFamily: "'Poppins', sans-serif",
             fontSize: "clamp(5rem, 12vw, 11rem)",
             lineHeight: 0.92,
             letterSpacing: "0.02em",
@@ -72,7 +72,7 @@ export function Hero() {
         <p
           className="mb-12 max-w-[480px] text-base font-light leading-[1.7] text-[color:var(--ci-light-gray)] opacity-0 md:text-lg"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
+            fontFamily: "'Poppins', sans-serif",
             animation: "ci-fadeUp 0.8s 0.7s forwards",
           }}
         >
@@ -116,7 +116,7 @@ export function Hero() {
             <div
               className="text-imperium"
               style={{
-                fontFamily: "'Bebas Neue', sans-serif",
+                fontFamily: "'Poppins', sans-serif",
                 fontSize: "2.8rem",
                 lineHeight: 1,
               }}
