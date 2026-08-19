@@ -70,11 +70,11 @@ export function SiteHeader() {
           <button
             onClick={() => setOpen(true)}
             aria-label="Open cart"
-            className="relative inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-imperium"
+            className="relative inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
           >
             <ShoppingBag className="h-5 w-5" />
             {count > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-imperium px-1 font-mono text-[9px] font-bold text-charleston">
+              <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-charleston px-1 font-mono text-[9px] font-bold text-background">
                 {count}
               </span>
             )}
