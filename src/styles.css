@@ -44,43 +44,42 @@
 :root {
   --radius: 0.5rem;
 
-  /* Deep Yellow #F3C925 ≈ oklch(0.85 0.18 95) — brand background */
-  --background: oklch(0.85 0.18 95);              /* deep yellow */
-  --foreground: oklch(0.18 0.012 240);             /* charleston text */
-  --ink: oklch(0.21 0.013 240);                    /* charleston green */
-  --card: oklch(0.90 0.16 95);                     /* soft yellow card */
-  --card-foreground: oklch(0.18 0.012 240);
-  --popover: oklch(0.92 0.15 95);
-  --popover-foreground: oklch(0.18 0.012 240);
+  /* Charleston Green base (#222931 ≈ oklch(0.26 0.014 240)) */
+  --background: oklch(0.21 0.013 240);              /* charleston green */
+  --foreground: oklch(0.98 0 0);                    /* near white */
+  --ink: oklch(0.16 0.012 240);                     /* deeper charleston */
+  --card: oklch(0.25 0.013 240);                    /* lifted charleston */
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.18 0.012 240);
+  --popover-foreground: oklch(0.98 0 0);
 
-  /* Charleston Green as primary accent (on yellow) */
-  --primary: oklch(0.21 0.013 240);
-  --primary-foreground: oklch(0.98 0 0);
-  --imperium: oklch(0.21 0.013 240);
-  --imperium-glow: oklch(0.18 0.012 240);
+  /* Deep Yellow #F3C925 ≈ oklch(0.85 0.18 95) — brand primary */
+  --primary: oklch(0.85 0.18 95);
+  --primary-foreground: oklch(0.18 0.012 240);
+  --imperium: oklch(0.85 0.18 95);
+  --imperium-glow: oklch(0.92 0.19 95);
   --charleston: oklch(0.21 0.013 240);
 
-  --secondary: oklch(0.80 0.14 95);
-  --secondary-foreground: oklch(0.18 0.012 240);
-  --muted: oklch(0.80 0.14 95);
-  --muted-foreground: oklch(0.40 0.012 240);
-  --accent: oklch(0.82 0.15 95);
-  --accent-foreground: oklch(0.18 0.012 240);
+  --secondary: oklch(0.30 0.013 240);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.30 0.013 240);
+  --muted-foreground: oklch(0.72 0.008 240);
+  --accent: oklch(0.32 0.013 240);
+  --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.58 0.22 27);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.21 0.013 240 / 0.25);
-  --input: oklch(0.21 0.013 240 / 0.20);
-  --ring: oklch(0.21 0.013 240);
+  --border: oklch(0.34 0.012 240);
+  --input: oklch(0.28 0.013 240);
+  --ring: oklch(0.85 0.18 95);
 
   --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Poppins", ui-sans-serif, system-ui, sans-serif;
 }
 
-
 @layer base {
   * { border-color: var(--color-border); }
 
-  html { color-scheme: light; }
+  html { color-scheme: dark; }
 
   body {
     background-color: var(--color-background);
@@ -90,9 +89,8 @@
     overflow-x: hidden;
   }
 
-  ::selection { background: var(--color-charleston); color: var(--color-background); }
+  ::selection { background: var(--color-imperium); color: var(--color-charleston); }
 }
-
 
 /* === Utilities === */
 
@@ -102,9 +100,9 @@
   inset: 0;
   pointer-events: none;
   z-index: 100;
-  opacity: 0.06;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.7 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
 .font-display { font-family: var(--font-display); letter-spacing: -0.02em; font-weight: 800; }
@@ -116,20 +114,20 @@
 .bg-charleston { background-color: var(--charleston); }
 .text-charleston { color: var(--charleston); }
 
-/* Primary CTA: charleston default → white on hover with charleston text */
+/* Primary CTA: yellow default → white on hover with charleston text (clear state change) */
 .btn-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: var(--charleston);
-  color: var(--background);
+  background-color: var(--imperium);
+  color: var(--charleston);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
   font-weight: 600;
-  border: 1px solid var(--charleston);
+  border: 1px solid var(--imperium);
   transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 .btn-cta:hover {
@@ -137,7 +135,7 @@
   color: var(--charleston);
   border-color: oklch(0.98 0 0);
   transform: translateY(-1px);
-  box-shadow: 0 12px 30px -12px var(--charleston);
+  box-shadow: 0 12px 30px -12px var(--imperium);
 }
 
 /* Outline variant: outlined → fills white on hover */
@@ -147,8 +145,8 @@
   justify-content: center;
   gap: 0.5rem;
   background-color: transparent;
-  color: var(--charleston);
-  border: 1px solid var(--charleston);
+  color: var(--imperium);
+  border: 1px solid var(--imperium);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   text-transform: uppercase;
@@ -168,9 +166,8 @@
   content: "";
   position: absolute; inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 40%, rgba(34,41,49,0.25) 100%);
+  background: radial-gradient(ellipse at center, transparent 40%, var(--ink) 100%);
 }
-
 
 /* Hero drifts */
 @keyframes drift-1 {
@@ -210,11 +207,10 @@
 }
 .scan-line {
   position: absolute; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, oklch(0.21 0.013 240 / 0.5), transparent);
+  background: linear-gradient(90deg, transparent, oklch(0.85 0.18 95 / 0.5), transparent);
   animation: scan 8s linear infinite;
   pointer-events: none;
 }
-
 
 /* Marquee for case study gallery */
 @keyframes marquee-x {
@@ -243,16 +239,16 @@
   --ci-dark: #111111;
   --ci-charcoal: #1C1C1C;
   --ci-card: #181818;
-  --ci-gold: #F3C925;
+  --ci-gold: #C9A84C;
   --ci-gold-light: #E8D5A3;
-  --ci-gold-dim: rgba(243,201,37,0.15);
+  --ci-gold-dim: rgba(201,168,76,0.15);
   --ci-gray: #888888;
   --ci-light-gray: #CCCCCC;
-  --ci-border: rgba(34,41,49,0.25);
-  --imperium-line: rgba(34,41,49,0.25);
+  --ci-border: rgba(201,168,76,0.25);
+  --imperium-line: rgba(201,168,76,0.25);
 }
 
-/* Section label (charleston prefix line) */
+/* Section label (gold prefix line) */
 .ci-section-label {
   display: inline-flex;
   align-items: center;
@@ -261,16 +257,16 @@
   font-weight: 600;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--charleston);
+  color: var(--imperium);
 }
 .ci-section-label::before {
   content: "";
   width: 30px;
   height: 1px;
-  background: var(--charleston);
+  background: var(--imperium);
 }
 
-/* Buttons (Poppins style) */
+/* Buttons (Bebas/DM Sans style) */
 .ci-btn-primary,
 .ci-btn-outline {
   display: inline-flex;
@@ -287,45 +283,43 @@
   border: 1px solid transparent;
 }
 .ci-btn-primary {
-  background: var(--charleston);
-  color: var(--background);
+  background: var(--imperium);
+  color: var(--ci-black);
 }
 .ci-btn-primary:hover {
-  background: var(--ci-black);
+  background: var(--ci-gold-light);
   transform: translateY(-2px);
 }
 .ci-btn-outline {
   background: transparent;
-  color: var(--charleston);
-  border-color: rgba(34,41,49,0.3);
+  color: #fff;
+  border-color: rgba(255,255,255,0.2);
 }
 .ci-btn-outline:hover {
-  border-color: var(--charleston);
-  color: var(--charleston);
-  background: rgba(34,41,49,0.05);
+  border-color: var(--imperium);
+  color: var(--imperium);
 }
 
 /* Value items hover */
 .ci-value-item { transition: border-color .3s; position: relative; }
 .ci-value-item::before {
   content: ""; position: absolute; left: 0; top: 0;
-  width: 3px; height: 100%; background: var(--charleston);
+  width: 3px; height: 100%; background: var(--imperium);
 }
-.ci-value-item:hover { border-color: var(--charleston) !important; }
+.ci-value-item:hover { border-color: var(--imperium) !important; }
 
 /* Blog cards hover */
 .ci-blog-card:hover {
-  border-color: var(--charleston) !important;
+  border-color: var(--imperium) !important;
   transform: translateY(-4px);
 }
 
 /* Testimonial nav hover */
 .ci-t-nav:hover {
-  background: var(--charleston);
-  border-color: var(--charleston) !important;
-  color: var(--background);
+  background: var(--imperium);
+  border-color: var(--imperium) !important;
+  color: var(--ci-black);
 }
-
 
 /* ====== Animations ====== */
 @keyframes ci-fadeUp {
@@ -345,7 +339,7 @@
 .ci-cursor {
   position: fixed; top: 0; left: 0;
   width: 10px; height: 10px;
-  background: var(--charleston);
+  background: var(--imperium);
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
@@ -355,7 +349,7 @@
 .ci-cursor-ring {
   position: fixed; top: 0; left: 0;
   width: 36px; height: 36px;
-  border: 1px solid rgba(34,41,49,0.5);
+  border: 1px solid rgba(201,168,76,0.5);
   border-radius: 50%;
   pointer-events: none;
   z-index: 9998;
@@ -364,7 +358,7 @@
 }
 .ci-cursor-ring.expand {
   width: 60px; height: 60px;
-  border-color: var(--charleston);
+  border-color: var(--imperium);
 }
 body.has-custom-cursor,
 body.has-custom-cursor * {
