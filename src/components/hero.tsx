@@ -16,12 +16,12 @@ export function Hero() {
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "linear-gradient(135deg, oklch(0.12 0.005 240) 0%, oklch(0.14 0.006 240) 50%, oklch(0.11 0.006 240) 100%)",
+            "linear-gradient(135deg, oklch(0.84 0.18 95) 0%, oklch(0.86 0.17 95) 50%, oklch(0.83 0.18 95) 100%)",
         }}
       />
       {/* Grid */}
       <div
-        className="absolute inset-0 -z-10 opacity-30"
+        className="absolute inset-0 -z-10 opacity-40"
         style={{
           backgroundImage:
             "linear-gradient(var(--imperium-line) 1px, transparent 1px), linear-gradient(90deg, var(--imperium-line) 1px, transparent 1px)",
@@ -33,9 +33,10 @@ export function Hero() {
         className="pointer-events-none absolute top-1/2 left-[55%] -z-10 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2"
         style={{
           background:
-            "radial-gradient(circle, oklch(0.85 0.18 95 / 0.12) 0%, transparent 70%)",
+            "radial-gradient(circle, oklch(0.21 0.013 240 / 0.08) 0%, transparent 70%)",
         }}
       />
+
 
       <div className="relative z-[2] mx-auto w-full max-w-7xl px-6 md:px-16">
         <p
