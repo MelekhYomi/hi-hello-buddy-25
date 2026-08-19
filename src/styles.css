@@ -102,9 +102,9 @@
   inset: 0;
   pointer-events: none;
   z-index: 100;
-  opacity: 0.05;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.7 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
 .font-display { font-family: var(--font-display); letter-spacing: -0.02em; font-weight: 800; }
@@ -116,20 +116,20 @@
 .bg-charleston { background-color: var(--charleston); }
 .text-charleston { color: var(--charleston); }
 
-/* Primary CTA: yellow default → white on hover with charleston text (clear state change) */
+/* Primary CTA: charleston default → white on hover with charleston text */
 .btn-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: var(--imperium);
-  color: var(--charleston);
+  background-color: var(--charleston);
+  color: var(--background);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
   font-weight: 600;
-  border: 1px solid var(--imperium);
+  border: 1px solid var(--charleston);
   transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 .btn-cta:hover {
@@ -137,7 +137,7 @@
   color: var(--charleston);
   border-color: oklch(0.98 0 0);
   transform: translateY(-1px);
-  box-shadow: 0 12px 30px -12px var(--imperium);
+  box-shadow: 0 12px 30px -12px var(--charleston);
 }
 
 /* Outline variant: outlined → fills white on hover */
@@ -147,8 +147,8 @@
   justify-content: center;
   gap: 0.5rem;
   background-color: transparent;
-  color: var(--imperium);
-  border: 1px solid var(--imperium);
+  color: var(--charleston);
+  border: 1px solid var(--charleston);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   text-transform: uppercase;
@@ -168,8 +168,9 @@
   content: "";
   position: absolute; inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 40%, var(--ink) 100%);
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(34,41,49,0.25) 100%);
 }
+
 
 /* Hero drifts */
 @keyframes drift-1 {
