@@ -242,16 +242,16 @@
   --ci-dark: #111111;
   --ci-charcoal: #1C1C1C;
   --ci-card: #181818;
-  --ci-gold: #C9A84C;
+  --ci-gold: #F3C925;
   --ci-gold-light: #E8D5A3;
-  --ci-gold-dim: rgba(201,168,76,0.15);
+  --ci-gold-dim: rgba(243,201,37,0.15);
   --ci-gray: #888888;
   --ci-light-gray: #CCCCCC;
-  --ci-border: rgba(201,168,76,0.25);
-  --imperium-line: rgba(201,168,76,0.25);
+  --ci-border: rgba(34,41,49,0.25);
+  --imperium-line: rgba(34,41,49,0.25);
 }
 
-/* Section label (gold prefix line) */
+/* Section label (charleston prefix line) */
 .ci-section-label {
   display: inline-flex;
   align-items: center;
@@ -260,16 +260,16 @@
   font-weight: 600;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--imperium);
+  color: var(--charleston);
 }
 .ci-section-label::before {
   content: "";
   width: 30px;
   height: 1px;
-  background: var(--imperium);
+  background: var(--charleston);
 }
 
-/* Buttons (Bebas/DM Sans style) */
+/* Buttons (Poppins style) */
 .ci-btn-primary,
 .ci-btn-outline {
   display: inline-flex;
@@ -286,43 +286,45 @@
   border: 1px solid transparent;
 }
 .ci-btn-primary {
-  background: var(--imperium);
-  color: var(--ci-black);
+  background: var(--charleston);
+  color: var(--background);
 }
 .ci-btn-primary:hover {
-  background: var(--ci-gold-light);
+  background: var(--ci-black);
   transform: translateY(-2px);
 }
 .ci-btn-outline {
   background: transparent;
-  color: #fff;
-  border-color: rgba(255,255,255,0.2);
+  color: var(--charleston);
+  border-color: rgba(34,41,49,0.3);
 }
 .ci-btn-outline:hover {
-  border-color: var(--imperium);
-  color: var(--imperium);
+  border-color: var(--charleston);
+  color: var(--charleston);
+  background: rgba(34,41,49,0.05);
 }
 
 /* Value items hover */
 .ci-value-item { transition: border-color .3s; position: relative; }
 .ci-value-item::before {
   content: ""; position: absolute; left: 0; top: 0;
-  width: 3px; height: 100%; background: var(--imperium);
+  width: 3px; height: 100%; background: var(--charleston);
 }
-.ci-value-item:hover { border-color: var(--imperium) !important; }
+.ci-value-item:hover { border-color: var(--charleston) !important; }
 
 /* Blog cards hover */
 .ci-blog-card:hover {
-  border-color: var(--imperium) !important;
+  border-color: var(--charleston) !important;
   transform: translateY(-4px);
 }
 
 /* Testimonial nav hover */
 .ci-t-nav:hover {
-  background: var(--imperium);
-  border-color: var(--imperium) !important;
-  color: var(--ci-black);
+  background: var(--charleston);
+  border-color: var(--charleston) !important;
+  color: var(--background);
 }
+
 
 /* ====== Animations ====== */
 @keyframes ci-fadeUp {
