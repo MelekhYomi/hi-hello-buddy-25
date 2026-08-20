@@ -1,14 +1,15 @@
 import studioPhoto from "@/assets/studio-photo.jpg";
+import team1 from "@/assets/team/team-1.jpg";
+import team2 from "@/assets/team/team-2.jpg";
+import team3 from "@/assets/team/team-3.jpg";
+import team4 from "@/assets/team/team-4.jpg";
 import { useSiteSettings } from "@/lib/site-settings";
 
-const DEFAULT_VALUES = [
-  "Excellence",
-  "Creativity",
-  "Professionalism",
-  "Innovation",
-  "Reliability",
-  "Strategic Thinking",
-  "Premium Presentation",
+const TEAM = [
+  { name: "Creative Director", img: team1 },
+  { name: "Brand Strategist", img: team2 },
+  { name: "Design Lead", img: team3 },
+  { name: "Production Manager", img: team4 },
 ];
 
 const DEFAULT_ABOUT = {
@@ -22,14 +23,13 @@ const DEFAULT_ABOUT = {
     "We believe every brand has the potential to be impossible to ignore. Our job is to unlock that potential — through strategy, design, and flawless execution.",
   quote: "We help brands become impossible to ignore.",
   values_label: "Character · Competence · Capacity",
-  values: DEFAULT_VALUES,
 };
 
 export function AboutSection() {
   const { data: settings } = useSiteSettings();
   const raw = (settings as Record<string, unknown> | undefined)?.about as Partial<typeof DEFAULT_ABOUT> | undefined;
   const about = { ...DEFAULT_ABOUT, ...(raw ?? {}) };
-  const values = Array.isArray(about.values) && about.values.length ? about.values : DEFAULT_VALUES;
+
 
   return (
     <section
