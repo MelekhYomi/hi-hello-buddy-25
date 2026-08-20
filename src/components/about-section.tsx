@@ -116,7 +116,7 @@ export function AboutSection() {
           </p>
 
           <div
-            className="mb-10 border-l-[3px] px-8 py-6"
+            className="mb-10 rounded-[2rem] border-l-[3px] px-8 py-6"
             style={{
               background: "var(--ci-charcoal)",
               borderColor: "var(--imperium)",
