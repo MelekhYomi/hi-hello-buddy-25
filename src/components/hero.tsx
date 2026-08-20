@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import heroBg from "@/assets/hero-bg.jpg.asset.json";
 
 export function Hero() {
   const scrollTo = (id: string) => (e: React.MouseEvent) => {
