@@ -133,33 +133,33 @@ export function AboutSection() {
           </div>
 
 
-          <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
+          <div className="mb-6 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
             {about.values_label}
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
 
-            {values.map((v: string, i: number) => (
-              <div
-                key={v}
-                className="ci-value-item relative overflow-hidden border px-5 py-4 transition-colors"
-                style={{ borderColor: "var(--ci-border)" }}
-              >
-                <span
-                  className="absolute top-2 right-3"
-                  style={{
-                    fontFamily: "'Poppins', sans-serif",
-                    fontSize: "1.8rem",
-                    color: "var(--ci-gold-dim)",
-                  }}
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+            {TEAM.map((member) => (
+              <div key={member.name} className="flex flex-col items-center text-center">
+                <div
+                  className="ci-team-circle relative aspect-square w-full overflow-hidden rounded-full border-2 transition-colors"
+                  style={{ borderColor: "var(--ci-border)", background: "var(--ci-charcoal)" }}
                 >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="text-xs font-semibold uppercase tracking-[0.1em]">
-                  {v}
+                  <img
+                    src={member.img}
+                    alt={`C Imperium team member — ${member.name}`}
+                    loading="lazy"
+                    width={768}
+                    height={768}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                </div>
+                <span className="mt-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                  {member.name}
                 </span>
               </div>
             ))}
           </div>
+
         </div>
       </div>
     </section>
