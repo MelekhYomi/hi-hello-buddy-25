@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import heroBg from "@/assets/hero-bg.jpg.asset.json";
 
 export function Hero() {
   const scrollTo = (id: string) => (e: React.MouseEvent) => {
@@ -11,21 +12,17 @@ export function Hero() {
       id="top"
       className="relative isolate flex min-h-[100vh] items-center overflow-hidden"
     >
-      {/* Background */}
+      {/* Background image */}
+      <div
+        className="absolute inset-0 -z-10 bg-cover bg-center"
+        style={{ backgroundImage: `url(${heroBg.url})` }}
+      />
+      {/* Dark overlay for text readability */}
       <div
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "linear-gradient(135deg, oklch(0.12 0.005 240) 0%, oklch(0.14 0.006 240) 50%, oklch(0.11 0.006 240) 100%)",
-        }}
-      />
-      {/* Grid */}
-      <div
-        className="absolute inset-0 -z-10 opacity-30"
-        style={{
-          backgroundImage:
-            "linear-gradient(var(--imperium-line) 1px, transparent 1px), linear-gradient(90deg, var(--imperium-line) 1px, transparent 1px)",
-          backgroundSize: "80px 80px",
+            "linear-gradient(135deg, rgba(2,2,5,0.88) 0%, rgba(8,8,12,0.75) 50%, rgba(2,2,5,0.92) 100%)",
         }}
       />
       {/* Glow */}
@@ -33,7 +30,7 @@ export function Hero() {
         className="pointer-events-none absolute top-1/2 left-[55%] -z-10 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2"
         style={{
           background:
-            "radial-gradient(circle, oklch(0.85 0.18 95 / 0.12) 0%, transparent 70%)",
+            "radial-gradient(circle, oklch(0.85 0.18 95 / 0.08) 0%, transparent 70%)",
         }}
       />
 
