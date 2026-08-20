@@ -308,6 +308,9 @@
 }
 .ci-value-item:hover { border-color: var(--imperium) !important; }
 
+/* Team circles */
+.ci-team-circle:hover { border-color: var(--imperium) !important; }
+
 /* Blog cards hover */
 .ci-blog-card:hover {
   border-color: var(--imperium) !important;

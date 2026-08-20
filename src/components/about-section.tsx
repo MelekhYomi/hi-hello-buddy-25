@@ -1,14 +1,15 @@
 import studioPhoto from "@/assets/studio-photo.jpg";
+import team1 from "@/assets/team/team-1.jpg";
+import team2 from "@/assets/team/team-2.jpg";
+import team3 from "@/assets/team/team-3.jpg";
+import team4 from "@/assets/team/team-4.jpg";
 import { useSiteSettings } from "@/lib/site-settings";
 
-const DEFAULT_VALUES = [
-  "Excellence",
-  "Creativity",
-  "Professionalism",
-  "Innovation",
-  "Reliability",
-  "Strategic Thinking",
-  "Premium Presentation",
+const TEAM = [
+  { name: "Creative Director", img: team1 },
+  { name: "Brand Strategist", img: team2 },
+  { name: "Design Lead", img: team3 },
+  { name: "Production Manager", img: team4 },
 ];
 
 const DEFAULT_ABOUT = {
@@ -22,14 +23,13 @@ const DEFAULT_ABOUT = {
     "We believe every brand has the potential to be impossible to ignore. Our job is to unlock that potential — through strategy, design, and flawless execution.",
   quote: "We help brands become impossible to ignore.",
   values_label: "Character · Competence · Capacity",
-  values: DEFAULT_VALUES,
 };
 
 export function AboutSection() {
   const { data: settings } = useSiteSettings();
   const raw = (settings as Record<string, unknown> | undefined)?.about as Partial<typeof DEFAULT_ABOUT> | undefined;
   const about = { ...DEFAULT_ABOUT, ...(raw ?? {}) };
-  const values = Array.isArray(about.values) && about.values.length ? about.values : DEFAULT_VALUES;
+
 
   return (
     <section
@@ -39,9 +39,9 @@ export function AboutSection() {
     >
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-32">
         {/* Visual */}
-        <div className="relative">
+        <div className="relative mx-auto w-full max-w-md">
           <div
-            className="relative aspect-[3/4] w-full overflow-hidden border"
+            className="relative aspect-square w-full overflow-hidden rounded-full border"
             style={{
               background: "var(--ci-charcoal)",
               borderColor: "var(--ci-border)",
@@ -52,29 +52,28 @@ export function AboutSection() {
               alt="C Imperium branding and printing studio in Nigeria"
               loading="lazy"
               width={896}
-              height={1184}
-              className="h-full w-full object-cover"
+              height={896}
+              className="h-full w-full rounded-full object-cover"
             />
           </div>
-          {/* Accent square */}
+          {/* Accent circle */}
           <div
-            className="absolute -right-6 -bottom-6 -z-10 h-48 w-48 border-2"
+            className="absolute -right-4 -bottom-4 -z-10 h-48 w-48 rounded-full border-2"
             style={{ borderColor: "var(--imperium)" }}
           />
-          {/* Vertical tag */}
+          {/* Badge */}
           <div
-            className="absolute -left-6 top-8 flex items-center justify-center px-4 py-2 text-base tracking-[0.1em]"
+            className="absolute -left-2 top-4 flex h-24 w-24 items-center justify-center rounded-full text-center text-[10px] font-semibold uppercase leading-tight tracking-[0.1em]"
             style={{
               background: "var(--imperium)",
               color: "var(--ci-black)",
               fontFamily: "'Poppins', sans-serif",
-              writingMode: "vertical-rl",
-              transform: "rotate(180deg)",
             }}
           >
             Est. C Imperium
           </div>
         </div>
+
 
         {/* Copy */}
         <div>
@@ -114,7 +113,7 @@ export function AboutSection() {
           </p>
 
           <div
-            className="mb-10 border-l-[3px] px-8 py-6"
+            className="mb-10 rounded-[2rem] border-l-[3px] px-8 py-6"
             style={{
               background: "var(--ci-charcoal)",
               borderColor: "var(--imperium)",
@@ -133,33 +132,33 @@ export function AboutSection() {
           </div>
 
 
-          <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
+          <div className="mb-6 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
             {about.values_label}
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
 
-            {values.map((v: string, i: number) => (
-              <div
-                key={v}
-                className="ci-value-item relative overflow-hidden border px-5 py-4 transition-colors"
-                style={{ borderColor: "var(--ci-border)" }}
-              >
-                <span
-                  className="absolute top-2 right-3"
-                  style={{
-                    fontFamily: "'Poppins', sans-serif",
-                    fontSize: "1.8rem",
-                    color: "var(--ci-gold-dim)",
-                  }}
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+            {TEAM.map((member) => (
+              <div key={member.name} className="flex flex-col items-center text-center">
+                <div
+                  className="ci-team-circle relative aspect-square w-full overflow-hidden rounded-full border-2 transition-colors"
+                  style={{ borderColor: "var(--ci-border)", background: "var(--ci-charcoal)" }}
                 >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="text-xs font-semibold uppercase tracking-[0.1em]">
-                  {v}
+                  <img
+                    src={member.img}
+                    alt={`C Imperium team member — ${member.name}`}
+                    loading="lazy"
+                    width={768}
+                    height={768}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                </div>
+                <span className="mt-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                  {member.name}
                 </span>
               </div>
             ))}
           </div>
+
         </div>
       </div>
     </section>
