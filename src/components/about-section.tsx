@@ -39,9 +39,9 @@ export function AboutSection() {
     >
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-32">
         {/* Visual */}
-        <div className="relative">
+        <div className="relative mx-auto w-full max-w-md">
           <div
-            className="relative aspect-[3/4] w-full overflow-hidden border"
+            className="relative aspect-square w-full overflow-hidden rounded-full border"
             style={{
               background: "var(--ci-charcoal)",
               borderColor: "var(--ci-border)",
@@ -52,29 +52,28 @@ export function AboutSection() {
               alt="C Imperium branding and printing studio in Nigeria"
               loading="lazy"
               width={896}
-              height={1184}
-              className="h-full w-full object-cover"
+              height={896}
+              className="h-full w-full rounded-full object-cover"
             />
           </div>
-          {/* Accent square */}
+          {/* Accent circle */}
           <div
-            className="absolute -right-6 -bottom-6 -z-10 h-48 w-48 border-2"
+            className="absolute -right-4 -bottom-4 -z-10 h-48 w-48 rounded-full border-2"
             style={{ borderColor: "var(--imperium)" }}
           />
-          {/* Vertical tag */}
+          {/* Badge */}
           <div
-            className="absolute -left-6 top-8 flex items-center justify-center px-4 py-2 text-base tracking-[0.1em]"
+            className="absolute -left-2 top-4 flex h-24 w-24 items-center justify-center rounded-full text-center text-[10px] font-semibold uppercase leading-tight tracking-[0.1em]"
             style={{
               background: "var(--imperium)",
               color: "var(--ci-black)",
               fontFamily: "'Poppins', sans-serif",
-              writingMode: "vertical-rl",
-              transform: "rotate(180deg)",
             }}
           >
             Est. C Imperium
           </div>
         </div>
+
 
         {/* Copy */}
         <div>
