@@ -1,108 +1,51 @@
-# Build Plan — C Imperium: Paystack, Full Admin CMS, Client Portal, Deploy Hardening
+# Quote → Invoice → Payment → Receipt workflow
 
-This is a large multi-phase build. I'll execute in order, ship each phase, and confirm before moving on.
+Yes, I've got the journey. Here's how I'd build it.
 
----
+## The user journey on the site
 
-## Phase A — Deploy hardening (Netlify + Vercel + GitHub)
+1. **Build a quote** — On the services (and shop) sections, each item gets an "Add to quote" action. A floating **Quote Builder** panel shows every selected service/product, quantity, per-item price (or "on request" for custom scoping), and a live running total. Adding, editing or removing items instantly re-totals — no page reload.
+2. **See the quote** — Clicking *Get my quote* asks for name, email, WhatsApp number, company, project notes, and **preferred contact method** (call / WhatsApp / email). It then shows a formatted quote document on screen with a quote number (e.g. `CI-Q-2026-0042`), validity date, itemised lines, subtotal, and total.
+3. **Proceed** — From the quote screen the user clicks *Proceed to discuss*. This locks the quote, records the request, and triggers:
+   - an **invoice** generated from the quote (invoice number, due date, deposit amount, bank/Paystack payment options),
+   - a message to the user with the invoice plus how to reach the office and a note that an admin will contact them via their chosen channel.
+4. **Pay** — The invoice screen and message both link to a hosted payment page where the user pays either the **deposit** (default 50%, admin-configurable per invoice) or the **full amount** via Paystack. Bank-transfer / manual payment is also supported: the user marks it as paid and an admin confirms.
+5. **Receipt** — Every confirmed payment (Paystack webhook or admin confirmation) creates a **receipt** with its own number, sent to the user's email and available as a WhatsApp-ready message and printable page. Partial payments produce a deposit receipt and show the outstanding balance.
+6. **Job complete → delivery** — Invoices carry a fulfilment status (`awaiting payment → in production → ready → delivered`). When an admin marks a job *ready*, the user is contacted for delivery/pickup. The full delivery flow comes in the next round, as you said.
 
-Goal: zero deploy errors from either host. Project is built for Cloudflare Workers (SSR + server functions); Netlify/Vercel will run as **SPA fallback** (server functions won't execute there — only Lovable Cloud / Workers does). I'll make that explicit and safe.
+## Admin side
 
-- Verify `netlify.toml` (already exists, SPA redirect set) — add `[build.environment] NODE_VERSION = "20"`.
-- Replace `vercel.json` with a clean SPA rewrite config + Node 20.
-- Add `public/_redirects` fallback (already present — verify `/* /index.html 200`).
-- Add `DEPLOYMENT.md` at repo root explaining: Lovable Publish = full SSR; Netlify/Vercel = SPA only (server fns, sitemap, /api/* routes won't run there). Lists env vars needed.
-- Add `.nvmrc` (`20`) so GitHub-driven deploys pin Node.
-- Confirm `package.json` build command works headless.
+A new **Quotes & Invoices** area in the admin dashboard:
+- Quote requests list (new / discussing / converted / declined), with the itemised quote and the customer's preferred contact channel.
+- One-click **convert quote → invoice**, with editable line items, discount, deposit %, due date.
+- Invoice list with payment status, amount paid, balance, and "record manual payment" (creates a receipt).
+- Receipts list, printable/PDF-ready view.
+- Settings: deposit default %, quote validity days, bank transfer details, invoice/receipt footer note, terms text.
 
----
+## Customer portal
 
-## Phase B — Paystack integration (test + live, admin-controlled)
+`/account/quotes` and `/account/invoices` — a signed-in customer sees their quotes, invoices, balances, and receipts. Guests get a secure link (token in the URL) so they can view and pay without an account.
 
-- DB migration: extend `site_settings` seeds — `paystack` key with `{ public_key_test, public_key_live, mode: 'test'|'live' }`. **Secret keys NEVER in DB** — kept in Lovable Cloud secrets.
-- Add secrets: `PAYSTACK_SECRET_KEY_TEST`, `PAYSTACK_SECRET_KEY_LIVE`, `PAYSTACK_WEBHOOK_SECRET` via `secrets--add_secret` (user enters values).
-- Server fn `initPaystackTransaction` (`src/lib/paystack.functions.ts`) — creates Paystack transaction, returns `authorization_url`. Reads mode from `site_settings`, picks the right secret key.
-- Server fn `verifyPaystackTransaction` — verifies ref, updates `orders.payment_status='paid'`, decrements stock.
-- Public webhook route `src/routes/api/public/paystack-webhook.ts` — HMAC-SHA512 signature verify, idempotent order update.
-- Wire `checkout-pay.tsx` to call `initPaystackTransaction` → redirect to `authorization_url`.
-- `order-success.tsx` calls `verifyPaystackTransaction` with `?reference=...` from Paystack callback.
+## Emails and WhatsApp
 
----
+- **WhatsApp** works immediately: pre-filled message with the quote/invoice/receipt link to your office number, same mechanism as the existing WhatsApp order flow.
+- **Email** needs a verified sender domain for the project before invoices/receipts can be sent from a C Imperium address. I'll build the email templates and the send hooks now; they stay queued/disabled until the domain is set up, and I'll prompt you to complete that step so nothing silently fails.
 
-## Phase C — Full Admin CMS expansion
+## Technical notes
 
-Extend `src/routes/_authenticated/_admin/admin.tsx` with tabs (each = CRUD form backed by existing tables):
+- New tables: `quotes`, `quote_items`, `invoices`, `invoice_items`, `payments`, `receipts`, plus `public_token` columns for guest access. RLS: owner-or-admin read, admin write, anon insert only for quote requests; grants issued per table.
+- Numbering via a Postgres sequence-backed function so quote/invoice/receipt numbers never collide.
+- Money stored in kobo as integers; all display uses the existing `formatNaira` helper.
+- Server functions in `src/lib/quotes.functions.ts` and `src/lib/invoices.functions.ts` handle conversion, totals recalculation, and payment recording; totals are always recomputed server-side, never trusted from the client.
+- Paystack reuses the existing init/verify functions and webhook; the webhook additionally settles invoices and creates receipts idempotently.
+- Quote selection state lives in a `QuoteProvider` (localStorage-backed, same pattern as the cart) so a visitor never loses their selections.
+- New routes: `/quote` (builder + preview), `/quote/$number`, `/invoice/$number`, `/receipt/$number`, all with `noindex`.
 
-1. **Services** — title, description, icon, price_min/max, features[], display_order, is_active.
-2. **Products** — title, slug, description, price, compare_at_price, images[] (upload to `site-media`), stock, category, is_featured, is_active.
-3. **Categories** — name, slug, order.
-4. **Case Studies / Projects** — client, industry, title, slug, cover, challenge, solution, results, gallery[], is_featured.
-5. **Testimonials** — name, role, company, quote, rating, avatar, order.
-6. **Studio Images** — upload + reorder + toggle active (powers About section gallery).
-7. **Delivery Zones** — name, fee, eta, free_above, is_active.
-8. **Blog** — (already done — keep).
-9. **Settings expansion**:
-   - WhatsApp number + bot link template
-   - Paystack: mode toggle (test/live) + public keys (writeable). Secret keys: read-only status indicator ("configured ✓" / "missing — add in Cloud Secrets").
-   - Contact email, socials JSON
-   - Hero copy JSON
-   - Process steps (editable array)
-   - Why-us reasons (editable array)
-   - About copy + values list
-   - Footer copy
-10. **Orders** tab — view all orders, update `status` / `delivery_status` / mark paid.
-11. **Bookings** tab — view consultation bookings, status update.
-12. **Contacts / Leads** — read inbox, mark read.
+## Build order
 
-Storage: create public `site-media` bucket with RLS (anyone read, admin/staff write). Image picker component reused everywhere.
-
-Frontend sections (Hero, Process, Why, About, Footer) rewired to read from `site_settings` with sensible fallbacks so nothing breaks if a key is missing.
-
----
-
-## Phase D — Auth: admin & client portal
-
-- **Admin login hardening**: existing `/staff-login` works. Add password-reset flow (already have `/reset-password` route — wire "Forgot password?" link).
-- **Email OTP** for admin: enable Supabase magic-link as backup admin sign-in (`/staff-login` adds "Email me a sign-in link"). SMS/WhatsApp OTP requires a paid Twilio/Termii setup — I'll **note** this and leave a config slot in admin → settings, but won't wire third-party SMS until you supply credentials.
-- **Client portal** (new routes under `_authenticated/`):
-  - `/account` — profile (display name, phone, address)
-  - `/account/orders` — order history (already partly via `orders` RLS scoped to `user_id`)
-  - `/account/bookings` — past consultations
-  - Header: when logged-in customer, show "My Account" instead of "Sign in"
-- **Signup flow** at `/signup` already exists — add email verification copy + Google OAuth button (uses Lovable broker).
-- Configure Google social auth via `supabase--configure_social_auth` once you confirm.
-
----
-
-## Phase E — End-to-end QA
-
-- Run security scan + Supabase linter, fix any new warnings from migrations.
-- Click-test: cart → checkout → Paystack test card → success page → order in admin.
-- WhatsApp checkout path still works (reads number from settings).
-- Mobile nav + PWA install verified.
-- Blog nav verified.
-- Cursor visible everywhere including admin.
-
----
-
-## What I need from you (blocking items)
-
-1. **Paystack keys** — when I reach Phase B, I'll trigger the secrets dialog for `PAYSTACK_SECRET_KEY_TEST`, `PAYSTACK_SECRET_KEY_LIVE`, `PAYSTACK_WEBHOOK_SECRET`. Public keys (`pk_test_…`, `pk_live_…`) you can paste into Admin → Settings after deploy.
-2. **Google OAuth** — confirm you want it enabled for customer signup (recommended).
-3. **SMS/WhatsApp OTP** — confirm you want this; if yes I'll add a Termii or Twilio connector slot. Otherwise email-link OTP only for now.
-4. **Studio gallery photos** — you said you'd upload yourself; the new admin Studio Images tab will let you do that.
-
----
-
-## Execution order
-
-I'll ship in this sequence, posting one update per phase so you can sanity-check:
-
-1. **Phase A** (deploy hardening) — small, fast.
-2. **Phase C migrations + storage bucket** (no breaking changes; everything reads with fallbacks).
-3. **Phase C admin UI** (tabs added incrementally).
-4. **Phase B** (Paystack — needs you to confirm + secrets).
-5. **Phase D** (client portal + Google OAuth).
-6. **Phase E** (QA pass + deploy smoke test).
-
-Reply **"approve"** to start with Phase A, or call out anything to change first.
+1. Schema + RLS + numbering + settings keys.
+2. Quote builder UI (services + shop) with live totals and quote preview.
+3. Quote submission, guest tokens, WhatsApp handoff.
+4. Invoice generation, payment page (deposit / full), Paystack + manual payment.
+5. Receipts, portal pages, admin Quotes & Invoices tabs.
+6. Email templates wired behind the sender-domain setup.
