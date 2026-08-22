@@ -3,6 +3,17 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type ItemInput = { type: "service" | "product"; id: string; quantity: number };
 
+export type LineRow = {
+  item_type: "service" | "product";
+  ref_id: string;
+  title_snapshot: string;
+  description_snapshot: string | null;
+  unit_price: number;
+  quantity: number;
+  is_on_request: boolean;
+  line_total: number;
+};
+
 export type BillingSettings = {
   deposit_percent: number;
   quote_validity_days: number;
@@ -61,7 +72,7 @@ export async function priceItems(items: ItemInput[]) {
       : Promise.resolve({ data: [] as any[] }),
   ]);
 
-  const lines = items.flatMap((i) => {
+  const lines: LineRow[] = items.flatMap((i): LineRow[] => {
     const qty = Math.max(1, Math.min(999, Math.round(i.quantity || 1)));
     if (i.type === "service") {
       const s = (services ?? []).find((x: any) => x.id === i.id);
@@ -70,7 +81,7 @@ export async function priceItems(items: ItemInput[]) {
       const unit = onRequest ? 0 : (s.price_min as number);
       return [
         {
-          item_type: "service" as const,
+          item_type: "service",
           ref_id: s.id as string,
           title_snapshot: s.title as string,
           description_snapshot: (s.description as string) ?? null,
@@ -86,7 +97,7 @@ export async function priceItems(items: ItemInput[]) {
     const unit = (p.price as number) ?? 0;
     return [
       {
-        item_type: "product" as const,
+        item_type: "product",
         ref_id: p.id as string,
         title_snapshot: p.title as string,
         description_snapshot: (p.description as string) ?? null,
