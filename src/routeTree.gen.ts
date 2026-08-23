@@ -14,6 +14,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as OrderSuccessRouteImport } from './routes/order-success'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as CheckoutPayRouteImport } from './routes/checkout-pay'
@@ -22,6 +23,7 @@ import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
+import { Route as QuoteTokenRouteImport } from './routes/quote.$token'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
@@ -55,6 +57,11 @@ const ShopRoute = ShopRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuoteRoute = QuoteRouteImport.update({
+  id: '/quote',
+  path: '/quote',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrderSuccessRoute = OrderSuccessRouteImport.update({
@@ -95,6 +102,11 @@ const ShopSlugRoute = ShopSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => ShopRoute,
+} as any)
+const QuoteTokenRoute = QuoteTokenRouteImport.update({
+  id: '/$token',
+  path: '/$token',
+  getParentRoute: () => QuoteRoute,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/$slug',
@@ -152,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
+  '/quote': typeof QuoteRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRouteWithChildren
   '/signup': typeof SignupRoute
@@ -160,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/quote/$token': typeof QuoteTokenRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
@@ -174,6 +188,7 @@ export interface FileRoutesByTo {
   '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
+  '/quote': typeof QuoteRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRouteWithChildren
   '/signup': typeof SignupRoute
@@ -181,6 +196,7 @@ export interface FileRoutesByTo {
   '/staff-login': typeof StaffLoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/quote/$token': typeof QuoteTokenRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
@@ -197,6 +213,7 @@ export interface FileRoutesById {
   '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
+  '/quote': typeof QuoteRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRouteWithChildren
   '/signup': typeof SignupRoute
@@ -206,6 +223,7 @@ export interface FileRoutesById {
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/quote/$token': typeof QuoteTokenRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/_authenticated/_admin/admin': typeof AuthenticatedAdminAdminRoute
   '/_authenticated/account/bookings': typeof AuthenticatedAccountBookingsRoute
@@ -222,6 +240,7 @@ export interface FileRouteTypes {
     | '/checkout-pay'
     | '/login'
     | '/order-success'
+    | '/quote'
     | '/reset-password'
     | '/shop'
     | '/signup'
@@ -230,6 +249,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/dashboard'
     | '/blog/$slug'
+    | '/quote/$token'
     | '/shop/$slug'
     | '/admin'
     | '/account/bookings'
@@ -244,6 +264,7 @@ export interface FileRouteTypes {
     | '/checkout-pay'
     | '/login'
     | '/order-success'
+    | '/quote'
     | '/reset-password'
     | '/shop'
     | '/signup'
@@ -251,6 +272,7 @@ export interface FileRouteTypes {
     | '/staff-login'
     | '/dashboard'
     | '/blog/$slug'
+    | '/quote/$token'
     | '/shop/$slug'
     | '/admin'
     | '/account/bookings'
@@ -266,6 +288,7 @@ export interface FileRouteTypes {
     | '/checkout-pay'
     | '/login'
     | '/order-success'
+    | '/quote'
     | '/reset-password'
     | '/shop'
     | '/signup'
@@ -275,6 +298,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account'
     | '/_authenticated/dashboard'
     | '/blog/$slug'
+    | '/quote/$token'
     | '/shop/$slug'
     | '/_authenticated/_admin/admin'
     | '/_authenticated/account/bookings'
@@ -291,6 +315,7 @@ export interface RootRouteChildren {
   CheckoutPayRoute: typeof CheckoutPayRoute
   LoginRoute: typeof LoginRoute
   OrderSuccessRoute: typeof OrderSuccessRoute
+  QuoteRoute: typeof QuoteRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   ShopRoute: typeof ShopRouteWithChildren
   SignupRoute: typeof SignupRoute
@@ -334,6 +359,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quote': {
+      id: '/quote'
+      path: '/quote'
+      fullPath: '/quote'
+      preLoaderRoute: typeof QuoteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/order-success': {
@@ -391,6 +423,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/shop/$slug'
       preLoaderRoute: typeof ShopSlugRouteImport
       parentRoute: typeof ShopRoute
+    }
+    '/quote/$token': {
+      id: '/quote/$token'
+      path: '/$token'
+      fullPath: '/quote/$token'
+      preLoaderRoute: typeof QuoteTokenRouteImport
+      parentRoute: typeof QuoteRoute
     }
     '/blog/$slug': {
       id: '/blog/$slug'
@@ -510,6 +549,16 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
+interface QuoteRouteChildren {
+  QuoteTokenRoute: typeof QuoteTokenRoute
+}
+
+const QuoteRouteChildren: QuoteRouteChildren = {
+  QuoteTokenRoute: QuoteTokenRoute,
+}
+
+const QuoteRouteWithChildren = QuoteRoute._addFileChildren(QuoteRouteChildren)
+
 interface ShopRouteChildren {
   ShopSlugRoute: typeof ShopSlugRoute
 }
@@ -528,6 +577,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutPayRoute: CheckoutPayRoute,
   LoginRoute: LoginRoute,
   OrderSuccessRoute: OrderSuccessRoute,
+  QuoteRoute: QuoteRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   ShopRoute: ShopRouteWithChildren,
   SignupRoute: SignupRoute,
