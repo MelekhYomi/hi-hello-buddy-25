@@ -10,7 +10,7 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative isolate flex min-h-[88vh] items-center overflow-hidden pt-16"
+      className="relative isolate flex min-h-[74vh] items-center overflow-hidden pt-12"
     >
       {/* Background image */}
       <div
@@ -34,19 +34,19 @@ export function Hero() {
         }}
       />
 
-      <div className="relative z-[2] mx-auto w-full max-w-7xl px-6 pt-8 md:px-16">
+      <div className="relative z-[2] mx-auto w-full max-w-7xl px-6 pt-3 md:px-16">
         <p
-          className="mb-4 text-[0.75rem] font-medium uppercase text-imperium opacity-0"
+          className="mb-3 text-[0.75rem] font-medium uppercase text-imperium opacity-0"
           style={{ letterSpacing: "0.25em", animation: "ci-fadeUp 0.8s 0.3s forwards" }}
         >
           Brand Transformation Agency · Abuja, Nigeria
         </p>
 
         <h1
-          className="mb-5 opacity-0"
+          className="mb-3 opacity-0"
           style={{
             fontFamily: "'Poppins', sans-serif",
-            fontSize: "clamp(2.5rem, 6vw, 5.5rem)",
+            fontSize: "clamp(2.25rem, 5.5vw, 4.75rem)",
             lineHeight: 0.95,
             letterSpacing: "0.02em",
             animation: "ci-fadeUp 0.8s 0.5s forwards",
@@ -67,7 +67,7 @@ export function Hero() {
         </h1>
 
         <p
-          className="mb-6 max-w-[480px] text-base font-light leading-[1.7] text-[color:var(--ci-light-gray)] opacity-0 md:text-lg"
+          className="mb-4 max-w-[480px] text-sm font-light leading-[1.5] text-[color:var(--ci-light-gray)] opacity-0 md:text-base"
           style={{
             fontFamily: "'Poppins', sans-serif",
             animation: "ci-fadeUp 0.8s 0.7s forwards",
@@ -101,7 +101,7 @@ export function Hero() {
 
       {/* Stats */}
       <div
-        className="absolute right-6 bottom-8 z-[2] hidden gap-12 opacity-0 md:right-16 md:flex"
+        className="absolute right-6 bottom-4 z-[2] hidden gap-12 opacity-0 md:right-16 md:flex"
         style={{ animation: "ci-fadeUp 0.8s 1.1s forwards" }}
       >
         {[
@@ -114,7 +114,7 @@ export function Hero() {
               className="text-imperium"
               style={{
                 fontFamily: "'Poppins', sans-serif",
-                fontSize: "2.8rem",
+                fontSize: "2.1rem",
                 lineHeight: 1,
               }}
             >
@@ -128,9 +128,9 @@ export function Hero() {
       </div>
 
       {/* Scroll cue */}
-      <div className="absolute bottom-6 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-2">
+      <div className="absolute bottom-3 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-1">
         <div
-          className="h-12 w-px"
+          className="h-8 w-px"
           style={{
             background: "linear-gradient(to bottom, var(--imperium), transparent)",
             animation: "ci-scrollPulse 2s infinite",

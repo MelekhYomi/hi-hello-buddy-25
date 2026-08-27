@@ -15,8 +15,8 @@ const LOGOS: { src: string; name: string }[] = [
 export function MarqueeStrip() {
   const loop = [...LOGOS, ...LOGOS, ...LOGOS, ...LOGOS];
   return (
-    <section aria-label="Brands we have worked with" className="relative z-[2] border-y border-border/60 bg-ink py-8">
-      <p className="mb-6 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+    <section aria-label="Brands we have worked with" className="relative z-[2] bg-ink py-5">
+      <p className="mb-3 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
         Brands we&apos;ve worked with
       </p>
       <div className="relative overflow-hidden">

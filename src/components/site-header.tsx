@@ -38,12 +38,12 @@ export function SiteHeader() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/75 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex h-12 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2" aria-label="C Imperium home">
           <img
             src={logo}
             alt="C Imperium"
-            className="h-10 w-10 object-contain"
+            className="h-8 w-8 object-contain"
           />
         </Link>
 
