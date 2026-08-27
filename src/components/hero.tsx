@@ -10,7 +10,7 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative isolate flex min-h-[100vh] items-center overflow-hidden"
+      className="relative isolate flex min-h-[88vh] items-center overflow-hidden pt-16"
     >
       {/* Background image */}
       <div
@@ -22,7 +22,7 @@ export function Hero() {
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "linear-gradient(135deg, rgba(2,2,5,0.88) 0%, rgba(8,8,12,0.75) 50%, rgba(2,2,5,0.92) 100%)",
+            "linear-gradient(135deg, rgba(2,2,5,0.55) 0%, rgba(8,8,12,0.4) 50%, rgba(2,2,5,0.6) 100%)",
         }}
       />
       {/* Glow */}
@@ -34,19 +34,19 @@ export function Hero() {
         }}
       />
 
-      <div className="relative z-[2] mx-auto w-full max-w-7xl px-6 md:px-16">
+      <div className="relative z-[2] mx-auto w-full max-w-7xl px-6 pt-8 md:px-16">
         <p
-          className="mb-6 text-[0.75rem] font-medium uppercase text-imperium opacity-0"
+          className="mb-4 text-[0.75rem] font-medium uppercase text-imperium opacity-0"
           style={{ letterSpacing: "0.25em", animation: "ci-fadeUp 0.8s 0.3s forwards" }}
         >
           Brand Transformation Agency · Abuja, Nigeria
         </p>
 
         <h1
-          className="mb-8 opacity-0"
+          className="mb-5 opacity-0"
           style={{
             fontFamily: "'Poppins', sans-serif",
-            fontSize: "clamp(2.75rem, 7vw, 6.5rem)",
+            fontSize: "clamp(2.5rem, 6vw, 5.5rem)",
             lineHeight: 0.95,
             letterSpacing: "0.02em",
             animation: "ci-fadeUp 0.8s 0.5s forwards",
@@ -67,7 +67,7 @@ export function Hero() {
         </h1>
 
         <p
-          className="mb-12 max-w-[480px] text-base font-light leading-[1.7] text-[color:var(--ci-light-gray)] opacity-0 md:text-lg"
+          className="mb-6 max-w-[480px] text-base font-light leading-[1.7] text-[color:var(--ci-light-gray)] opacity-0 md:text-lg"
           style={{
             fontFamily: "'Poppins', sans-serif",
             animation: "ci-fadeUp 0.8s 0.7s forwards",
@@ -101,7 +101,7 @@ export function Hero() {
 
       {/* Stats */}
       <div
-        className="absolute right-6 bottom-12 z-[2] hidden gap-12 opacity-0 md:right-16 md:flex"
+        className="absolute right-6 bottom-8 z-[2] hidden gap-12 opacity-0 md:right-16 md:flex"
         style={{ animation: "ci-fadeUp 0.8s 1.1s forwards" }}
       >
         {[
@@ -128,7 +128,7 @@ export function Hero() {
       </div>
 
       {/* Scroll cue */}
-      <div className="absolute bottom-10 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-2">
+      <div className="absolute bottom-6 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-2">
         <div
           className="h-12 w-px"
           style={{
