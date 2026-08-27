@@ -46,8 +46,8 @@ export function Hero() {
           className="mb-8 opacity-0"
           style={{
             fontFamily: "'Poppins', sans-serif",
-            fontSize: "clamp(5rem, 12vw, 11rem)",
-            lineHeight: 0.92,
+            fontSize: "clamp(2.75rem, 7vw, 6.5rem)",
+            lineHeight: 0.95,
             letterSpacing: "0.02em",
             animation: "ci-fadeUp 0.8s 0.5s forwards",
           }}
