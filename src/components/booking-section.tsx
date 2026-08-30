@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, Clock, CheckCircle2 } from "lucide-react";
+import { CalendarIcon, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
@@ -125,31 +125,6 @@ export function BookingSection() {
         <div className="mt-14 grid grid-cols-1 gap-10 md:grid-cols-12">
           {/* Left column */}
           <aside className="md:col-span-5 space-y-8">
-            <div className="border-l-2 border-imperium pl-5">
-              <h3 className="font-display text-xl tracking-tight">
-                WHY BOOK A CONSULTATION?
-              </h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                Every great brand starts with a conversation. Our consultation
-                is a strategic session where we understand your business, your
-                audience, and your ambitions. No obligations — just clarity.
-              </p>
-            </div>
-
-            <ul className="space-y-3">
-              {[
-                "Free 30-minute strategic session",
-                "Tailored brand recommendations",
-                "Clear project scope and pricing",
-                "Direct access to senior designers",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-sm text-foreground/90">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-imperium" strokeWidth={2} />
-                  {item}
-                </li>
-              ))}
-            </ul>
-
             <div className="border border-border/60 bg-card/40 p-6">
               <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-imperium">
                 Office location
