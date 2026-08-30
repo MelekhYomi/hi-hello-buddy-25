@@ -34,18 +34,7 @@ export function TestimonialsSection() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="ci-section-label">Client Stories</div>
-            <h2
-              className="mt-4"
-              style={{
-                fontFamily: "'Poppins', sans-serif",
-                fontSize: "clamp(2.5rem, 5vw, 5rem)",
-                lineHeight: 1,
-                letterSpacing: "0.02em",
-              }}
-            >
-              What Clients Say
-            </h2>
+            <div className="ci-section-label" style={{ fontSize: "1.4rem" }}>Client Stories</div>
           </div>
         </div>
 

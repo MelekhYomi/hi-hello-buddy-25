@@ -52,18 +52,7 @@ export function PortfolioSection() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="ci-section-label">Our Work</div>
-            <h2
-              className="mt-4"
-              style={{
-                fontFamily: "'Poppins', sans-serif",
-                fontSize: "clamp(2.5rem, 5vw, 5rem)",
-                lineHeight: 1,
-                letterSpacing: "0.02em",
-              }}
-            >
-              Selected Projects
-            </h2>
+            <div className="ci-section-label" style={{ fontSize: "1.4rem" }}>Our Work</div>
           </div>
         </div>
 
