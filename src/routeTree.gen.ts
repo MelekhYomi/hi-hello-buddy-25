@@ -19,6 +19,7 @@ import { Route as OrderSuccessRouteImport } from './routes/order-success'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as CheckoutPayRouteImport } from './routes/checkout-pay'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as BookingSuccessRouteImport } from './routes/booking-success'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -82,6 +83,11 @@ const CheckoutPayRoute = CheckoutPayRouteImport.update({
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingSuccessRoute = BookingSuccessRouteImport.update({
+  id: '/booking-success',
+  path: '/booking-success',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogRoute = BlogRouteImport.update({
@@ -160,6 +166,7 @@ const AuthenticatedAdminAdminRoute = AuthenticatedAdminAdminRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteWithChildren
+  '/booking-success': typeof BookingSuccessRoute
   '/checkout': typeof CheckoutRoute
   '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteWithChildren
+  '/booking-success': typeof BookingSuccessRoute
   '/checkout': typeof CheckoutRoute
   '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
@@ -209,6 +217,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/blog': typeof BlogRouteWithChildren
+  '/booking-success': typeof BookingSuccessRoute
   '/checkout': typeof CheckoutRoute
   '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
@@ -236,6 +245,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/blog'
+    | '/booking-success'
     | '/checkout'
     | '/checkout-pay'
     | '/login'
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/blog'
+    | '/booking-success'
     | '/checkout'
     | '/checkout-pay'
     | '/login'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/blog'
+    | '/booking-success'
     | '/checkout'
     | '/checkout-pay'
     | '/login'
@@ -311,6 +323,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   BlogRoute: typeof BlogRouteWithChildren
+  BookingSuccessRoute: typeof BookingSuccessRoute
   CheckoutRoute: typeof CheckoutRoute
   CheckoutPayRoute: typeof CheckoutPayRoute
   LoginRoute: typeof LoginRoute
@@ -394,6 +407,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/booking-success': {
+      id: '/booking-success'
+      path: '/booking-success'
+      fullPath: '/booking-success'
+      preLoaderRoute: typeof BookingSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog': {
@@ -573,6 +593,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   BlogRoute: BlogRouteWithChildren,
+  BookingSuccessRoute: BookingSuccessRoute,
   CheckoutRoute: CheckoutRoute,
   CheckoutPayRoute: CheckoutPayRoute,
   LoginRoute: LoginRoute,
