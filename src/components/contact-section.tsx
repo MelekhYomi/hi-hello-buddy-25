@@ -51,8 +51,7 @@ export function ContactSection() {
     <section id="contact" className="border-t border-border/40 py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center">
-          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">Get in touch</div>
-          <h2 className="mt-4 font-display text-5xl leading-[0.9] md:text-7xl">CONTACT US</h2>
+          <div className="font-mono text-[1.4rem] uppercase tracking-[0.3em] text-imperium">Get in touch</div>
           <div className="mx-auto mt-6 h-px w-24 bg-imperium" />
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
             Ready to elevate your brand? Reach out via WhatsApp for instant response, or send us a
@@ -66,17 +65,17 @@ export function ContactSection() {
               href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-start gap-4 border border-emerald-700/60 bg-emerald-950/20 p-6 transition-all hover:border-emerald-500 hover:-translate-y-1 hover:shadow-[0_0_30px_-10px_rgb(16,185,129)]"
+              className="group flex items-start gap-4 border border-imperium/60 bg-imperium/10 p-6 transition-all hover:border-imperium hover:-translate-y-1 hover:shadow-[0_0_30px_-10px_var(--imperium)]"
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-600/20">
-                <MessageCircle className="h-6 w-6 text-emerald-400" strokeWidth={1.5} />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-imperium/20">
+                <MessageCircle className="h-6 w-6 text-imperium" strokeWidth={1.5} />
               </div>
               <div>
                 <div className="font-display text-lg">Chat on WhatsApp</div>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Fastest way to reach us. Available during business hours.
                 </p>
-                <div className="mt-3 font-mono text-xs text-emerald-400 transition-all group-hover:translate-x-1">
+                <div className="mt-3 font-mono text-xs text-imperium transition-all group-hover:translate-x-1">
                   +234 803 857 7654 →
                 </div>
               </div>
