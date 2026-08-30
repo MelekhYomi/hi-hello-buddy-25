@@ -6,10 +6,10 @@ import team4 from "@/assets/team/team-4.jpg";
 import { useSiteSettings } from "@/lib/site-settings";
 
 const TEAM = [
-  { name: "Ojoudale John (MD/CEO)", img: team1 },
-  { name: "Ayoola (HR/BRM)", img: team2 },
-  { name: "Kish (Design Director)", img: team3 },
-  { name: "Abayomi (Developer)", img: team4 },
+  { name: "Ojoudale John", roles: ["Founder", "Creative Director", "Brand Strategist"], img: team1 },
+  { name: "Ayoola Ojoudale", roles: ["Financial Manager"], img: team2 },
+  { name: "Kish", roles: ["Design Lead"], img: team3 },
+  { name: "Abayomi", roles: ["Tech"], img: team4 },
 ];
 
 const DEFAULT_ABOUT = {
@@ -139,12 +139,24 @@ export function AboutSection() {
             {about.values_label}
           </div>
 
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
             {TEAM.map((member) => (
-              <div key={member.name} className="flex flex-col items-center text-center">
+              <div key={member.name} className="group flex flex-col items-center text-center">
                 <div
-                  className="ci-team-circle relative aspect-square w-full overflow-hidden rounded-full border-2 transition-colors"
-                  style={{ borderColor: "var(--ci-border)", background: "var(--ci-charcoal)" }}
+                  className="relative aspect-square w-full max-w-[8.5rem] overflow-hidden rounded-full border-2 transition-all duration-300 group-hover:-translate-y-1"
+                  style={{
+                    borderColor: "var(--ci-border)",
+                    background: "var(--ci-charcoal)",
+                    boxShadow: "0 0 0 0 var(--imperium)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "var(--imperium)";
+                    e.currentTarget.style.boxShadow = "0 0 24px -4px var(--imperium)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "var(--ci-border)";
+                    e.currentTarget.style.boxShadow = "0 0 0 0 var(--imperium)";
+                  }}
                 >
                   <img
                     src={member.img}
@@ -152,12 +164,27 @@ export function AboutSection() {
                     loading="lazy"
                     width={768}
                     height={768}
-                    className="h-full w-full rounded-full object-cover"
+                    className="h-full w-full rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 </div>
-                <span className="mt-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                <span
+                  className="mt-4 text-sm font-medium"
+                  style={{ fontFamily: "'Poppins', sans-serif", color: "var(--ci-light-gray)" }}
+                >
                   {member.name}
                 </span>
+                <div className="mt-1.5 flex max-w-[10rem] flex-wrap items-center justify-center gap-x-1.5 gap-y-1">
+                  {member.roles.map((role, i) => (
+                    <span key={role} className="flex items-center gap-1.5">
+                      <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-imperium">
+                        {role}
+                      </span>
+                      {i < member.roles.length - 1 && (
+                        <span className="h-[3px] w-[3px] rounded-full bg-imperium/40" />
+                      )}
+                    </span>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
