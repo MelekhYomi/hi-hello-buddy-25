@@ -73,7 +73,7 @@ export function Hero() {
             animation: "ci-fadeUp 0.8s 0.7s forwards",
           }}
         >
-          We help businesses, ministries, and organizations build premium visual
+          We help businesses, Individuals and organizations build premium visual
           identities and brand experiences that are impossible to ignore.
         </p>
 

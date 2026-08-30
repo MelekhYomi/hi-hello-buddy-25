@@ -2,9 +2,9 @@ import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Mail, MapPin, MessageCircle } from "lucide-react";
+import { Mail, MapPin, MessageCircle, Clock } from "lucide-react";
 
-const WHATSAPP_NUMBER = "2348038577654"; // change to real number
+const WHATSAPP_NUMBER = "2349010912491";
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi C Imperium, I'd like to discuss a project.")}`;
 
 const schema = z.object({
@@ -76,7 +76,7 @@ export function ContactSection() {
                   Fastest way to reach us. Available during business hours.
                 </p>
                 <div className="mt-3 font-mono text-xs text-imperium transition-all group-hover:translate-x-1">
-                  +234 803 857 7654 →
+                  +234 901 091 2491 →
                 </div>
               </div>
             </a>
@@ -94,6 +94,11 @@ export function ContactSection() {
                 <MapPin className="h-5 w-5 text-imperium" strokeWidth={1.5} />
                 <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Location</div>
                 <div className="mt-1 text-sm">Jos, Plateau State, Nigeria</div>
+              </div>
+              <div className="col-span-2 border border-border/60 bg-card p-5">
+                <Clock className="h-5 w-5 text-imperium" strokeWidth={1.5} />
+                <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Business Hours</div>
+                <div className="mt-1 text-sm">Mon – Fri, 9am – 5pm</div>
               </div>
             </div>
           </div>

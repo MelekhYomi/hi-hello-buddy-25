@@ -22,7 +22,7 @@ export function WhySection() {
           <div className="font-mono text-[1.4rem] uppercase tracking-[0.3em] text-imperium">Why C Imperium</div>
           <div className="mx-auto mt-6 h-px w-24 bg-imperium" />
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
-            Your work speaks for itself — but here's the substance behind it.
+            Our work speaks for itself — but here's the substance behind it.
           </p>
         </div>
 

@@ -6,10 +6,10 @@ import team4 from "@/assets/team/team-4.jpg";
 import { useSiteSettings } from "@/lib/site-settings";
 
 const TEAM = [
-  { name: "Creative Director", img: team1 },
-  { name: "Brand Strategist", img: team2 },
-  { name: "Design Lead", img: team3 },
-  { name: "Production Manager", img: team4 },
+  { name: "Ojoudale John (MD/CEO)", img: team1 },
+  { name: "Ayoola (HR/BRM)", img: team2 },
+  { name: "Kish (Design Director)", img: team3 },
+  { name: "Abayomi (Developer)", img: team4 },
 ];
 
 const DEFAULT_ABOUT = {
