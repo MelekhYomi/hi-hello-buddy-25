@@ -41,6 +41,35 @@ Our Nitro-backed compiler dynamically outputs Vercel's Serverless Build Output A
 
 ---
 
+## Google Calendar Sync (Booking Form)
+
+The consultation booking form (`#book`) checks real availability and creates
+an actual event on the admin's Google Calendar when someone books — Google's
+own Calendar app then handles notifying the admin on every signed-in device.
+This **requires full SSR** (Lovable Publish or Vercel — not Netlify).
+
+### One-time setup (do this once, as the admin whose calendar should receive bookings):
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/), create (or pick) a project.
+2. **APIs & Services → Library**: enable the **Google Calendar API**.
+3. **APIs & Services → OAuth consent screen**: set User Type to **External**, fill in the required fields, and add your own Google account under **Test users** (no verification/review needed for personal use like this).
+4. **APIs & Services → Credentials → Create Credentials → OAuth client ID**: choose **Desktop app** as the type. Note the **Client ID** and **Client Secret**.
+5. Get a refresh token for the `https://www.googleapis.com/auth/calendar` scope using your own Client ID/Secret — the easiest way is [Google's OAuth Playground](https://developers.google.com/oauthplayground):
+   - Click the gear icon (top right) → check **"Use your own OAuth credentials"** → paste your Client ID and Client Secret.
+   - In Step 1, find and select **Calendar API v3** → `https://www.googleapis.com/auth/calendar` → **Authorize APIs** → sign in with the admin Google account → allow access.
+   - In Step 2, click **Exchange authorization code for tokens** → copy the **Refresh token** shown.
+6. Set these environment variables on your hosting platform (Lovable Cloud → Secrets, or Vercel → Project Settings → Environment Variables):
+   - `GOOGLE_CLIENT_ID`
+   - `GOOGLE_CLIENT_SECRET`
+   - `GOOGLE_REFRESH_TOKEN`
+   - `GOOGLE_CALENDAR_ID` — usually `primary`, or a specific calendar's email/ID if bookings should go to a shared calendar instead of the admin's main one
+
+Until these are set, the booking form still works normally — it just falls
+back to showing the full fixed time-slot list without checking real
+availability, and skips creating a calendar event (this is logged server-side,
+not shown to visitors).
+
+---
+
 ## Webhooks & Paystack Callbacks
 
 Configure your Paystack Dashboard's Webhook URL to point to the active production URL:

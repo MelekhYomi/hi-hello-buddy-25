@@ -6,8 +6,12 @@ import { CalendarIcon, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
+import { getAvailability, createCalendarEvent, TIME_SLOTS } from "@/lib/calendar.functions";
 
-const TIMES = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00"];
+function isWeekendDate(dateStr: string): boolean {
+  const day = new Date(`${dateStr}T12:00:00`).getDay();
+  return day === 0 || day === 6;
+}
 
 const schema = z.object({
   full_name: z.string().trim().min(2, "Name is too short").max(100),
@@ -52,6 +56,17 @@ export function BookingSection() {
   const [details, setDetails] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const { data: availability, isFetching: loadingSlots } = useQuery({
+    queryKey: ["booking-availability", date],
+    queryFn: () => getAvailability({ data: { date } }),
+    enabled: !!date && !isWeekendDate(date),
+  });
+  const availableSlots = !date
+    ? TIME_SLOTS
+    : isWeekendDate(date)
+      ? []
+      : (availability?.slots ?? []);
+
   useEffect(() => {
     try {
       const pre = sessionStorage.getItem("ci_preselect_service");
@@ -82,23 +97,46 @@ export function BookingSection() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.from("bookings").insert({
-      user_id: user?.id ?? null,
-      full_name: parsed.data.full_name,
-      email: parsed.data.email,
-      phone: parsed.data.phone || null,
-      company: parsed.data.company || null,
-      service_id: parsed.data.service_id,
-      preferred_date: parsed.data.preferred_date,
-      preferred_time: parsed.data.preferred_time,
-      project_details: parsed.data.project_details || null,
-    });
+    const { data: inserted, error } = await supabase
+      .from("bookings")
+      .insert({
+        user_id: user?.id ?? null,
+        full_name: parsed.data.full_name,
+        email: parsed.data.email,
+        phone: parsed.data.phone || null,
+        company: parsed.data.company || null,
+        service_id: parsed.data.service_id,
+        preferred_date: parsed.data.preferred_date,
+        preferred_time: parsed.data.preferred_time,
+        project_details: parsed.data.project_details || null,
+      })
+      .select("id")
+      .single();
     setBusy(false);
-    if (error) {
-      toast.error(error.message);
+    if (error || !inserted) {
+      toast.error(error?.message ?? "Something went wrong. Please try again.");
       return;
     }
     toast.success("Booking received. We'll confirm by email shortly.");
+
+    // Sync to the admin's Google Calendar (best-effort — the booking is
+    // already saved either way, so a calendar hiccup shouldn't alarm the
+    // visitor with an error toast).
+    const serviceTitle = services?.find((s) => s.id === serviceId)?.title ?? null;
+    createCalendarEvent({
+      data: {
+        bookingId: inserted.id,
+        fullName: parsed.data.full_name,
+        email: parsed.data.email,
+        phone: parsed.data.phone || null,
+        company: parsed.data.company || null,
+        serviceTitle,
+        date: parsed.data.preferred_date,
+        time: parsed.data.preferred_time,
+        projectDetails: parsed.data.project_details || null,
+      },
+    }).catch((err) => console.error("[calendar] sync failed:", err));
+
     setPhone(""); setCompany(""); setServiceId(""); setDate(""); setTime(""); setDetails("");
   };
 
@@ -207,10 +245,15 @@ export function BookingSection() {
                   type="date"
                   value={date}
                   min={today}
-                  onChange={(e) => setDate(e.target.value)}
+                  onChange={(e) => { setDate(e.target.value); setTime(""); }}
                   required
                   className={inputClass}
                 />
+                {date && isWeekendDate(date) && (
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    We're closed weekends — pick a weekday (Mon–Fri).
+                  </p>
+                )}
               </Field>
               <Field
                 label={
@@ -224,13 +267,27 @@ export function BookingSection() {
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
                   required
+                  disabled={!date || isWeekendDate(date) || loadingSlots}
                   className={inputClass}
                 >
-                  <option value="" className="bg-card">Select time</option>
-                  {TIMES.map((t) => (
+                  <option value="" className="bg-card">
+                    {!date
+                      ? "Pick a date first"
+                      : loadingSlots
+                        ? "Checking availability…"
+                        : availableSlots.length
+                          ? "Select time"
+                          : "No slots open that day"}
+                  </option>
+                  {availableSlots.map((t) => (
                     <option key={t} value={t} className="bg-card">{t}</option>
                   ))}
                 </select>
+                {date && !isWeekendDate(date) && !loadingSlots && availableSlots.length === 0 && (
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    Fully booked that day — try another date.
+                  </p>
+                )}
               </Field>
             </div>
 
