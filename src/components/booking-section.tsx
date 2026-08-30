@@ -1,12 +1,17 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, Clock } from "lucide-react";
+import { CalendarIcon, Clock, Landmark, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { getAvailability, createCalendarEvent, TIME_SLOTS } from "@/lib/calendar.functions";
+import { initBookingPayment } from "@/lib/paystack.functions";
+
+const CONSULTATION_FEE = 50000;
+const WHATSAPP_NUMBER = "2349010912491";
 
 function isWeekendDate(dateStr: string): boolean {
   const day = new Date(`${dateStr}T12:00:00`).getDay();
@@ -54,7 +59,9 @@ export function BookingSection() {
   const [date, setDate] = useState<string>("");
   const [time, setTime] = useState("");
   const [details, setDetails] = useState("");
+  const [payMethod, setPayMethod] = useState<"online" | "bank_transfer">("online");
   const [busy, setBusy] = useState(false);
+  const initPayment = useServerFn(initBookingPayment);
 
   const { data: availability, isFetching: loadingSlots } = useQuery({
     queryKey: ["booking-availability", date],
@@ -109,15 +116,17 @@ export function BookingSection() {
         preferred_date: parsed.data.preferred_date,
         preferred_time: parsed.data.preferred_time,
         project_details: parsed.data.project_details || null,
+        amount: CONSULTATION_FEE,
+        payment_method: payMethod,
+        payment_status: payMethod === "bank_transfer" ? "awaiting_transfer" : "pending",
       })
       .select("id")
       .single();
-    setBusy(false);
     if (error || !inserted) {
+      setBusy(false);
       toast.error(error?.message ?? "Something went wrong. Please try again.");
       return;
     }
-    toast.success("Booking received. We'll confirm by email shortly.");
 
     // Sync to the admin's Google Calendar (best-effort — the booking is
     // already saved either way, so a calendar hiccup shouldn't alarm the
@@ -136,6 +145,34 @@ export function BookingSection() {
         projectDetails: parsed.data.project_details || null,
       },
     }).catch((err) => console.error("[calendar] sync failed:", err));
+
+    if (payMethod === "online") {
+      try {
+        const { authorizationUrl } = await initPayment({
+          data: {
+            bookingId: inserted.id,
+            email: parsed.data.email,
+            amountNaira: CONSULTATION_FEE,
+            callbackUrl: `${window.location.origin}/booking-success`,
+          },
+        });
+        window.location.href = authorizationUrl;
+        return; // navigating away
+      } catch (err) {
+        setBusy(false);
+        toast.error(err instanceof Error ? err.message : "Could not start payment. Please try again.");
+        return;
+      }
+    }
+
+    // Bank transfer: booking is saved, direct them to WhatsApp for account
+    // details and to send proof of payment.
+    setBusy(false);
+    const waMessage = encodeURIComponent(
+      `Hi C Imperium, I've booked a consultation for ${parsed.data.preferred_date} at ${parsed.data.preferred_time} and would like to pay ₦${CONSULTATION_FEE.toLocaleString()} by bank transfer.`,
+    );
+    toast.success("Booking received — opening WhatsApp for bank transfer details.");
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}`, "_blank", "noopener,noreferrer");
 
     setPhone(""); setCompany(""); setServiceId(""); setDate(""); setTime(""); setDetails("");
   };
@@ -309,12 +346,59 @@ export function BookingSection() {
               />
             </Field>
 
+            <Field label="Payment method" required>
+              <div className="space-y-2">
+                <label
+                  className={`flex cursor-pointer items-start gap-3 rounded-md border p-4 transition ${
+                    payMethod === "online" ? "border-imperium bg-imperium/5" : "border-border hover:border-imperium/60"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    checked={payMethod === "online"}
+                    onChange={() => setPayMethod("online")}
+                    className="mt-1 accent-[var(--imperium)]"
+                  />
+                  <CreditCard className="mt-0.5 h-4 w-4 shrink-0 text-imperium" />
+                  <div>
+                    <div className="text-sm font-medium">Pay online with Paystack</div>
+                    <div className="text-xs text-muted-foreground">
+                      Card, bank transfer, or USSD — secured by Paystack. Booking confirms once paid.
+                    </div>
+                  </div>
+                </label>
+                <label
+                  className={`flex cursor-pointer items-start gap-3 rounded-md border p-4 transition ${
+                    payMethod === "bank_transfer" ? "border-imperium bg-imperium/5" : "border-border hover:border-imperium/60"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    checked={payMethod === "bank_transfer"}
+                    onChange={() => setPayMethod("bank_transfer")}
+                    className="mt-1 accent-[var(--imperium)]"
+                  />
+                  <Landmark className="mt-0.5 h-4 w-4 shrink-0 text-imperium" />
+                  <div>
+                    <div className="text-sm font-medium">Bank transfer</div>
+                    <div className="text-xs text-muted-foreground">
+                      We'll send our account details on WhatsApp — send proof of payment to confirm your slot.
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </Field>
+
             <button
               type="submit"
               disabled={busy}
               className="btn-cta mt-2 h-14 w-full px-6 disabled:opacity-50"
             >
-              {busy ? "Sending…" : "Book consultation"}
+              {busy
+                ? "Processing…"
+                : payMethod === "online"
+                  ? `Pay ₦${CONSULTATION_FEE.toLocaleString()} & Book`
+                  : "Book & continue on WhatsApp"}
             </button>
           </form>
         </div>
