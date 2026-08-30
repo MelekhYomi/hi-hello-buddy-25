@@ -94,7 +94,7 @@ export function Hero() {
             onClick={scrollTo("book")}
             className="ci-btn-outline"
           >
-            Book Free Consultation
+            Book Consultation
           </a>
         </div>
       </div>

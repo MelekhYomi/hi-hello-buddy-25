@@ -150,12 +150,19 @@ export function BookingSection() {
           <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
             Start your project
           </div>
-          <h2 className="mt-4 font-display text-5xl leading-[0.9] md:text-7xl">
-            BOOK CONSULTATION
-          </h2>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <h2 className="font-display text-5xl leading-[0.9] md:text-7xl">
+              BOOK CONSULTATION
+            </h2>
+            <div className="flex items-center gap-2 rounded-full border border-imperium/60 bg-imperium/10 px-4 py-2">
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Fee</span>
+              <span className="font-display text-lg text-imperium">₦50,000</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">/ hour</span>
+            </div>
+          </div>
           <div className="mt-6 h-px w-24 bg-imperium" />
           <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
-            Schedule a free consultation with our team. We'll discuss your
+            Schedule a one-on-one consultation with our team. We'll discuss your
             vision, assess your needs, and outline a roadmap to elevate your brand.
           </p>
         </div>
