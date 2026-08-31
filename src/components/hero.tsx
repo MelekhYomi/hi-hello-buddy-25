@@ -1,5 +1,8 @@
 import { ArrowRight } from "lucide-react";
-import heroBg from "@/assets/hero-bg.jpg.asset.json";
+
+// Same issue as the header logo: the Lovable-hosted asset URL only resolves
+// inside Lovable's own preview/hosting. Use the copy in /public instead.
+const heroBg = "/hero-bg.jpg";
 
 export function Hero() {
   const scrollTo = (id: string) => (e: React.MouseEvent) => {
@@ -15,7 +18,7 @@ export function Hero() {
       {/* Background image */}
       <div
         className="absolute inset-0 -z-10 bg-cover bg-center"
-        style={{ backgroundImage: `url(${heroBg.url})` }}
+        style={{ backgroundImage: `url(${heroBg})` }}
       />
       {/* Dark overlay for text readability */}
       <div
