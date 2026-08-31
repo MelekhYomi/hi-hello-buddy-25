@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Check, Mail, Trash2, Download, Plus, Pencil } from "lucide-react";
 import { formatNaira } from "@/lib/cart-context";
+import { isPdfFile, pdfFileToImageFile } from "@/lib/pdf-to-image";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin")({
   head: () => ({ meta: [{ title: "Admin — C Imperium Branding" }] }),
@@ -1182,9 +1183,10 @@ function StudioImageForm({ initial, onClose, onSaved }: { initial: StudioRow | n
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  const onFile = async (file: File) => {
+  const onFile = async (fileIn: File) => {
     setUploading(true);
     try {
+      const file = isPdfFile(fileIn) ? await pdfFileToImageFile(fileIn) : fileIn;
       const path = `studio/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
       const { error: upErr } = await supabase.storage.from("site-media").upload(path, file, { upsert: false });
       if (upErr) throw upErr;
@@ -1220,8 +1222,8 @@ function StudioImageForm({ initial, onClose, onSaved }: { initial: StudioRow | n
         <div className="mt-5 space-y-3">
           <div>
             <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); }} />
-              {uploading ? "Uploading…" : "Upload from device"}
+              <input type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); }} />
+              {uploading ? "Uploading…" : "Upload from device (image or PDF)"}
             </label>
             <span className="ml-3 text-[11px] text-muted-foreground">or paste a URL below</span>
           </div>
@@ -1461,7 +1463,11 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState<null | "cover" | "gallery">(null);
 
-  const uploadOne = async (file: File): Promise<string> => {
+  const uploadOne = async (fileIn: File): Promise<string> => {
+    // PDFs (print-ready labels, packaging, etc.) render nowhere in the site
+    // as PDFs — everything downstream expects an <img>-able URL. Convert the
+    // first page to a PNG here, client-side, before it ever reaches storage.
+    const file = isPdfFile(fileIn) ? await pdfFileToImageFile(fileIn) : fileIn;
     const path = `case-studies/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
     const { error: upErr } = await supabase.storage.from("site-media").upload(path, file, { upsert: false });
     if (upErr) throw upErr;
@@ -1523,10 +1529,10 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
           </div>
           <div>
             <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onCoverFile(f); }} />
-              {uploading === "cover" ? "Uploading…" : "Upload cover"}
+              <input type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onCoverFile(f); }} />
+              {uploading === "cover" ? "Uploading…" : "Upload cover (image or PDF)"}
             </label>
-            <span className="ml-3 text-[11px] text-muted-foreground">or paste cover URL below</span>
+            <span className="ml-3 text-[11px] text-muted-foreground">PDFs convert to an image automatically · or paste cover URL below</span>
           </div>
           <input className={inp} placeholder="Cover image URL" value={cover} onChange={(e) => setCover(e.target.value)} />
           {cover && <img src={cover} alt="cover" className="max-h-48 rounded border border-border object-cover" />}
@@ -1535,10 +1541,10 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
           <textarea className={inp} rows={3} placeholder="Results" value={results} onChange={(e) => setResults(e.target.value)} />
           <div>
             <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onGalleryFile(f); }} />
-              {uploading === "gallery" ? "Uploading…" : "Add gallery image"}
+              <input type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onGalleryFile(f); }} />
+              {uploading === "gallery" ? "Uploading…" : "Add gallery image (image or PDF)"}
             </label>
-            <span className="ml-3 text-[11px] text-muted-foreground">appends URL below</span>
+            <span className="ml-3 text-[11px] text-muted-foreground">PDFs convert automatically · appends URL below</span>
           </div>
           <textarea className={inp} rows={4} placeholder="Gallery image URLs (one per line)" value={gallery} onChange={(e) => setGallery(e.target.value)} />
           <div className="grid grid-cols-2 gap-2">
