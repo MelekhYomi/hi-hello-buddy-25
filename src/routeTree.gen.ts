@@ -23,7 +23,9 @@ import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
+import { Route as ReceiptTokenRouteImport } from './routes/receipt.$token'
 import { Route as QuoteTokenRouteImport } from './routes/quote.$token'
+import { Route as InvoiceTokenRouteImport } from './routes/invoice.$token'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
@@ -103,10 +105,20 @@ const ShopSlugRoute = ShopSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => ShopRoute,
 } as any)
+const ReceiptTokenRoute = ReceiptTokenRouteImport.update({
+  id: '/receipt/$token',
+  path: '/receipt/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const QuoteTokenRoute = QuoteTokenRouteImport.update({
   id: '/$token',
   path: '/$token',
   getParentRoute: () => QuoteRoute,
+} as any)
+const InvoiceTokenRoute = InvoiceTokenRouteImport.update({
+  id: '/invoice/$token',
+  path: '/invoice/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/$slug',
@@ -173,7 +185,9 @@ export interface FileRoutesByFullPath {
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/invoice/$token': typeof InvoiceTokenRoute
   '/quote/$token': typeof QuoteTokenRoute
+  '/receipt/$token': typeof ReceiptTokenRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
@@ -196,7 +210,9 @@ export interface FileRoutesByTo {
   '/staff-login': typeof StaffLoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/invoice/$token': typeof InvoiceTokenRoute
   '/quote/$token': typeof QuoteTokenRoute
+  '/receipt/$token': typeof ReceiptTokenRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
@@ -223,7 +239,9 @@ export interface FileRoutesById {
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/invoice/$token': typeof InvoiceTokenRoute
   '/quote/$token': typeof QuoteTokenRoute
+  '/receipt/$token': typeof ReceiptTokenRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/_authenticated/_admin/admin': typeof AuthenticatedAdminAdminRoute
   '/_authenticated/account/bookings': typeof AuthenticatedAccountBookingsRoute
@@ -249,7 +267,9 @@ export interface FileRouteTypes {
     | '/account'
     | '/dashboard'
     | '/blog/$slug'
+    | '/invoice/$token'
     | '/quote/$token'
+    | '/receipt/$token'
     | '/shop/$slug'
     | '/admin'
     | '/account/bookings'
@@ -272,7 +292,9 @@ export interface FileRouteTypes {
     | '/staff-login'
     | '/dashboard'
     | '/blog/$slug'
+    | '/invoice/$token'
     | '/quote/$token'
+    | '/receipt/$token'
     | '/shop/$slug'
     | '/admin'
     | '/account/bookings'
@@ -298,7 +320,9 @@ export interface FileRouteTypes {
     | '/_authenticated/account'
     | '/_authenticated/dashboard'
     | '/blog/$slug'
+    | '/invoice/$token'
     | '/quote/$token'
+    | '/receipt/$token'
     | '/shop/$slug'
     | '/_authenticated/_admin/admin'
     | '/_authenticated/account/bookings'
@@ -321,6 +345,8 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StaffLoginRoute: typeof StaffLoginRoute
+  InvoiceTokenRoute: typeof InvoiceTokenRoute
+  ReceiptTokenRoute: typeof ReceiptTokenRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
 }
 
@@ -424,12 +450,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopSlugRouteImport
       parentRoute: typeof ShopRoute
     }
+    '/receipt/$token': {
+      id: '/receipt/$token'
+      path: '/receipt/$token'
+      fullPath: '/receipt/$token'
+      preLoaderRoute: typeof ReceiptTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/quote/$token': {
       id: '/quote/$token'
       path: '/$token'
       fullPath: '/quote/$token'
       preLoaderRoute: typeof QuoteTokenRouteImport
       parentRoute: typeof QuoteRoute
+    }
+    '/invoice/$token': {
+      id: '/invoice/$token'
+      path: '/invoice/$token'
+      fullPath: '/invoice/$token'
+      preLoaderRoute: typeof InvoiceTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/blog/$slug': {
       id: '/blog/$slug'
@@ -583,6 +623,8 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StaffLoginRoute: StaffLoginRoute,
+  InvoiceTokenRoute: InvoiceTokenRoute,
+  ReceiptTokenRoute: ReceiptTokenRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
 }
 export const routeTree = rootRouteImport

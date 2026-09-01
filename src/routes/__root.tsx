@@ -11,6 +11,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
 import { CartDrawer } from "@/components/cart-drawer";
+import { QuoteProvider } from "@/lib/quote-context";
+import { QuoteDrawer, QuoteFab } from "@/components/quote-drawer";
 import { LeadCapturePopup } from "@/components/lead-capture-popup";
 import { CustomCursor } from "@/components/custom-cursor";
 import { useVisitorTracker } from "@/lib/use-visitor-tracker";
@@ -163,12 +165,16 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CartProvider>
-          <CustomCursor />
-          <TrackerHost />
-          <Outlet />
-          <CartDrawer />
-          <LeadCapturePopup />
-          <Toaster />
+          <QuoteProvider>
+            <CustomCursor />
+            <TrackerHost />
+            <Outlet />
+            <CartDrawer />
+            <QuoteDrawer />
+            <QuoteFab />
+            <LeadCapturePopup />
+            <Toaster />
+          </QuoteProvider>
         </CartProvider>
       </AuthProvider>
     </QueryClientProvider>
