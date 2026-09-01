@@ -15,6 +15,7 @@ const formatNaira = (n: number | null) =>
   n == null ? "" : `₦${n.toLocaleString("en-NG")}`;
 
 export function ServicesSection() {
+  const { add: addToQuote, has: inQuote } = useQuoteBuilder();
   const { data: services, isLoading } = useQuery({
     queryKey: ["services"],
     queryFn: async () => {
