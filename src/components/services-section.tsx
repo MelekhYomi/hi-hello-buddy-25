@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Palette, Printer, Globe, Share2, Megaphone, Sparkles, ArrowRight, type LucideIcon } from "lucide-react";
+import { Palette, Printer, Globe, Share2, Megaphone, Sparkles, ArrowRight, FileText, type LucideIcon } from "lucide-react";
+import { useQuoteBuilder } from "@/lib/quote-context";
 
 const ICONS: Record<string, LucideIcon> = {
   palette: Palette,
@@ -14,6 +15,7 @@ const formatNaira = (n: number | null) =>
   n == null ? "" : `₦${n.toLocaleString("en-NG")}`;
 
 export function ServicesSection() {
+  const { add: addToQuote, has: inQuote } = useQuoteBuilder();
   const { data: services, isLoading } = useQuery({
     queryKey: ["services"],
     queryFn: async () => {
@@ -83,14 +85,31 @@ export function ServicesSection() {
 
                 <button
                   type="button"
+                  onClick={() =>
+                    addToQuote({
+                      id: s.id,
+                      type: "service",
+                      slug: s.slug,
+                      title: s.title,
+                      unitPrice: s.price_min ?? 0,
+                      onRequest: s.price_min == null,
+                    })
+                  }
+                  className="btn-cta mt-8 inline-flex h-11 w-full px-6"
+                >
+                  {inQuote(s.id) ? "In your quote" : "Add to quote"} <FileText className="h-3.5 w-3.5" />
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => {
                     try { sessionStorage.setItem("ci_preselect_service", s.id); } catch {}
                     window.dispatchEvent(new CustomEvent("ci:preselect-service", { detail: { id: s.id } }));
                     document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "start" });
                   }}
-                  className="btn-cta mt-8 inline-flex h-11 w-full px-6"
+                  className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-border text-xs uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-imperium hover:text-imperium"
                 >
-                  Book now <ArrowRight className="h-3.5 w-3.5" />
+                  Book consultation <ArrowRight className="h-3.5 w-3.5" />
                 </button>
 
                 <div className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-imperium transition-transform duration-500 group-hover:scale-x-100" />

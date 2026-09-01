@@ -64,11 +64,18 @@ export type Database = {
       }
       bookings: {
         Row: {
+          amount: number
+          calendar_sync_error: string | null
+          calendar_sync_status: string
           company: string | null
           created_at: string
           email: string
           full_name: string
+          google_event_id: string | null
           id: string
+          payment_method: string | null
+          payment_ref: string | null
+          payment_status: string
           phone: string | null
           preferred_date: string
           preferred_time: string
@@ -79,11 +86,18 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          amount?: number
+          calendar_sync_error?: string | null
+          calendar_sync_status?: string
           company?: string | null
           created_at?: string
           email: string
           full_name: string
+          google_event_id?: string | null
           id?: string
+          payment_method?: string | null
+          payment_ref?: string | null
+          payment_status?: string
           phone?: string | null
           preferred_date: string
           preferred_time: string
@@ -94,11 +108,18 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          amount?: number
+          calendar_sync_error?: string | null
+          calendar_sync_status?: string
           company?: string | null
           created_at?: string
           email?: string
           full_name?: string
+          google_event_id?: string | null
           id?: string
+          payment_method?: string | null
+          payment_ref?: string | null
+          payment_status?: string
           phone?: string | null
           preferred_date?: string
           preferred_time?: string
