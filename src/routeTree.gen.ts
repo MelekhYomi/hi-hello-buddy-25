@@ -111,9 +111,9 @@ const ReceiptTokenRoute = ReceiptTokenRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuoteTokenRoute = QuoteTokenRouteImport.update({
-  id: '/quote/$token',
-  path: '/quote/$token',
-  getParentRoute: () => rootRouteImport,
+  id: '/$token',
+  path: '/$token',
+  getParentRoute: () => QuoteRoute,
 } as any)
 const InvoiceTokenRoute = InvoiceTokenRouteImport.update({
   id: '/invoice/$token',
@@ -345,7 +345,6 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StaffLoginRoute: typeof StaffLoginRoute
   InvoiceTokenRoute: typeof InvoiceTokenRoute
-  QuoteTokenRoute: typeof QuoteTokenRoute
   ReceiptTokenRoute: typeof ReceiptTokenRoute
   QuoteIndexRoute: typeof QuoteIndexRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
@@ -460,10 +459,10 @@ declare module '@tanstack/react-router' {
     }
     '/quote/$token': {
       id: '/quote/$token'
-      path: '/quote/$token'
+      path: '/$token'
       fullPath: '/quote/$token'
       preLoaderRoute: typeof QuoteTokenRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof QuoteRoute
     }
     '/invoice/$token': {
       id: '/invoice/$token'
@@ -614,7 +613,6 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StaffLoginRoute: StaffLoginRoute,
   InvoiceTokenRoute: InvoiceTokenRoute,
-  QuoteTokenRoute: QuoteTokenRoute,
   ReceiptTokenRoute: ReceiptTokenRoute,
   QuoteIndexRoute: QuoteIndexRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
