@@ -11,7 +11,7 @@ import { useAuth } from "@/lib/auth-context";
 import { submitQuote } from "@/lib/billing.functions";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/quote")({
+export const Route = createFileRoute("/quote/")({
   head: () => ({
     meta: [
       { title: "Build Your Quote — C Imperium Branding" },
