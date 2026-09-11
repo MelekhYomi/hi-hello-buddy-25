@@ -280,7 +280,7 @@ export async function loadReceiptByToken(tok: string) {
   if (!receipt) return null;
   const { data: invoice } = await db
     .from("invoices")
-    .select("invoice_number, full_name, email, company, total, amount_paid, public_token")
+    .select("invoice_number, full_name, email, phone, company, total, amount_paid, public_token")
     .eq("id", receipt.invoice_id)
     .maybeSingle();
   const settings = await getBillingSettings();
@@ -351,6 +351,20 @@ export async function settlePayment(paymentId: string) {
     related_type: "receipt",
     related_id: receipt.id,
   });
+
+  // WhatsApp copy of the receipt, ready for one-tap sending from the admin workflow board.
+  if (invoice.phone) {
+    await db.from("outbound_messages").insert({
+      channel: "whatsapp",
+      template: "receipt",
+      to_address: invoice.phone,
+      subject: `Receipt ${receipt.receipt_number}`,
+      body: receiptWhatsAppBody({ invoice, receipt, balance }),
+      related_type: "receipt",
+      related_id: receipt.id,
+      status: "queued",
+    });
+  }
 
   return { receipt, invoice, balance };
 }
@@ -503,4 +517,17 @@ export async function assertStaff(supabase: SupabaseClient<any>, userId: string)
     if (data) return role;
   }
   throw new Error("Forbidden");
+}
+
+export function receiptWhatsAppBody(args: { invoice: any; receipt: any; balance: number }) {
+  const { invoice, receipt, balance } = args;
+  return `C IMPERIUM BRANDING — payment received ✅
+
+Hello ${invoice.full_name}, we've received ${naira(receipt.amount)} for invoice ${invoice.invoice_number}.
+Receipt: ${receipt.receipt_number}
+Outstanding balance: ${naira(balance)}
+
+${balance === 0 ? "Payment complete. We'll contact you for delivery or pickup once your job is ready." : "Your job is now in production. The balance is due on delivery."}
+
+Thank you for choosing C Imperium Branding.`;
 }

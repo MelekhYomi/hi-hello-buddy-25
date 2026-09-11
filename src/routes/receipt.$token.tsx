@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Printer } from "lucide-react";
+import { CheckCircle2, Printer, FileDown, MessageCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { formatNaira } from "@/lib/cart-context";
 import { getReceipt } from "@/lib/billing.functions";
+import { useSiteSettings, cleanWaNumber } from "@/lib/site-settings";
 
 export const Route = createFileRoute("/receipt/$token")({
   head: () => ({
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/receipt/$token")({
 function ReceiptPage() {
   const { token } = Route.useParams();
   const fetchReceipt = useServerFn(getReceipt);
+  const { data: settings } = useSiteSettings();
   const { data, isLoading } = useQuery({
     queryKey: ["receipt", token],
     queryFn: () => fetchReceipt({ data: { token } }),
@@ -54,6 +56,16 @@ function ReceiptPage() {
 
   const { receipt, invoice, footer } = data;
 
+  // Sends the receipt to the customer's own WhatsApp when we have their number,
+  // otherwise opens a chat with the studio carrying the same details.
+  const waNumber =
+    cleanWaNumber(invoice?.phone ?? undefined) ||
+    cleanWaNumber(settings?.whatsapp_number) ||
+    "2348038577654";
+  const waText = encodeURIComponent(
+    `C IMPERIUM BRANDING — payment received.\nReceipt ${receipt.receipt_number}\nAmount paid: ${formatNaira(receipt.amount)}\nInvoice: ${invoice?.invoice_number ?? "—"}\nOutstanding balance: ${formatNaira(receipt.balance_after)}\n\n${typeof window !== "undefined" ? window.location.origin : ""}/receipt/${token}`,
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -81,12 +93,26 @@ function ReceiptPage() {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
+            <a
+              href={`/api/public/pdf/receipt/${token}`}
+              className="inline-flex items-center gap-2 rounded-md border border-imperium px-4 py-2 text-xs text-imperium"
+            >
+              <FileDown className="h-4 w-4" /> Download PDF
+            </a>
+            <a
+              href={`https://wa.me/${waNumber}?text=${waText}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-xs"
+            >
+              <MessageCircle className="h-4 w-4" /> Send to WhatsApp
+            </a>
             <button
               type="button"
               onClick={() => window.print()}
               className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-xs"
             >
-              <Printer className="h-4 w-4" /> Print / save PDF
+              <Printer className="h-4 w-4" /> Print
             </button>
             {invoice?.public_token && (
               <Link

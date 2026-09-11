@@ -2,12 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Printer, MessageCircle, Landmark, CreditCard } from "lucide-react";
+import { ArrowRight, Printer, MessageCircle, Landmark, CreditCard, FileDown } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { formatNaira } from "@/lib/cart-context";
 import { getInvoice, payInvoice, verifyInvoicePayment, declareTransfer } from "@/lib/billing.functions";
 import { useSiteSettings, cleanWaNumber } from "@/lib/site-settings";
+import { PaymentScheduleCard, DeliveryCard } from "@/components/invoice-extras";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/invoice/$token")({
@@ -141,13 +142,21 @@ function InvoicePage() {
               {FULFILMENT_LABEL[invoice.fulfilment_status] ?? invoice.fulfilment_status}
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-xs"
-          >
-            <Printer className="h-4 w-4" /> Print / save PDF
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href={`/api/public/pdf/invoice/${token}`}
+              className="inline-flex items-center gap-2 rounded-md border border-imperium px-4 py-2 text-xs text-imperium"
+            >
+              <FileDown className="h-4 w-4" /> Download PDF
+            </a>
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-xs"
+            >
+              <Printer className="h-4 w-4" /> Print
+            </button>
+          </div>
         </div>
 
         <div className="mt-8 rounded-lg border border-border/60 bg-card/50 p-6 md:p-8">
@@ -201,6 +210,15 @@ function InvoicePage() {
             <Row label="Balance" value={formatNaira(balance)} strong />
           </dl>
         </div>
+
+        {invoice.amount_paid === 0 && balance > 0 && (
+          <PaymentScheduleCard
+            token={token}
+            total={invoice.total}
+            depositPercent={invoice.deposit_percent}
+            dueDate={invoice.due_date ?? null}
+          />
+        )}
 
         {balance > 0 ? (
           <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -301,6 +319,13 @@ function InvoicePage() {
             </ul>
           </div>
         )}
+
+        <DeliveryCard
+          token={token}
+          currentChoice={invoice.delivery_choice ?? null}
+          currentAddress={invoice.delivery_address ?? null}
+          phone={invoice.phone ?? null}
+        />
 
         <div className="mt-10 rounded-lg border border-border/60 bg-card/30 p-6 text-sm text-muted-foreground">
           <h3 className="font-display text-base text-foreground">NEED US?</h3>
