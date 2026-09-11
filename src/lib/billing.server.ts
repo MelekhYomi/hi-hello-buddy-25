@@ -518,3 +518,16 @@ export async function assertStaff(supabase: SupabaseClient<any>, userId: string)
   }
   throw new Error("Forbidden");
 }
+
+export function receiptWhatsAppBody(args: { invoice: any; receipt: any; balance: number }) {
+  const { invoice, receipt, balance } = args;
+  return `C IMPERIUM BRANDING — payment received ✅
+
+Hello ${invoice.full_name}, we've received ${naira(receipt.amount)} for invoice ${invoice.invoice_number}.
+Receipt: ${receipt.receipt_number}
+Outstanding balance: ${naira(balance)}
+
+${balance === 0 ? "Payment complete. We'll contact you for delivery or pickup once your job is ready." : "Your job is now in production. The balance is due on delivery."}
+
+Thank you for choosing C Imperium Branding.`;
+}
