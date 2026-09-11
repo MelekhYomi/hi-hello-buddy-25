@@ -280,7 +280,7 @@ export async function loadReceiptByToken(tok: string) {
   if (!receipt) return null;
   const { data: invoice } = await db
     .from("invoices")
-    .select("invoice_number, full_name, email, company, total, amount_paid, public_token")
+    .select("invoice_number, full_name, email, phone, company, total, amount_paid, public_token")
     .eq("id", receipt.invoice_id)
     .maybeSingle();
   const settings = await getBillingSettings();
