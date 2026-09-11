@@ -482,3 +482,110 @@ export const adminResendDocument = createServerFn({ method: "POST" })
     });
     return { sent: sent.ok, error: sent.ok ? null : sent.error };
   });
+
+/** Public: choose delivery or pickup and give us the delivery address. */
+export const saveDeliveryDetails = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    tokenSchema
+      .extend({
+        choice: z.enum(["delivery", "pickup"]),
+        address: z.string().trim().max(500).optional().or(z.literal("")),
+        zone: z.string().trim().max(120).optional().or(z.literal("")),
+        contact_phone: z.string().trim().max(30).optional().or(z.literal("")),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { loadInvoiceByToken } = await import("./billing.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const found = await loadInvoiceByToken(data.token);
+    if (!found) throw new Error("Invoice not found");
+    if (data.choice === "delivery" && !data.address) {
+      throw new Error("Please give us the delivery address");
+    }
+    const address =
+      data.choice === "pickup"
+        ? "Pickup at the C Imperium studio, Jos"
+        : [data.address, data.zone ? `Zone: ${data.zone}` : "", data.contact_phone ? `Phone: ${data.contact_phone}` : ""]
+            .filter(Boolean)
+            .join(" · ");
+
+    const { error } = await supabaseAdmin
+      .from("invoices")
+      .update({ delivery_choice: data.choice, delivery_address: address })
+      .eq("id", found.invoice.id);
+    if (error) throw new Error(error.message);
+    return { ok: true, choice: data.choice, address };
+  });
+
+/** Public: pick how much to pay up front (payment schedule). */
+export const setPaymentPlan = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    tokenSchema.extend({ deposit_percent: z.number().int().min(10).max(100) }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { loadInvoiceByToken } = await import("./billing.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const found = await loadInvoiceByToken(data.token);
+    if (!found) throw new Error("Invoice not found");
+    const inv = found.invoice;
+    if (inv.amount_paid > 0) throw new Error("A payment has already been made on this invoice");
+    const deposit_amount = Math.round((inv.total * data.deposit_percent) / 100);
+    const { error } = await supabaseAdmin
+      .from("invoices")
+      .update({
+        deposit_percent: data.deposit_percent,
+        deposit_amount,
+        payment_terms: data.deposit_percent === 100 ? "full" : "deposit",
+      })
+      .eq("id", inv.id);
+    if (error) throw new Error(error.message);
+    return { deposit_percent: data.deposit_percent, deposit_amount };
+  });
+
+/** Admin: mark a queued message as delivered (e.g. after sending it on WhatsApp). */
+export const adminMarkMessageSent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ messageId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { assertStaff } = await import("./billing.server");
+    await assertStaff(context.supabase as any, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("outbound_messages")
+      .update({ status: "sent", sent_at: new Date().toISOString(), error: null })
+      .eq("id", data.messageId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Admin: the full pipeline board — quotes, invoices, payments awaiting confirmation, receipts. */
+export const adminWorkflow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { assertStaff } = await import("./billing.server");
+    await assertStaff(context.supabase as any, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [quotes, invoices, payments, receipts, messages] = await Promise.all([
+      supabaseAdmin.from("quotes").select("*").order("created_at", { ascending: false }).limit(200),
+      supabaseAdmin.from("invoices").select("*").order("created_at", { ascending: false }).limit(200),
+      supabaseAdmin
+        .from("payments")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(200),
+      supabaseAdmin.from("receipts").select("*").order("created_at", { ascending: false }).limit(200),
+      supabaseAdmin
+        .from("outbound_messages")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(200),
+    ]);
+    return {
+      quotes: quotes.data ?? [],
+      invoices: invoices.data ?? [],
+      payments: payments.data ?? [],
+      receipts: receipts.data ?? [],
+      messages: messages.data ?? [],
+    };
+  });
