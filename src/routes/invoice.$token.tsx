@@ -320,6 +320,13 @@ function InvoicePage() {
           </div>
         )}
 
+        <DeliveryCard
+          token={token}
+          currentChoice={invoice.delivery_choice ?? null}
+          currentAddress={invoice.delivery_address ?? null}
+          phone={invoice.phone ?? null}
+        />
+
         <div className="mt-10 rounded-lg border border-border/60 bg-card/30 p-6 text-sm text-muted-foreground">
           <h3 className="font-display text-base text-foreground">NEED US?</h3>
           <p className="mt-2">

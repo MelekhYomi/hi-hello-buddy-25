@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Printer } from "lucide-react";
+import { CheckCircle2, Printer, FileDown, MessageCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { formatNaira } from "@/lib/cart-context";
 import { getReceipt } from "@/lib/billing.functions";
+import { useSiteSettings, cleanWaNumber } from "@/lib/site-settings";
 
 export const Route = createFileRoute("/receipt/$token")({
   head: () => ({
