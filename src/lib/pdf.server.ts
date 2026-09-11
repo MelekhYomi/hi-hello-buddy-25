@@ -108,7 +108,7 @@ export async function renderDocumentPdf(doc: DocPayload): Promise<Uint8Array> {
   for (const n of doc.notes) {
     for (const chunk of wrap(n, 100)) {
       if (y < 50) break;
-      text(chunk, { size 	: 8.5, color: muted });
+      text(chunk, { size: 8.5, color: muted });
       y -= 12;
     }
     y -= 4;
