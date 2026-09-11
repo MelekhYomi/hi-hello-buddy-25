@@ -82,12 +82,26 @@ function ReceiptPage() {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
+            <a
+              href={`/api/public/pdf/receipt/${token}`}
+              className="inline-flex items-center gap-2 rounded-md border border-imperium px-4 py-2 text-xs text-imperium"
+            >
+              <FileDown className="h-4 w-4" /> Download PDF
+            </a>
+            <a
+              href={`https://wa.me/${waNumber}?text=${waText}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-xs"
+            >
+              <MessageCircle className="h-4 w-4" /> Send to WhatsApp
+            </a>
             <button
               type="button"
               onClick={() => window.print()}
               className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-xs"
             >
-              <Printer className="h-4 w-4" /> Print / save PDF
+              <Printer className="h-4 w-4" /> Print
             </button>
             {invoice?.public_token && (
               <Link
