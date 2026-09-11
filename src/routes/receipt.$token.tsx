@@ -24,6 +24,7 @@ export const Route = createFileRoute("/receipt/$token")({
 function ReceiptPage() {
   const { token } = Route.useParams();
   const fetchReceipt = useServerFn(getReceipt);
+  const { data: settings } = useSiteSettings();
   const { data, isLoading } = useQuery({
     queryKey: ["receipt", token],
     queryFn: () => fetchReceipt({ data: { token } }),
@@ -54,6 +55,16 @@ function ReceiptPage() {
   }
 
   const { receipt, invoice, footer } = data;
+
+  // Sends the receipt to the customer's own WhatsApp when we have their number,
+  // otherwise opens a chat with the studio carrying the same details.
+  const waNumber =
+    cleanWaNumber(invoice?.phone ?? undefined) ||
+    cleanWaNumber(settings?.whatsapp_number) ||
+    "2348038577654";
+  const waText = encodeURIComponent(
+    `C IMPERIUM BRANDING — payment received.\nReceipt ${receipt.receipt_number}\nAmount paid: ${formatNaira(receipt.amount)}\nInvoice: ${invoice?.invoice_number ?? "—"}\nOutstanding balance: ${formatNaira(receipt.balance_after)}\n\n${typeof window !== "undefined" ? window.location.origin : ""}/receipt/${token}`,
+  );
 
   return (
     <div className="min-h-screen bg-background">
