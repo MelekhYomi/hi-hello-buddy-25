@@ -211,6 +211,15 @@ function InvoicePage() {
           </dl>
         </div>
 
+        {invoice.amount_paid === 0 && balance > 0 && (
+          <PaymentScheduleCard
+            token={token}
+            total={invoice.total}
+            depositPercent={invoice.deposit_percent}
+            dueDate={invoice.due_date ?? null}
+          />
+        )}
+
         {balance > 0 ? (
           <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="rounded-lg border border-imperium/40 bg-imperium/5 p-6">
