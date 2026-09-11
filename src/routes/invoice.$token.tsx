@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { formatNaira } from "@/lib/cart-context";
 import { getInvoice, payInvoice, verifyInvoicePayment, declareTransfer } from "@/lib/billing.functions";
 import { useSiteSettings, cleanWaNumber } from "@/lib/site-settings";
+import { PaymentScheduleCard, DeliveryCard } from "@/components/invoice-extras";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/invoice/$token")({
