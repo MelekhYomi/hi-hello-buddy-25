@@ -352,6 +352,20 @@ export async function settlePayment(paymentId: string) {
     related_id: receipt.id,
   });
 
+  // WhatsApp copy of the receipt, ready for one-tap sending from the admin workflow board.
+  if (invoice.phone) {
+    await db.from("outbound_messages").insert({
+      channel: "whatsapp",
+      template: "receipt",
+      to_address: invoice.phone,
+      subject: `Receipt ${receipt.receipt_number}`,
+      body: receiptWhatsAppBody({ invoice, receipt, balance }),
+      related_type: "receipt",
+      related_id: receipt.id,
+      status: "queued",
+    });
+  }
+
   return { receipt, invoice, balance };
 }
 
