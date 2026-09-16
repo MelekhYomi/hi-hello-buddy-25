@@ -21,7 +21,7 @@ const BOOKING_STATUSES = ["pending", "confirmed", "completed", "cancelled"] as c
 const ORDER_STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"] as const;
 const PAY_STATUSES = ["unpaid", "paid", "pay_on_delivery", "whatsapp_pending", "refunded"] as const;
 
-type Tab = "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies" | "categories" | "delivery";
+type Tab = "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies" | "categories" | "delivery" | "billing";
 
 function AdminPage() {
   const { user, signOut, isSuperAdmin } = useAuth();
@@ -173,6 +173,7 @@ function AdminPage() {
             Messages {unreadContacts > 0 && <span className="ml-2 inline-flex h-4 min-w-4 items-center justify-center bg-imperium px-1 text-[9px] text-charleston">{unreadContacts}</span>}
           </TabButton>
           <TabButton active={tab === "payments"} onClick={() => setTab("payments")}>Payments</TabButton>
+          <TabButton active={tab === "billing"} onClick={() => setTab("billing")}>Quotes &amp; Invoices</TabButton>
           <TabButton active={tab === "users"} onClick={() => setTab("users")}>
             Users {isSuperAdmin && <span className="ml-1 font-mono text-[8px] text-imperium">★</span>}
           </TabButton>
@@ -287,6 +288,7 @@ function AdminPage() {
         {tab === "testimonials" && <TestimonialsAdmin />}
         {tab === "studio" && <StudioImagesAdmin />}
         {tab === "settings" && <SettingsAdmin />}
+        {tab === "billing" && <BillingAdmin />}
 
         {tab === "leads" && (
           <div className="mt-8">
@@ -733,6 +735,15 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 
 // ---------- Refund + Users + Payments ----------
 import { refundOrder, listUsers, grantRole, revokeRole, sendPasswordReset, paystackProbe } from "@/lib/admin.functions";
+import {
+  adminListBilling,
+  adminUpdateQuoteStatus,
+  adminConvertQuote,
+  adminUpdateInvoice,
+  adminRecordPayment,
+  adminConfirmPendingPayment,
+  adminResendDocument,
+} from "@/lib/billing.functions";
 
 function RefundButton({ orderId, disabled }: { orderId: string; disabled?: boolean }) {
   const qc = useQueryClient();
@@ -1557,6 +1568,422 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
           <button onClick={save} disabled={busy || uploading !== null} className="border border-imperium bg-imperium px-5 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-charleston disabled:opacity-50">{busy ? "Saving…" : "Save"}</button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ================= Billing (Quotes / Invoices / Payments) =================
+const QUOTE_STATUSES = ["new", "discussing", "converted", "declined"] as const;
+const INVOICE_STATUSES = ["draft", "sent", "partially_paid", "paid", "void"] as const;
+const FULFILMENT_STATUSES = ["awaiting_payment", "in_production", "ready", "delivered"] as const;
+
+function BillingAdmin() {
+  const qc = useQueryClient();
+  const [subTab, setSubTab] = useState<"quotes" | "invoices" | "messages">("invoices");
+  const [expandedInvoice, setExpandedInvoice] = useState<string | null>(null);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-billing"],
+    queryFn: () => adminListBilling(),
+  });
+
+  const invalidate = () => qc.invalidateQueries({ queryKey: ["admin-billing"] });
+
+  const updateQuoteStatus = async (quoteId: string, status: string) => {
+    try {
+      await adminUpdateQuoteStatus({ data: { quoteId, status: status as any } });
+      invalidate();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not update");
+    }
+  };
+
+  const convertQuote = async (quoteId: string, payment_terms: "deposit" | "full") => {
+    try {
+      const res = await adminConvertQuote({ data: { quoteId, payment_terms, origin: window.location.origin } });
+      toast.success(`Invoice ${res.invoiceNumber} created`);
+      invalidate();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not convert quote");
+    }
+  };
+
+  const updateInvoice = async (invoiceId: string, patch: Record<string, unknown>) => {
+    try {
+      await adminUpdateInvoice({ data: { invoiceId, ...patch } as any });
+      invalidate();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not update invoice");
+    }
+  };
+
+  const recordPayment = async (invoiceId: string, amount: number, method: string, kind: string) => {
+    try {
+      const res = await adminRecordPayment({ data: { invoiceId, amount, method: method as any, kind: kind as any } });
+      toast.success(res.receiptNumber ? `Payment recorded — receipt ${res.receiptNumber}` : "Payment recorded");
+      invalidate();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not record payment");
+    }
+  };
+
+  const confirmPending = async (paymentId: string) => {
+    try {
+      const res = await adminConfirmPendingPayment({ data: { paymentId } });
+      toast.success(res.receiptNumber ? `Confirmed — receipt ${res.receiptNumber}` : "Confirmed");
+      invalidate();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not confirm payment");
+    }
+  };
+
+  const resend = async (messageId: string) => {
+    try {
+      const res = await adminResendDocument({ data: { messageId } });
+      if (res.sent) toast.success("Sent");
+      else toast.error(res.error ?? "Still queued — no verified sender domain configured yet");
+      invalidate();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not resend");
+    }
+  };
+
+  if (isLoading) return <Empty>Loading…</Empty>;
+  const quotes = data?.quotes ?? [];
+  const invoices = data?.invoices ?? [];
+  const payments = data?.payments ?? [];
+  const receipts = data?.receipts ?? [];
+  const messages = data?.messages ?? [];
+
+  return (
+    <div className="mt-8">
+      <div className="mb-6 flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-[0.2em]">
+        {(["invoices", "quotes", "messages"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setSubTab(t)}
+            className={`border px-4 py-2 ${subTab === t ? "border-imperium bg-imperium/10 text-imperium" : "border-border text-muted-foreground hover:text-foreground"}`}
+          >
+            {t === "invoices" ? `Invoices (${invoices.length})` : t === "quotes" ? `Quotes (${quotes.length})` : `Messages (${messages.length})`}
+          </button>
+        ))}
+      </div>
+
+      {subTab === "quotes" && (
+        <div className="space-y-px bg-border/40">
+          {quotes.length === 0 && <Empty>No quotes yet</Empty>}
+          {quotes.map((q: any) => (
+            <article key={q.id} className="bg-card p-6">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                <div className="md:col-span-3">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                    {format(new Date(q.created_at), "MMM d, yyyy")}
+                  </div>
+                  <div className="mt-1 font-display text-lg">{q.quote_number}</div>
+                  <div className="text-sm">{q.full_name}</div>
+                  <div className="font-mono text-[10px] text-muted-foreground">{q.email}</div>
+                </div>
+                <div className="md:col-span-4">
+                  <div className="font-display text-xl text-imperium">{formatNaira(q.total)}</div>
+                  {q.has_custom_items && <div className="text-xs text-muted-foreground">Includes on-request items</div>}
+                  <div className="mt-1 text-xs text-muted-foreground">Valid until {q.valid_until ?? "—"}</div>
+                </div>
+                <div className="flex flex-col items-start gap-2 md:col-span-5 md:items-end">
+                  <select
+                    value={q.status}
+                    onChange={(e) => updateQuoteStatus(q.id, e.target.value)}
+                    className="border border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium"
+                  >
+                    {QUOTE_STATUSES.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                  {q.status !== "converted" && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => convertQuote(q.id, "deposit")}
+                        className="border border-imperium bg-imperium/10 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"
+                      >
+                        Convert (deposit)
+                      </button>
+                      <button
+                        onClick={() => convertQuote(q.id, "full")}
+                        className="border border-border px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+                      >
+                        Convert (full)
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {subTab === "invoices" && (
+        <div className="space-y-px bg-border/40">
+          {invoices.length === 0 && <Empty>No invoices yet</Empty>}
+          {invoices.map((inv: any) => {
+            const invPayments = payments.filter((p: any) => p.invoice_id === inv.id);
+            const invReceipts = receipts.filter((r: any) => r.invoice_id === inv.id);
+            const balance = Math.max(0, inv.total - inv.amount_paid);
+            const expanded = expandedInvoice === inv.id;
+            return (
+              <article key={inv.id} className="bg-card p-6">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                  <div className="md:col-span-3">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                      {format(new Date(inv.created_at), "MMM d, yyyy")} · due {inv.due_date ?? "—"}
+                    </div>
+                    <div className="mt-1 font-display text-lg">{inv.invoice_number}</div>
+                    <div className="text-sm">{inv.full_name}</div>
+                    <div className="font-mono text-[10px] text-muted-foreground">{inv.email}</div>
+                  </div>
+                  <div className="md:col-span-3">
+                    <div className="font-display text-xl text-imperium">{formatNaira(inv.total)}</div>
+                    <div className="text-xs text-muted-foreground">Paid {formatNaira(inv.amount_paid)} · Balance {formatNaira(balance)}</div>
+                  </div>
+                  <div className="flex flex-col items-start gap-2 md:col-span-3">
+                    <select
+                      value={inv.status}
+                      onChange={(e) => updateInvoice(inv.id, { status: e.target.value })}
+                      className="w-full border border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium"
+                    >
+                      {INVOICE_STATUSES.map((s) => (
+                        <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={inv.fulfilment_status}
+                      onChange={(e) => updateInvoice(inv.id, { fulfilment_status: e.target.value })}
+                      className="w-full border border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium"
+                    >
+                      {FULFILMENT_STATUSES.map((s) => (
+                        <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex flex-col items-start gap-2 md:col-span-3 md:items-end">
+                    <a
+                      href={`/invoice/${inv.public_token}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:underline"
+                    >
+                      View invoice ↗
+                    </a>
+                    <button
+                      onClick={() => setExpandedInvoice(expanded ? null : inv.id)}
+                      className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+                    >
+                      {expanded ? "Hide details" : "Payments & details"}
+                    </button>
+                  </div>
+                </div>
+
+                {expanded && (
+                  <InvoiceDetails
+                    invoice={inv}
+                    payments={invPayments}
+                    receipts={invReceipts}
+                    onUpdate={(patch) => updateInvoice(inv.id, patch)}
+                    onRecordPayment={(amount, method, kind) => recordPayment(inv.id, amount, method, kind)}
+                    onConfirmPending={confirmPending}
+                  />
+                )}
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      {subTab === "messages" && (
+        <div className="space-y-px bg-border/40">
+          {messages.length === 0 && <Empty>No messages yet</Empty>}
+          {messages.map((m: any) => (
+            <article key={m.id} className="flex items-center justify-between gap-4 bg-card p-4">
+              <div className="min-w-0">
+                <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-imperium">
+                  {m.template} · {m.channel}
+                </div>
+                <div className="truncate text-sm">{m.subject ?? m.to_address}</div>
+                <div className="font-mono text-[10px] text-muted-foreground">
+                  {m.to_address} · {format(new Date(m.created_at), "MMM d, yyyy HH:mm")}
+                </div>
+                {m.error && <div className="mt-1 text-xs text-destructive">{m.error}</div>}
+              </div>
+              <div className="flex shrink-0 items-center gap-3">
+                <span
+                  className={`font-mono text-[9px] uppercase tracking-[0.2em] ${m.status === "sent" ? "text-imperium" : "text-muted-foreground"}`}
+                >
+                  {m.status}
+                </span>
+                <button
+                  onClick={() => resend(m.id)}
+                  className="border border-border px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+                >
+                  Resend
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InvoiceDetails({
+  invoice,
+  payments,
+  receipts,
+  onUpdate,
+  onRecordPayment,
+  onConfirmPending,
+}: {
+  invoice: any;
+  payments: any[];
+  receipts: any[];
+  onUpdate: (patch: Record<string, unknown>) => void;
+  onRecordPayment: (amount: number, method: string, kind: string) => void;
+  onConfirmPending: (paymentId: string) => void;
+}) {
+  const [discount, setDiscount] = useState(invoice.discount);
+  const [dueDate, setDueDate] = useState(invoice.due_date ?? "");
+  const [payAmount, setPayAmount] = useState<number | "">("");
+  const [payMethod, setPayMethod] = useState("transfer");
+  const [payKind, setPayKind] = useState("deposit");
+
+  return (
+    <div className="mt-6 border-t border-border/50 pt-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <label className="block">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Discount</span>
+          <div className="mt-1 flex gap-2">
+            <input
+              type="number"
+              min={0}
+              value={discount}
+              onChange={(e) => setDiscount(Number(e.target.value))}
+              className="w-full border border-border bg-background/40 px-3 py-2 text-sm outline-none focus:border-imperium"
+            />
+            <button
+              onClick={() => onUpdate({ discount })}
+              className="shrink-0 border border-border px-3 py-2 font-mono text-[9px] uppercase tracking-[0.2em] hover:border-imperium"
+            >
+              Save
+            </button>
+          </div>
+        </label>
+        <label className="block">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Due date</span>
+          <div className="mt-1 flex gap-2">
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="w-full border border-border bg-background/40 px-3 py-2 text-sm outline-none focus:border-imperium"
+            />
+            <button
+              onClick={() => onUpdate({ due_date: dueDate })}
+              className="shrink-0 border border-border px-3 py-2 font-mono text-[9px] uppercase tracking-[0.2em] hover:border-imperium"
+            >
+              Save
+            </button>
+          </div>
+        </label>
+      </div>
+
+      <div className="mt-6">
+        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Record a payment</div>
+        <div className="mt-2 flex flex-wrap items-end gap-2">
+          <input
+            type="number"
+            min={1}
+            placeholder="Amount"
+            value={payAmount}
+            onChange={(e) => setPayAmount(e.target.value ? Number(e.target.value) : "")}
+            className="w-36 border border-border bg-background/40 px-3 py-2 text-sm outline-none focus:border-imperium"
+          />
+          <select
+            value={payMethod}
+            onChange={(e) => setPayMethod(e.target.value)}
+            className="border border-border bg-background/40 px-3 py-2 text-sm outline-none focus:border-imperium"
+          >
+            <option value="transfer">Transfer</option>
+            <option value="cash">Cash</option>
+            <option value="pos">POS</option>
+            <option value="paystack">Paystack</option>
+          </select>
+          <select
+            value={payKind}
+            onChange={(e) => setPayKind(e.target.value)}
+            className="border border-border bg-background/40 px-3 py-2 text-sm outline-none focus:border-imperium"
+          >
+            <option value="deposit">Deposit</option>
+            <option value="balance">Balance</option>
+            <option value="full">Full</option>
+          </select>
+          <button
+            onClick={() => {
+              if (!payAmount || payAmount <= 0) return toast.error("Enter an amount");
+              onRecordPayment(payAmount, payMethod, payKind);
+              setPayAmount("");
+            }}
+            className="border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"
+          >
+            Record
+          </button>
+        </div>
+      </div>
+
+      {payments.length > 0 && (
+        <div className="mt-6">
+          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Payments</div>
+          <div className="mt-2 space-y-1.5">
+            {payments.map((p) => (
+              <div key={p.id} className="flex items-center justify-between border border-border/50 px-3 py-2 text-sm">
+                <span className="capitalize text-muted-foreground">
+                  {p.method} · {p.kind} · {format(new Date(p.created_at), "MMM d, yyyy")}
+                </span>
+                <div className="flex items-center gap-3">
+                  <span className="font-medium">{formatNaira(p.amount)}</span>
+                  {p.status === "pending" ? (
+                    <button
+                      onClick={() => onConfirmPending(p.id)}
+                      className="border border-imperium px-2 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"
+                    >
+                      Confirm
+                    </button>
+                  ) : (
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">{p.status}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {receipts.length > 0 && (
+        <div className="mt-6">
+          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Receipts</div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {receipts.map((r) => (
+              <a
+                key={r.id}
+                href={`/receipt/${r.public_token}`}
+                target="_blank"
+                rel="noreferrer"
+                className="border border-border px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:border-imperium hover:text-imperium"
+              >
+                {r.receipt_number} ↗
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
