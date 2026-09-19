@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Check, Mail, Trash2, Download, Plus, Pencil } from "lucide-react";
 import { formatNaira } from "@/lib/cart-context";
+import { WorkflowBoard } from "@/components/admin/workflow-board";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin")({
   head: () => ({ meta: [{ title: "Admin — C Imperium Branding" }] }),
@@ -20,7 +21,7 @@ const BOOKING_STATUSES = ["pending", "confirmed", "completed", "cancelled"] as c
 const ORDER_STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"] as const;
 const PAY_STATUSES = ["unpaid", "paid", "pay_on_delivery", "whatsapp_pending", "refunded"] as const;
 
-type Tab = "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies" | "categories" | "delivery";
+type Tab = "workflow" | "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies" | "categories" | "delivery";
 
 function AdminPage() {
   const { user, signOut, isSuperAdmin } = useAuth();
@@ -157,6 +158,7 @@ function AdminPage() {
         </div>
 
         <div className="mt-12 flex flex-wrap gap-x-8 gap-y-3 border-b border-border/40 font-mono text-[11px] uppercase tracking-[0.25em]">
+          <TabButton active={tab === "workflow"} onClick={() => setTab("workflow")}>Workflow</TabButton>
           <TabButton active={tab === "bookings"} onClick={() => setTab("bookings")}>Bookings</TabButton>
           <TabButton active={tab === "orders"} onClick={() => setTab("orders")}>Orders</TabButton>
           <TabButton active={tab === "products"} onClick={() => setTab("products")}>Products</TabButton>
@@ -273,6 +275,7 @@ function AdminPage() {
           </div>
         )}
 
+        {tab === "workflow" && <WorkflowBoard />}
         {tab === "users" && <UsersAdmin isSuperAdmin={isSuperAdmin} />}
         {tab === "payments" && <PaymentsAdmin />}
 
