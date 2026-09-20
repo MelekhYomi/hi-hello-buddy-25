@@ -6,6 +6,7 @@ import { MarqueeStrip } from "@/components/marquee-strip";
 import { AboutSection } from "@/components/about-section";
 import { ProductsSection } from "@/components/products-section";
 import { ServicesSection } from "@/components/services-section";
+import { AiAdvisor } from "@/components/ai-advisor";
 import { ProcessSection } from "@/components/process-section";
 import { PortfolioSection } from "@/components/portfolio-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
