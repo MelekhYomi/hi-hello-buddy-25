@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      advisor_sessions: {
+        Row: {
+          advice: Json
+          anon_id: string | null
+          brief: string
+          budget: string | null
+          comment: string | null
+          created_at: string
+          id: string
+          quote_id: string | null
+          rated_at: string | null
+          rating: string | null
+          user_id: string | null
+        }
+        Insert: {
+          advice: Json
+          anon_id?: string | null
+          brief: string
+          budget?: string | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          quote_id?: string | null
+          rated_at?: string | null
+          rating?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          advice?: Json
+          anon_id?: string | null
+          brief?: string
+          budget?: string | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          quote_id?: string | null
+          rated_at?: string | null
+          rating?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advisor_sessions_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author: string | null
