@@ -6,6 +6,7 @@ import { z } from "zod";
 const InputSchema = z.object({
   brief: z.string().trim().min(10).max(2000),
   budget: z.string().trim().max(120).nullable().optional(),
+  anon_id: z.string().trim().max(64).nullable().optional(),
 });
 
 const RecommendationSchema = z.object({
