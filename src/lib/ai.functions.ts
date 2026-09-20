@@ -27,7 +27,7 @@ const RecommendationSchema = z.object({
   questions: z.array(z.string()),
 });
 
-export type ServiceAdvice = z.infer<typeof RecommendationSchema>;
+export type ServiceAdvice = z.infer<typeof RecommendationSchema> & { session_id?: string | null };
 
 /** Public: describe your needs, get matching C Imperium services + a plain explanation of quote options. */
 export const recommendServices = createServerFn({ method: "POST" })
