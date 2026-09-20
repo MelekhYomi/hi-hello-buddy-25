@@ -6,6 +6,7 @@ import { z } from "zod";
 const InputSchema = z.object({
   brief: z.string().trim().min(10).max(2000),
   budget: z.string().trim().max(120).nullable().optional(),
+  anon_id: z.string().trim().max(64).nullable().optional(),
 });
 
 const RecommendationSchema = z.object({
@@ -26,7 +27,7 @@ const RecommendationSchema = z.object({
   questions: z.array(z.string()),
 });
 
-export type ServiceAdvice = z.infer<typeof RecommendationSchema>;
+export type ServiceAdvice = z.infer<typeof RecommendationSchema> & { session_id?: string | null };
 
 /** Public: describe your needs, get matching C Imperium services + a plain explanation of quote options. */
 export const recommendServices = createServerFn({ method: "POST" })
