@@ -49,6 +49,7 @@ function HomePage() {
         <AboutSection />
         <ProductsSection />
         <ServicesSection />
+        <AiAdvisor />
         <ProcessSection />
         <PortfolioSection />
         <WhySection />
