@@ -280,6 +280,58 @@ export function AiAdvisor() {
               </div>
             )}
 
+            <div className="border border-border/60 bg-card p-6">
+              <h3 className="font-display text-xl">WAS THIS HELPFUL?</h3>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => sendFeedback("up")}
+                  className={`inline-flex items-center gap-2 border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] transition ${
+                    rating === "up" ? "border-imperium bg-imperium/10 text-imperium" : "border-border"
+                  }`}
+                >
+                  <ThumbsUp className="h-3.5 w-3.5" /> Yes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => sendFeedback("down")}
+                  className={`inline-flex items-center gap-2 border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] transition ${
+                    rating === "down" ? "border-imperium bg-imperium/10 text-imperium" : "border-border"
+                  }`}
+                >
+                  <ThumbsDown className="h-3.5 w-3.5" /> Not really
+                </button>
+              </div>
+              {rating && !feedbackSent && (
+                <div className="mt-4">
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    rows={3}
+                    maxLength={1000}
+                    placeholder={
+                      rating === "up"
+                        ? "Anything else you'd like us to include? (optional)"
+                        : "Tell us what was missing or wrong (optional)"
+                    }
+                    className="w-full resize-none border border-border bg-background px-4 py-3 text-sm outline-none focus:border-imperium"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => sendFeedback(rating, true)}
+                    className="mt-3 inline-flex items-center gap-2 border border-imperium px-5 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-imperium"
+                  >
+                    Send feedback
+                  </button>
+                </div>
+              )}
+              {feedbackSent && (
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Thank you — your notes go straight to the C Imperium team.
+                </p>
+              )}
+            </div>
+
             <p className="font-mono text-[11px] text-muted-foreground">
               AI suggestions are a guide — a C Imperium consultant confirms every quote.
             </p>
