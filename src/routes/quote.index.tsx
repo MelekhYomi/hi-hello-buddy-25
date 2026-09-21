@@ -130,6 +130,21 @@ function QuotePage() {
           downpayment details.
         </p>
 
+        {handoff && (
+          <div className="mt-8 rounded-lg border border-imperium/40 bg-imperium/5 p-5">
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-imperium">
+              <Sparkles className="h-3.5 w-3.5" /> Brought over from your recommendations
+            </div>
+            {handoff.summary && (
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{handoff.summary}</p>
+            )}
+            <p className="mt-2 text-xs text-muted-foreground">
+              Suggested payment plan: <span className="text-imperium">{handoff.plan}</span>. Your
+              brief has been added to the project details below — edit it freely.
+            </p>
+          </div>
+        )}
+
         <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-12">
           <section className="lg:col-span-7">
             {!lines.length ? (
