@@ -56,9 +56,23 @@ export function AiAdvisor() {
       return;
     }
     setLoading(true);
+    setRating(null);
+    setComment("");
+    setFeedbackSent(false);
     try {
-      const result = await advise({ data: { brief: brief.trim(), budget: budget.trim() || null } });
+      const result = await advise({
+        data: { brief: brief.trim(), budget: budget.trim() || null, anon_id: getAnonId() || null },
+      });
       setAdvice(result);
+      saveAdvisorHandoff({
+        sessionId: result.session_id ?? null,
+        brief: brief.trim(),
+        budget: budget.trim() || null,
+        summary: result.summary,
+        plan: result.suggested_plan,
+        planReason: result.plan_reason,
+        questions: result.questions ?? [],
+      });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "The advisor is unavailable right now");
     } finally {
