@@ -93,13 +93,28 @@ Rules:
 
       const output = await result.output;
       const valid = new Set(services.map((s) => s.slug));
-      return {
+      const advice = {
         ...output,
         recommendations: output.recommendations
           .filter((r) => valid.has(r.slug))
           .slice(0, 5)
           .map((r) => ({ ...r, quantity: Math.min(99, Math.max(1, r.quantity || 1)) })),
       };
+
+      let session_id: string | null = null;
+      const { data: session } = await supabaseAdmin
+        .from("advisor_sessions")
+        .insert({
+          anon_id: data.anon_id ?? null,
+          brief: data.brief,
+          budget: data.budget ?? null,
+          advice,
+        })
+        .select("id")
+        .single();
+      if (session) session_id = session.id;
+
+      return { ...advice, session_id };
     } catch (err) {
       if (NoObjectGeneratedError.isInstance(err)) {
         throw new Error("The advisor couldn't read that. Please describe your needs again in a bit more detail.");
