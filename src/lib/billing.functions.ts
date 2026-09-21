@@ -17,6 +17,7 @@ const submitSchema = z.object({
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
   preferred_contact: z.enum(["call", "whatsapp", "email"]),
   user_id: z.string().uuid().nullable().optional(),
+  advisor_session_id: z.string().uuid().nullable().optional(),
 });
 
 const tokenSchema = z.object({ token: z.string().min(10).max(120) });
@@ -44,6 +45,13 @@ export const submitQuote = createServerFn({ method: "POST" })
       preferred_contact: data.preferred_contact,
       user_id: data.user_id ?? null,
     });
+    if (data.advisor_session_id) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("advisor_sessions")
+        .update({ quote_id: quote.id })
+        .eq("id", data.advisor_session_id);
+    }
     return {
       quoteNumber: quote.quote_number as string,
       token: quote.public_token as string,

@@ -1,10 +1,22 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { recommendServices, type ServiceAdvice } from "@/lib/ai.functions";
+import { recommendServices, rateAdvice, type ServiceAdvice } from "@/lib/ai.functions";
 import { useQuoteBuilder } from "@/lib/quote-context";
-import { Sparkles, Loader2, Check, Plus, HelpCircle } from "lucide-react";
+import { saveAdvisorHandoff } from "@/lib/advisor-handoff";
+import { getAnonId } from "@/lib/anon-id";
+import {
+  Sparkles,
+  Loader2,
+  Check,
+  Plus,
+  HelpCircle,
+  ThumbsUp,
+  ThumbsDown,
+  ArrowRight,
+} from "lucide-react";
 import { toast } from "sonner";
 
 const PRIORITY_LABEL: Record<string, string> = {
@@ -15,11 +27,15 @@ const PRIORITY_LABEL: Record<string, string> = {
 
 export function AiAdvisor() {
   const advise = useServerFn(recommendServices);
+  const rate = useServerFn(rateAdvice);
   const { add, has } = useQuoteBuilder();
   const [brief, setBrief] = useState("");
   const [budget, setBudget] = useState("");
   const [loading, setLoading] = useState(false);
   const [advice, setAdvice] = useState<ServiceAdvice | null>(null);
+  const [rating, setRating] = useState<"up" | "down" | null>(null);
+  const [comment, setComment] = useState("");
+  const [feedbackSent, setFeedbackSent] = useState(false);
 
   const { data: services } = useQuery({
     queryKey: ["services"],
@@ -40,9 +56,23 @@ export function AiAdvisor() {
       return;
     }
     setLoading(true);
+    setRating(null);
+    setComment("");
+    setFeedbackSent(false);
     try {
-      const result = await advise({ data: { brief: brief.trim(), budget: budget.trim() || null } });
+      const result = await advise({
+        data: { brief: brief.trim(), budget: budget.trim() || null, anon_id: getAnonId() || null },
+      });
       setAdvice(result);
+      saveAdvisorHandoff({
+        sessionId: result.session_id ?? null,
+        brief: brief.trim(),
+        budget: budget.trim() || null,
+        summary: result.summary,
+        plan: result.suggested_plan,
+        planReason: result.plan_reason,
+        questions: result.questions ?? [],
+      });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "The advisor is unavailable right now");
     } finally {
@@ -67,6 +97,29 @@ export function AiAdvisor() {
       );
     });
   };
+
+  const sendFeedback = async (value: "up" | "down", withComment = false) => {
+    if (!advice?.session_id) {
+      setRating(value);
+      return;
+    }
+    setRating(value);
+    try {
+      await rate({
+        data: {
+          session_id: advice.session_id,
+          anon_id: getAnonId() || null,
+          rating: value,
+          comment: withComment ? comment.trim() || null : null,
+        },
+      });
+      if (withComment) setFeedbackSent(true);
+      toast.success("Thanks — your feedback helps us improve");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save your feedback");
+    }
+  };
+
 
   return (
     <section id="advisor" className="relative border-t border-border/40 py-16 md:py-20">
@@ -176,15 +229,25 @@ export function AiAdvisor() {
               })}
             </div>
 
-            {advice.recommendations.length > 1 && (
-              <button
-                type="button"
+            <div className="flex flex-wrap items-center gap-3">
+              {advice.recommendations.length > 1 && (
+                <button
+                  type="button"
+                  onClick={addAll}
+                  className="inline-flex items-center gap-2 bg-imperium px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-imperium-foreground transition-opacity hover:opacity-90"
+                >
+                  <Plus className="h-4 w-4" /> Add all to my quote
+                </button>
+              )}
+              <Link
+                to="/quote"
                 onClick={addAll}
-                className="inline-flex items-center gap-2 bg-imperium px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-imperium-foreground transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 border border-imperium px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-imperium transition hover:bg-imperium/10"
               >
-                <Plus className="h-4 w-4" /> Add all to my quote
-              </button>
-            )}
+                Continue to my quote <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+
 
             <div className="border border-border/60 bg-card p-6">
               <h3 className="font-display text-xl">How your quote works</h3>
@@ -216,6 +279,58 @@ export function AiAdvisor() {
                 </ul>
               </div>
             )}
+
+            <div className="border border-border/60 bg-card p-6">
+              <h3 className="font-display text-xl">WAS THIS HELPFUL?</h3>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => sendFeedback("up")}
+                  className={`inline-flex items-center gap-2 border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] transition ${
+                    rating === "up" ? "border-imperium bg-imperium/10 text-imperium" : "border-border"
+                  }`}
+                >
+                  <ThumbsUp className="h-3.5 w-3.5" /> Yes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => sendFeedback("down")}
+                  className={`inline-flex items-center gap-2 border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] transition ${
+                    rating === "down" ? "border-imperium bg-imperium/10 text-imperium" : "border-border"
+                  }`}
+                >
+                  <ThumbsDown className="h-3.5 w-3.5" /> Not really
+                </button>
+              </div>
+              {rating && !feedbackSent && (
+                <div className="mt-4">
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    rows={3}
+                    maxLength={1000}
+                    placeholder={
+                      rating === "up"
+                        ? "Anything else you'd like us to include? (optional)"
+                        : "Tell us what was missing or wrong (optional)"
+                    }
+                    className="w-full resize-none border border-border bg-background px-4 py-3 text-sm outline-none focus:border-imperium"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => sendFeedback(rating, true)}
+                    className="mt-3 inline-flex items-center gap-2 border border-imperium px-5 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-imperium"
+                  >
+                    Send feedback
+                  </button>
+                </div>
+              )}
+              {feedbackSent && (
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Thank you — your notes go straight to the C Imperium team.
+                </p>
+              )}
+            </div>
 
             <p className="font-mono text-[11px] text-muted-foreground">
               AI suggestions are a guide — a C Imperium consultant confirms every quote.
