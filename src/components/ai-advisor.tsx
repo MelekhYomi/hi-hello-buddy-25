@@ -1,10 +1,22 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { recommendServices, type ServiceAdvice } from "@/lib/ai.functions";
+import { recommendServices, rateAdvice, type ServiceAdvice } from "@/lib/ai.functions";
 import { useQuoteBuilder } from "@/lib/quote-context";
-import { Sparkles, Loader2, Check, Plus, HelpCircle } from "lucide-react";
+import { saveAdvisorHandoff } from "@/lib/advisor-handoff";
+import { getAnonId } from "@/lib/anon-id";
+import {
+  Sparkles,
+  Loader2,
+  Check,
+  Plus,
+  HelpCircle,
+  ThumbsUp,
+  ThumbsDown,
+  ArrowRight,
+} from "lucide-react";
 import { toast } from "sonner";
 
 const PRIORITY_LABEL: Record<string, string> = {
