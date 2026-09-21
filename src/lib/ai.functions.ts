@@ -122,3 +122,36 @@ Rules:
       throw err;
     }
   });
+
+const FeedbackSchema = z.object({
+  session_id: z.string().uuid(),
+  anon_id: z.string().trim().max(64).nullable().optional(),
+  rating: z.enum(["up", "down"]),
+  comment: z.string().trim().max(1000).nullable().optional(),
+});
+
+/** Public: rate the advisor's recommendations (thumbs up/down + optional comment). */
+export const rateAdvice = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => FeedbackSchema.parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin
+      .from("advisor_sessions")
+      .select("id, anon_id")
+      .eq("id", data.session_id)
+      .maybeSingle();
+    if (!row) throw new Error("That recommendation is no longer available");
+    if (row.anon_id && data.anon_id && row.anon_id !== data.anon_id) {
+      throw new Error("That recommendation belongs to another visitor");
+    }
+    const { error } = await supabaseAdmin
+      .from("advisor_sessions")
+      .update({
+        rating: data.rating,
+        comment: data.comment || null,
+        rated_at: new Date().toISOString(),
+      })
+      .eq("id", data.session_id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
