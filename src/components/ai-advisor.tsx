@@ -98,6 +98,29 @@ export function AiAdvisor() {
     });
   };
 
+  const sendFeedback = async (value: "up" | "down", withComment = false) => {
+    if (!advice?.session_id) {
+      setRating(value);
+      return;
+    }
+    setRating(value);
+    try {
+      await rate({
+        data: {
+          session_id: advice.session_id,
+          anon_id: getAnonId() || null,
+          rating: value,
+          comment: withComment ? comment.trim() || null : null,
+        },
+      });
+      if (withComment) setFeedbackSent(true);
+      toast.success("Thanks — your feedback helps us improve");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save your feedback");
+    }
+  };
+
+
   return (
     <section id="advisor" className="relative border-t border-border/40 py-16 md:py-20">
       <div className="mx-auto max-w-5xl px-6">
