@@ -27,11 +27,15 @@ const PRIORITY_LABEL: Record<string, string> = {
 
 export function AiAdvisor() {
   const advise = useServerFn(recommendServices);
+  const rate = useServerFn(rateAdvice);
   const { add, has } = useQuoteBuilder();
   const [brief, setBrief] = useState("");
   const [budget, setBudget] = useState("");
   const [loading, setLoading] = useState(false);
   const [advice, setAdvice] = useState<ServiceAdvice | null>(null);
+  const [rating, setRating] = useState<"up" | "down" | null>(null);
+  const [comment, setComment] = useState("");
+  const [feedbackSent, setFeedbackSent] = useState(false);
 
   const { data: services } = useQuery({
     queryKey: ["services"],
