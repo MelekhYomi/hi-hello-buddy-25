@@ -229,15 +229,25 @@ export function AiAdvisor() {
               })}
             </div>
 
-            {advice.recommendations.length > 1 && (
-              <button
-                type="button"
+            <div className="flex flex-wrap items-center gap-3">
+              {advice.recommendations.length > 1 && (
+                <button
+                  type="button"
+                  onClick={addAll}
+                  className="inline-flex items-center gap-2 bg-imperium px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-imperium-foreground transition-opacity hover:opacity-90"
+                >
+                  <Plus className="h-4 w-4" /> Add all to my quote
+                </button>
+              )}
+              <Link
+                to="/quote"
                 onClick={addAll}
-                className="inline-flex items-center gap-2 bg-imperium px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-imperium-foreground transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 border border-imperium px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-imperium transition hover:bg-imperium/10"
               >
-                <Plus className="h-4 w-4" /> Add all to my quote
-              </button>
-            )}
+                Continue to my quote <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+
 
             <div className="border border-border/60 bg-card p-6">
               <h3 className="font-display text-xl">How your quote works</h3>
