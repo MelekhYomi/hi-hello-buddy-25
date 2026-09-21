@@ -102,9 +102,11 @@ function QuotePage() {
           notes: parsed.data.notes,
           preferred_contact: parsed.data.preferred_contact,
           user_id: user?.id ?? null,
+          advisor_session_id: handoff?.sessionId ?? null,
         },
       });
       clear();
+      clearAdvisorHandoff();
       navigate({ to: "/quote/$token", params: { token: res.token } });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not generate your quote");
