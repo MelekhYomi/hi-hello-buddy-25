@@ -1,8 +1,14 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
-import { ArrowRight, FileText, Minus, Plus, Trash2 } from "lucide-react";
+import { ArrowRight, FileText, Minus, Plus, Trash2, Sparkles } from "lucide-react";
+import {
+  readAdvisorHandoff,
+  clearAdvisorHandoff,
+  handoffNotes,
+  type AdvisorHandoff,
+} from "@/lib/advisor-handoff";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useQuoteBuilder } from "@/lib/quote-context";
