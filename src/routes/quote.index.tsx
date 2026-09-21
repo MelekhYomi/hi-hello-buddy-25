@@ -63,6 +63,14 @@ function QuotePage() {
   const [notes, setNotes] = useState("");
   const [contact, setContact] = useState<"call" | "whatsapp" | "email">("whatsapp");
   const [busy, setBusy] = useState(false);
+  const [handoff, setHandoff] = useState<AdvisorHandoff | null>(null);
+
+  useEffect(() => {
+    const h = readAdvisorHandoff();
+    if (!h) return;
+    setHandoff(h);
+    setNotes((prev) => prev || handoffNotes(h));
+  }, []);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
