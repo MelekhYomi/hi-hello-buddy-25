@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { ShoppingBag, Menu, X } from "lucide-react";
+import { ShoppingBag, FileText, Menu, X } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
+import { useQuoteBuilder } from "@/lib/quote-context";
 // The Lovable-hosted asset URL (cimperium-c-mark.png.asset.json) only resolves
 // inside Lovable's own preview/hosting — it 404s on Netlify/Vercel. Use the
 // copy checked into /public instead, which works on every host.
@@ -19,6 +20,7 @@ const SECTIONS = [
 export function SiteHeader() {
   const { user, signOut, isAdmin } = useAuth();
   const { count, setOpen } = useCart();
+  const { count: quoteCount, setOpen: setQuoteOpen } = useQuoteBuilder();
   const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -64,23 +66,35 @@ export function SiteHeader() {
               <button onClick={() => signOut()} className="story-link text-muted-foreground hover:text-foreground transition-colors">Sign out</button>
             </>
           ) : (
-            <Link to="/login" className="story-link text-muted-foreground hover:text-foreground transition-colors">Get Started</Link>
+            <Link to="/login" className="story-link text-imperium hover:text-foreground transition-colors">Sign in</Link>
           )}
         </nav>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setOpen(true)}
-            aria-label="Open cart"
-            className="relative inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-imperium"
-          >
-            <ShoppingBag className="h-5 w-5" />
-            {count > 0 && (
+          {quoteCount > 0 && (
+            <button
+              onClick={() => setQuoteOpen(true)}
+              aria-label="Open quote builder"
+              className="relative inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-imperium"
+            >
+              <FileText className="h-5 w-5" />
+              <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-imperium px-1 font-mono text-[9px] font-bold text-charleston">
+                {quoteCount}
+              </span>
+            </button>
+          )}
+          {count > 0 && (
+            <button
+              onClick={() => setOpen(true)}
+              aria-label="Open cart"
+              className="relative inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-imperium"
+            >
+              <ShoppingBag className="h-5 w-5" />
               <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-imperium px-1 font-mono text-[9px] font-bold text-charleston">
                 {count}
               </span>
-            )}
-          </button>
+            </button>
+          )}
           <a href="#book" onClick={goToSection("book")} className="btn-cta hidden h-9 px-4 md:inline-flex">
             Let's Talk
           </a>
@@ -119,7 +133,7 @@ export function SiteHeader() {
                 <button onClick={() => { setMenuOpen(false); signOut(); }} className="flex items-center py-2.5 text-left text-muted-foreground hover:text-foreground">Sign out</button>
               </>
             ) : (
-              <Link to="/login" onClick={() => setMenuOpen(false)} className="flex items-center py-2.5 text-muted-foreground hover:text-foreground">Get Started</Link>
+              <Link to="/login" onClick={() => setMenuOpen(false)} className="flex items-center py-2.5 text-imperium hover:text-foreground">Sign in</Link>
             )}
             <a href="#book" onClick={goToSection("book")} className="btn-cta mt-3 h-11 w-full justify-center">
               Let's Talk

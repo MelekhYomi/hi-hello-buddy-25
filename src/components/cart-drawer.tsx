@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { X, Minus, Plus, Trash2, ShoppingBag, LogIn } from "lucide-react";
 import { useCart, formatNaira } from "@/lib/cart-context";
+import { useAuth } from "@/lib/auth-context";
 
 export function CartDrawer() {
   const { items, isOpen, setOpen, remove, setQty, subtotal, count } = useCart();
+  const { user } = useAuth();
 
   if (!isOpen) return null;
 
@@ -22,6 +24,18 @@ export function CartDrawer() {
         </header>
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
+          {items.length > 0 && !user && (
+            <div className="mb-4 flex items-start gap-3 rounded-lg border border-imperium/40 bg-imperium/5 p-4">
+              <LogIn className="mt-0.5 h-4 w-4 shrink-0 text-imperium" />
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                <Link to="/login" onClick={() => setOpen(false)} className="text-imperium hover:underline">
+                  Sign in
+                </Link>{" "}
+                to save this cart to your account and track your order after checkout. You can still
+                check out as a guest.
+              </p>
+            </div>
+          )}
           {items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground">
               <ShoppingBag className="h-12 w-12 opacity-30" />

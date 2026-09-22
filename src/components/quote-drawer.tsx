@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { FileText, Minus, Plus, Trash2, X, ArrowRight } from "lucide-react";
+import { FileText, Minus, Plus, Trash2, X, ArrowRight, LogIn } from "lucide-react";
 import { useQuoteBuilder } from "@/lib/quote-context";
 import { formatNaira } from "@/lib/cart-context";
+import { useAuth } from "@/lib/auth-context";
 
 export function QuoteFab() {
   const { count, setOpen, isOpen } = useQuoteBuilder();
@@ -20,6 +21,7 @@ export function QuoteFab() {
 
 export function QuoteDrawer() {
   const { lines, isOpen, setOpen, remove, setQty, estimate, hasOnRequest, clear } = useQuoteBuilder();
+  const { user } = useAuth();
 
   if (!isOpen) return null;
 
@@ -44,6 +46,19 @@ export function QuoteDrawer() {
             <p className="text-sm text-muted-foreground">
               Nothing selected yet. Add services or products and your quote total updates instantly.
             </p>
+          )}
+
+          {!!lines.length && !user && (
+            <div className="mb-4 flex items-start gap-3 rounded-lg border border-imperium/40 bg-imperium/5 p-4">
+              <LogIn className="mt-0.5 h-4 w-4 shrink-0 text-imperium" />
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                <Link to="/login" onClick={() => setOpen(false)} className="text-imperium hover:underline">
+                  Sign in
+                </Link>{" "}
+                so this quote is saved to your account and you can track it later. You can still submit
+                without signing in.
+              </p>
+            </div>
           )}
           <ul className="space-y-4">
             {lines.map((l) => (

@@ -12,7 +12,8 @@ import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
 import { QuoteProvider } from "@/lib/quote-context";
 import { CartDrawer } from "@/components/cart-drawer";
-import { QuoteDrawer, QuoteFab } from "@/components/quote-drawer";
+import { QuoteDrawer } from "@/components/quote-drawer";
+import { SignInNudge } from "@/components/sign-in-nudge";
 import { LeadCapturePopup } from "@/components/lead-capture-popup";
 import { CustomCursor } from "@/components/custom-cursor";
 import { useVisitorTracker } from "@/lib/use-visitor-tracker";
@@ -171,7 +172,7 @@ function RootComponent() {
             <Outlet />
             <CartDrawer />
             <QuoteDrawer />
-            <QuoteFab />
+            <SignInNudge />
             <LeadCapturePopup />
             <Toaster />
           </QuoteProvider>
