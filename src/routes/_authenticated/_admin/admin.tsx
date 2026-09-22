@@ -12,15 +12,6 @@ import { Check, Mail, Trash2, Download, Plus, Pencil } from "lucide-react";
 import { formatNaira } from "@/lib/cart-context";
 import { WorkflowBoard } from "@/components/admin/workflow-board";
 import { isPdfFile, pdfFileToImageFile } from "@/lib/pdf-to-image";
-import {
-  adminListBilling,
-  adminUpdateQuoteStatus,
-  adminConvertQuote,
-  adminUpdateInvoice,
-  adminRecordPayment,
-  adminConfirmPendingPayment,
-  adminResendDocument,
-} from "@/lib/billing.functions";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin")({
   head: () => ({ meta: [{ title: "Admin — C Imperium Branding" }] }),
@@ -185,6 +176,7 @@ function AdminPage() {
             Messages {unreadContacts > 0 && <span className="ml-2 inline-flex h-4 min-w-4 items-center justify-center bg-imperium px-1 text-[9px] text-charleston">{unreadContacts}</span>}
           </TabButton>
           <TabButton active={tab === "payments"} onClick={() => setTab("payments")}>Payments</TabButton>
+          <TabButton active={tab === "billing"} onClick={() => setTab("billing")}>Quotes &amp; Invoices</TabButton>
           <TabButton active={tab === "users"} onClick={() => setTab("users")}>
             Users {isSuperAdmin && <span className="ml-1 font-mono text-[8px] text-imperium">★</span>}
           </TabButton>
@@ -301,6 +293,7 @@ function AdminPage() {
         {tab === "testimonials" && <TestimonialsAdmin />}
         {tab === "studio" && <StudioImagesAdmin />}
         {tab === "settings" && <SettingsAdmin />}
+        {tab === "billing" && <BillingAdmin />}
 
         {tab === "leads" && (
           <div className="mt-8">
@@ -747,6 +740,15 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 
 // ---------- Refund + Users + Payments ----------
 import { refundOrder, listUsers, grantRole, revokeRole, sendPasswordReset, paystackProbe } from "@/lib/admin.functions";
+import {
+  adminListBilling,
+  adminUpdateQuoteStatus,
+  adminConvertQuote,
+  adminUpdateInvoice,
+  adminRecordPayment,
+  adminConfirmPendingPayment,
+  adminResendDocument,
+} from "@/lib/billing.functions";
 
 function RefundButton({ orderId, disabled }: { orderId: string; disabled?: boolean }) {
   const qc = useQueryClient();

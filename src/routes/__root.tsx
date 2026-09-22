@@ -10,8 +10,8 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
-import { CartDrawer } from "@/components/cart-drawer";
 import { QuoteProvider } from "@/lib/quote-context";
+import { CartDrawer } from "@/components/cart-drawer";
 import { QuoteDrawer, QuoteFab } from "@/components/quote-drawer";
 import { LeadCapturePopup } from "@/components/lead-capture-popup";
 import { CustomCursor } from "@/components/custom-cursor";
