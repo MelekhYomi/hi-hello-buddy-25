@@ -14,7 +14,6 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as OrderSuccessRouteImport } from './routes/order-success'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as CheckoutPayRouteImport } from './routes/checkout-pay'
@@ -23,6 +22,7 @@ import { Route as BookingSuccessRouteImport } from './routes/booking-success'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as QuoteIndexRouteImport } from './routes/quote.index'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as ReceiptTokenRouteImport } from './routes/receipt.$token'
 import { Route as QuoteTokenRouteImport } from './routes/quote.$token'
@@ -36,6 +36,7 @@ import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/publi
 import { Route as AuthenticatedAccountOrdersRouteImport } from './routes/_authenticated/account.orders'
 import { Route as AuthenticatedAccountBookingsRouteImport } from './routes/_authenticated/account.bookings'
 import { Route as AuthenticatedAdminAdminRouteImport } from './routes/_authenticated/_admin/admin'
+import { Route as ApiPublicPdfKindTokenRouteImport } from './routes/api/public/pdf.$kind.$token'
 
 const StaffLoginRoute = StaffLoginRouteImport.update({
   id: '/staff-login',
@@ -60,11 +61,6 @@ const ShopRoute = ShopRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const QuoteRoute = QuoteRouteImport.update({
-  id: '/quote',
-  path: '/quote',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrderSuccessRoute = OrderSuccessRouteImport.update({
@@ -106,6 +102,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuoteIndexRoute = QuoteIndexRouteImport.update({
+  id: '/quote/',
+  path: '/quote/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopSlugRoute = ShopSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -117,9 +118,9 @@ const ReceiptTokenRoute = ReceiptTokenRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuoteTokenRoute = QuoteTokenRouteImport.update({
-  id: '/$token',
-  path: '/$token',
-  getParentRoute: () => QuoteRoute,
+  id: '/quote/$token',
+  path: '/quote/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const InvoiceTokenRoute = InvoiceTokenRouteImport.update({
   id: '/invoice/$token',
@@ -174,6 +175,11 @@ const AuthenticatedAdminAdminRoute = AuthenticatedAdminAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const ApiPublicPdfKindTokenRoute = ApiPublicPdfKindTokenRouteImport.update({
+  id: '/api/public/pdf/$kind/$token',
+  path: '/api/public/pdf/$kind/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -183,7 +189,6 @@ export interface FileRoutesByFullPath {
   '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
-  '/quote': typeof QuoteRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRouteWithChildren
   '/signup': typeof SignupRoute
@@ -196,11 +201,13 @@ export interface FileRoutesByFullPath {
   '/quote/$token': typeof QuoteTokenRoute
   '/receipt/$token': typeof ReceiptTokenRoute
   '/shop/$slug': typeof ShopSlugRoute
+  '/quote/': typeof QuoteIndexRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
   '/account/orders': typeof AuthenticatedAccountOrdersRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
+  '/api/public/pdf/$kind/$token': typeof ApiPublicPdfKindTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -210,7 +217,6 @@ export interface FileRoutesByTo {
   '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
-  '/quote': typeof QuoteRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRouteWithChildren
   '/signup': typeof SignupRoute
@@ -222,11 +228,13 @@ export interface FileRoutesByTo {
   '/quote/$token': typeof QuoteTokenRoute
   '/receipt/$token': typeof ReceiptTokenRoute
   '/shop/$slug': typeof ShopSlugRoute
+  '/quote': typeof QuoteIndexRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
   '/account/orders': typeof AuthenticatedAccountOrdersRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/account': typeof AuthenticatedAccountIndexRoute
+  '/api/public/pdf/$kind/$token': typeof ApiPublicPdfKindTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -238,7 +246,6 @@ export interface FileRoutesById {
   '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
-  '/quote': typeof QuoteRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRouteWithChildren
   '/signup': typeof SignupRoute
@@ -252,11 +259,13 @@ export interface FileRoutesById {
   '/quote/$token': typeof QuoteTokenRoute
   '/receipt/$token': typeof ReceiptTokenRoute
   '/shop/$slug': typeof ShopSlugRoute
+  '/quote/': typeof QuoteIndexRoute
   '/_authenticated/_admin/admin': typeof AuthenticatedAdminAdminRoute
   '/_authenticated/account/bookings': typeof AuthenticatedAccountBookingsRoute
   '/_authenticated/account/orders': typeof AuthenticatedAccountOrdersRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
+  '/api/public/pdf/$kind/$token': typeof ApiPublicPdfKindTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -268,7 +277,6 @@ export interface FileRouteTypes {
     | '/checkout-pay'
     | '/login'
     | '/order-success'
-    | '/quote'
     | '/reset-password'
     | '/shop'
     | '/signup'
@@ -281,11 +289,13 @@ export interface FileRouteTypes {
     | '/quote/$token'
     | '/receipt/$token'
     | '/shop/$slug'
+    | '/quote/'
     | '/admin'
     | '/account/bookings'
     | '/account/orders'
     | '/api/public/paystack-webhook'
     | '/account/'
+    | '/api/public/pdf/$kind/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -295,7 +305,6 @@ export interface FileRouteTypes {
     | '/checkout-pay'
     | '/login'
     | '/order-success'
-    | '/quote'
     | '/reset-password'
     | '/shop'
     | '/signup'
@@ -307,11 +316,13 @@ export interface FileRouteTypes {
     | '/quote/$token'
     | '/receipt/$token'
     | '/shop/$slug'
+    | '/quote'
     | '/admin'
     | '/account/bookings'
     | '/account/orders'
     | '/api/public/paystack-webhook'
     | '/account'
+    | '/api/public/pdf/$kind/$token'
   id:
     | '__root__'
     | '/'
@@ -322,7 +333,6 @@ export interface FileRouteTypes {
     | '/checkout-pay'
     | '/login'
     | '/order-success'
-    | '/quote'
     | '/reset-password'
     | '/shop'
     | '/signup'
@@ -336,11 +346,13 @@ export interface FileRouteTypes {
     | '/quote/$token'
     | '/receipt/$token'
     | '/shop/$slug'
+    | '/quote/'
     | '/_authenticated/_admin/admin'
     | '/_authenticated/account/bookings'
     | '/_authenticated/account/orders'
     | '/api/public/paystack-webhook'
     | '/_authenticated/account/'
+    | '/api/public/pdf/$kind/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -352,15 +364,17 @@ export interface RootRouteChildren {
   CheckoutPayRoute: typeof CheckoutPayRoute
   LoginRoute: typeof LoginRoute
   OrderSuccessRoute: typeof OrderSuccessRoute
-  QuoteRoute: typeof QuoteRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   ShopRoute: typeof ShopRouteWithChildren
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StaffLoginRoute: typeof StaffLoginRoute
   InvoiceTokenRoute: typeof InvoiceTokenRoute
+  QuoteTokenRoute: typeof QuoteTokenRoute
   ReceiptTokenRoute: typeof ReceiptTokenRoute
+  QuoteIndexRoute: typeof QuoteIndexRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
+  ApiPublicPdfKindTokenRoute: typeof ApiPublicPdfKindTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -398,13 +412,6 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/quote': {
-      id: '/quote'
-      path: '/quote'
-      fullPath: '/quote'
-      preLoaderRoute: typeof QuoteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/order-success': {
@@ -463,6 +470,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quote/': {
+      id: '/quote/'
+      path: '/quote'
+      fullPath: '/quote/'
+      preLoaderRoute: typeof QuoteIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop/$slug': {
       id: '/shop/$slug'
       path: '/$slug'
@@ -479,10 +493,10 @@ declare module '@tanstack/react-router' {
     }
     '/quote/$token': {
       id: '/quote/$token'
-      path: '/$token'
+      path: '/quote/$token'
       fullPath: '/quote/$token'
       preLoaderRoute: typeof QuoteTokenRouteImport
-      parentRoute: typeof QuoteRoute
+      parentRoute: typeof rootRouteImport
     }
     '/invoice/$token': {
       id: '/invoice/$token'
@@ -554,6 +568,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdminRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/pdf/$kind/$token': {
+      id: '/api/public/pdf/$kind/$token'
+      path: '/api/public/pdf/$kind/$token'
+      fullPath: '/api/public/pdf/$kind/$token'
+      preLoaderRoute: typeof ApiPublicPdfKindTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -609,16 +630,6 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
-interface QuoteRouteChildren {
-  QuoteTokenRoute: typeof QuoteTokenRoute
-}
-
-const QuoteRouteChildren: QuoteRouteChildren = {
-  QuoteTokenRoute: QuoteTokenRoute,
-}
-
-const QuoteRouteWithChildren = QuoteRoute._addFileChildren(QuoteRouteChildren)
-
 interface ShopRouteChildren {
   ShopSlugRoute: typeof ShopSlugRoute
 }
@@ -638,15 +649,17 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutPayRoute: CheckoutPayRoute,
   LoginRoute: LoginRoute,
   OrderSuccessRoute: OrderSuccessRoute,
-  QuoteRoute: QuoteRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   ShopRoute: ShopRouteWithChildren,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StaffLoginRoute: StaffLoginRoute,
   InvoiceTokenRoute: InvoiceTokenRoute,
+  QuoteTokenRoute: QuoteTokenRoute,
   ReceiptTokenRoute: ReceiptTokenRoute,
+  QuoteIndexRoute: QuoteIndexRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
+  ApiPublicPdfKindTokenRoute: ApiPublicPdfKindTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,27 +1,30 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Printer, ArrowRight } from "lucide-react";
+import { CheckCircle2, Printer, FileDown, MessageCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { formatNaira } from "@/lib/cart-context";
 import { getReceipt } from "@/lib/billing.functions";
+import { useSiteSettings, cleanWaNumber } from "@/lib/site-settings";
 
 export const Route = createFileRoute("/receipt/$token")({
   head: () => ({
     meta: [
-      { title: "Payment Receipt — C Imperium Branding" },
-      { name: "description", content: "Your C Imperium Branding payment receipt." },
+      { title: "Your Receipt — C Imperium Branding" },
+      { name: "description", content: "Official payment receipt from C Imperium Branding." },
+      { property: "og:title", content: "Your Receipt — C Imperium Branding" },
+      { property: "og:description", content: "Official payment receipt from C Imperium Branding." },
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: ReceiptDocPage,
+  component: ReceiptPage,
 });
 
-function ReceiptDocPage() {
+function ReceiptPage() {
   const { token } = Route.useParams();
   const fetchReceipt = useServerFn(getReceipt);
-
+  const { data: settings } = useSiteSettings();
   const { data, isLoading } = useQuery({
     queryKey: ["receipt", token],
     queryFn: () => fetchReceipt({ data: { token } }),
@@ -31,9 +34,7 @@ function ReceiptDocPage() {
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />
-        <div className="mx-auto max-w-2xl px-6 py-24 text-center text-sm text-muted-foreground">
-          Loading your receipt…
-        </div>
+        <div className="mx-auto max-w-3xl px-6 py-24 text-sm text-muted-foreground">Loading receipt…</div>
       </div>
     );
   }
@@ -42,9 +43,11 @@ function ReceiptDocPage() {
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />
-        <div className="mx-auto max-w-2xl px-6 py-24">
+        <div className="mx-auto max-w-3xl px-6 py-24">
           <h1 className="font-display text-3xl">Receipt not found</h1>
-          <p className="mt-3 text-sm text-muted-foreground">This link may be incorrect or expired.</p>
+          <Link to="/" className="btn-cta mt-6 inline-flex h-11 items-center px-5">
+            Back home
+          </Link>
         </div>
         <SiteFooter />
       </div>
@@ -52,77 +55,89 @@ function ReceiptDocPage() {
   }
 
   const { receipt, invoice, footer } = data;
-  const amountPaidToDate = invoice?.amount_paid ?? receipt.amount;
+
+  // Sends the receipt to the customer's own WhatsApp when we have their number,
+  // otherwise opens a chat with the studio carrying the same details.
+  const waNumber =
+    cleanWaNumber(invoice?.phone ?? undefined) ||
+    cleanWaNumber(settings?.whatsapp_number) ||
+    "2348038577654";
+  const waText = encodeURIComponent(
+    `C IMPERIUM BRANDING — payment received.\nReceipt ${receipt.receipt_number}\nAmount paid: ${formatNaira(receipt.amount)}\nInvoice: ${invoice?.invoice_number ?? "—"}\nOutstanding balance: ${formatNaira(receipt.balance_after)}\n\n${typeof window !== "undefined" ? window.location.origin : ""}/receipt/${token}`,
+  );
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <main className="mx-auto max-w-2xl px-6 py-16 print:py-6">
-        <div className="flex items-center justify-between gap-4 print:hidden">
-          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">Payment receipt</div>
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-xs"
-          >
-            <Printer className="h-4 w-4" /> Print / save PDF
-          </button>
-        </div>
+      <main className="mx-auto max-w-2xl px-6 py-16">
+        <div className="rounded-lg border border-imperium/40 bg-card/50 p-8">
+          <CheckCircle2 className="h-9 w-9 text-imperium" strokeWidth={1.5} />
+          <div className="mt-5 font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
+            Payment received
+          </div>
+          <h1 className="mt-3 font-display text-4xl leading-none">{receipt.receipt_number}</h1>
 
-        <div className="mt-8 rounded-lg border border-border/60 bg-card/50 p-6 md:p-8 text-center">
-          <CheckCircle2 className="mx-auto h-12 w-12 text-imperium" />
-          <h1 className="mt-4 font-display text-3xl">{receipt.receipt_number}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {new Date(receipt.created_at).toLocaleDateString("en-NG", { year: "numeric", month: "long", day: "numeric" })}
+          <dl className="mt-8 space-y-3 text-sm">
+            <Row label="Amount paid" value={formatNaira(receipt.amount)} strong />
+            <Row label="Payment method" value={receipt.method} />
+            <Row label="Invoice" value={invoice?.invoice_number ?? "—"} />
+            <Row label="Billed to" value={invoice?.full_name ?? "—"} />
+            <Row label="Outstanding balance" value={formatNaira(receipt.balance_after)} />
+            <Row label="Date" value={new Date(receipt.created_at).toLocaleString("en-NG")} />
+          </dl>
+
+          <p className="mt-8 text-sm text-muted-foreground">
+            {receipt.balance_after === 0
+              ? "Your payment is complete. We're on your job and will contact you for delivery or pickup once it's ready."
+              : "Your job is now in production. The remaining balance is due on delivery."}
           </p>
 
-          <div className="mt-8 text-left">
-            {invoice && (
-              <Row label="Invoice" value={invoice.invoice_number} />
-            )}
-            {invoice?.full_name && <Row label="Received from" value={invoice.full_name} />}
-            {invoice?.company && <Row label="Company" value={invoice.company} />}
-            <Row label="Payment method" value={receipt.method} capitalize />
-            <div className="my-4 border-t border-border/40" />
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
-                Amount paid
-              </span>
-              <span className="font-display text-3xl text-imperium">{formatNaira(receipt.amount)}</span>
-            </div>
-            {invoice && (
-              <>
-                <Row label="Paid to date" value={formatNaira(amountPaidToDate)} />
-                <Row label="Balance remaining" value={formatNaira(receipt.balance_after)} />
-              </>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a
+              href={`/api/public/pdf/receipt/${token}`}
+              className="inline-flex items-center gap-2 rounded-md border border-imperium px-4 py-2 text-xs text-imperium"
+            >
+              <FileDown className="h-4 w-4" /> Download PDF
+            </a>
+            <a
+              href={`https://wa.me/${waNumber}?text=${waText}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-xs"
+            >
+              <MessageCircle className="h-4 w-4" /> Send to WhatsApp
+            </a>
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-xs"
+            >
+              <Printer className="h-4 w-4" /> Print
+            </button>
+            {invoice?.public_token && (
+              <Link
+                to="/invoice/$token"
+                params={{ token: invoice.public_token }}
+                className="inline-flex items-center rounded-md border border-border px-4 py-2 text-xs"
+              >
+                View invoice
+              </Link>
             )}
           </div>
 
           {footer && <p className="mt-8 text-xs text-muted-foreground">{footer}</p>}
         </div>
-
-        {invoice && (
-          <div className="mt-6 text-center print:hidden">
-            <Link
-              to="/invoice/$token"
-              params={{ token: invoice.public_token }}
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-            >
-              View full invoice <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        )}
       </main>
       <SiteFooter />
     </div>
   );
 }
 
-function Row({ label, value, capitalize }: { label: string; value: string; capitalize?: boolean }) {
+function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className="flex items-center justify-between py-1 text-sm text-muted-foreground">
-      <span>{label}</span>
-      <span className={`text-foreground ${capitalize ? "capitalize" : ""}`}>{value}</span>
+    <div className="flex items-center justify-between gap-4">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className={strong ? "font-display text-xl text-imperium" : ""}>{value}</dd>
     </div>
   );
 }

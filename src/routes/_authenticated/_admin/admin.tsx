@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Check, Mail, Trash2, Download, Plus, Pencil } from "lucide-react";
 import { formatNaira } from "@/lib/cart-context";
+import { WorkflowBoard } from "@/components/admin/workflow-board";
 import { isPdfFile, pdfFileToImageFile } from "@/lib/pdf-to-image";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin")({
@@ -21,7 +22,7 @@ const BOOKING_STATUSES = ["pending", "confirmed", "completed", "cancelled"] as c
 const ORDER_STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"] as const;
 const PAY_STATUSES = ["unpaid", "paid", "pay_on_delivery", "whatsapp_pending", "refunded"] as const;
 
-type Tab = "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies" | "categories" | "delivery" | "billing";
+type Tab = "workflow" | "billing" | "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies" | "categories" | "delivery";
 
 function AdminPage() {
   const { user, signOut, isSuperAdmin } = useAuth();
@@ -158,6 +159,8 @@ function AdminPage() {
         </div>
 
         <div className="mt-12 flex flex-wrap gap-x-8 gap-y-3 border-b border-border/40 font-mono text-[11px] uppercase tracking-[0.25em]">
+          <TabButton active={tab === "workflow"} onClick={() => setTab("workflow")}>Workflow</TabButton>
+          <TabButton active={tab === "billing"} onClick={() => setTab("billing")}>Quotes &amp; Invoices (list view)</TabButton>
           <TabButton active={tab === "bookings"} onClick={() => setTab("bookings")}>Bookings</TabButton>
           <TabButton active={tab === "orders"} onClick={() => setTab("orders")}>Orders</TabButton>
           <TabButton active={tab === "products"} onClick={() => setTab("products")}>Products</TabButton>
@@ -275,6 +278,8 @@ function AdminPage() {
           </div>
         )}
 
+        {tab === "workflow" && <WorkflowBoard />}
+        {tab === "billing" && <BillingAdmin />}
         {tab === "users" && <UsersAdmin isSuperAdmin={isSuperAdmin} />}
         {tab === "payments" && <PaymentsAdmin />}
 
@@ -1572,7 +1577,10 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
   );
 }
 
-// ================= Billing (Quotes / Invoices / Payments) =================
+// ================= Billing (Quotes / Invoices / Payments) — list view =================
+// A simpler, flat-list alternative to the Workflow board above. Same
+// underlying admin billing functions; some admins prefer a table/list over
+// a kanban board for triage, so both are kept as a toggle.
 const QUOTE_STATUSES = ["new", "discussing", "converted", "declined"] as const;
 const INVOICE_STATUSES = ["draft", "sent", "partially_paid", "paid", "void"] as const;
 const FULFILMENT_STATUSES = ["awaiting_payment", "in_production", "ready", "delivered"] as const;
