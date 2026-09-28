@@ -33,7 +33,7 @@ export type ServiceAdvice = z.infer<typeof RecommendationSchema> & { session_id?
 export const recommendServices = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => InputSchema.parse(d))
   .handler(async ({ data }): Promise<ServiceAdvice> => {
-    const key = process.env["LOVABLE_API_KEY"];
+    const key = process.env["OPENAI_API_KEY"];
     if (!key) throw new Error("AI is not configured yet");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -54,11 +54,7 @@ export const recommendServices = createServerFn({ method: "POST" })
       )
       .join("\n");
 
-    const lovable = createOpenAI({
-      baseURL: "https://ai.gateway.lovable.dev/v1",
-      apiKey: key,
-      headers: { "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-    });
+    const openai = createOpenAI({ apiKey: key });
 
     const system = `You are a branding consultant for C Imperium Branding, a branding agency in Jos, Nigeria. Currency is Nigerian Naira (NGN).
 Recommend ONLY services from this catalogue, using the exact slug and title:
@@ -76,19 +72,10 @@ Rules:
 
     try {
       const result = streamText({
-        model: lovable.responses("openai/gpt-6-astra"),
+        model: openai(process.env["OPENAI_MODEL"] || "gpt-4o-mini"),
         system,
         prompt: `Customer brief: ${data.brief}\nBudget note: ${data.budget || "not given"}`,
         output: Output.object({ schema: RecommendationSchema }),
-        providerOptions: {
-          openai: {
-            forceReasoning: true,
-            reasoningEffort: "low",
-            reasoningSummary: "auto",
-            store: false,
-            include: ["reasoning.encrypted_content"],
-          },
-        },
       });
 
       const output = await result.output;
