@@ -28,7 +28,7 @@ const PRIORITY_LABEL: Record<string, string> = {
 export function AiAdvisor() {
   const advise = useServerFn(recommendServices);
   const rate = useServerFn(rateAdvice);
-  const { add, has } = useQuoteBuilder();
+  const { add, has, setOpen } = useQuoteBuilder();
   const [brief, setBrief] = useState("");
   const [budget, setBudget] = useState("");
   const [loading, setLoading] = useState(false);
@@ -241,7 +241,10 @@ export function AiAdvisor() {
               )}
               <Link
                 to="/quote"
-                onClick={addAll}
+                onClick={() => {
+                  addAll();
+                  setOpen(false);
+                }}
                 className="inline-flex items-center gap-2 border border-imperium px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-imperium transition hover:bg-imperium/10"
               >
                 Continue to my quote <ArrowRight className="h-4 w-4" />
