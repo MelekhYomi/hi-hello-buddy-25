@@ -53,7 +53,7 @@ export const Route = createFileRoute("/shop/$slug")({
     };
   },
   component: ProductPage,
-  errorComponent: ({ error }) => <div className="p-12 text-center">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-12 text-center">{error instanceof Error ? error.message : "Something went wrong"}</div>,
   notFoundComponent: () => (
     <div className="grid min-h-screen place-items-center bg-background">
       <div className="text-center">
