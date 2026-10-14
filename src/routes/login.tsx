@@ -35,6 +35,14 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // Already signed in (session lives in the browser, so the server can't see it): go straight on.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: search.redirect || "/dashboard", replace: true });
+    });
+  }, [navigate, search.redirect]);
+
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse({ email, password });
