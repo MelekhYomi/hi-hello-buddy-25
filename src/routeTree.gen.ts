@@ -36,6 +36,7 @@ import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/publi
 import { Route as AuthenticatedAccountOrdersRouteImport } from './routes/_authenticated/account.orders'
 import { Route as AuthenticatedAccountBookingsRouteImport } from './routes/_authenticated/account.bookings'
 import { Route as AuthenticatedAdminAdminRouteImport } from './routes/_authenticated/_admin/admin'
+import { Route as ApiPublicV1DatasetRouteImport } from './routes/api/public/v1.$dataset'
 import { Route as ApiPublicPdfKindTokenRouteImport } from './routes/api/public/pdf.$kind.$token'
 
 const StaffLoginRoute = StaffLoginRouteImport.update({
@@ -175,6 +176,11 @@ const AuthenticatedAdminAdminRoute = AuthenticatedAdminAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const ApiPublicV1DatasetRoute = ApiPublicV1DatasetRouteImport.update({
+  id: '/api/public/v1/$dataset',
+  path: '/api/public/v1/$dataset',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPdfKindTokenRoute = ApiPublicPdfKindTokenRouteImport.update({
   id: '/api/public/pdf/$kind/$token',
   path: '/api/public/pdf/$kind/$token',
@@ -207,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/account/orders': typeof AuthenticatedAccountOrdersRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
+  '/api/public/v1/$dataset': typeof ApiPublicV1DatasetRoute
   '/api/public/pdf/$kind/$token': typeof ApiPublicPdfKindTokenRoute
 }
 export interface FileRoutesByTo {
@@ -234,6 +241,7 @@ export interface FileRoutesByTo {
   '/account/orders': typeof AuthenticatedAccountOrdersRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/account': typeof AuthenticatedAccountIndexRoute
+  '/api/public/v1/$dataset': typeof ApiPublicV1DatasetRoute
   '/api/public/pdf/$kind/$token': typeof ApiPublicPdfKindTokenRoute
 }
 export interface FileRoutesById {
@@ -265,6 +273,7 @@ export interface FileRoutesById {
   '/_authenticated/account/orders': typeof AuthenticatedAccountOrdersRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
+  '/api/public/v1/$dataset': typeof ApiPublicV1DatasetRoute
   '/api/public/pdf/$kind/$token': typeof ApiPublicPdfKindTokenRoute
 }
 export interface FileRouteTypes {
@@ -295,6 +304,7 @@ export interface FileRouteTypes {
     | '/account/orders'
     | '/api/public/paystack-webhook'
     | '/account/'
+    | '/api/public/v1/$dataset'
     | '/api/public/pdf/$kind/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -322,6 +332,7 @@ export interface FileRouteTypes {
     | '/account/orders'
     | '/api/public/paystack-webhook'
     | '/account'
+    | '/api/public/v1/$dataset'
     | '/api/public/pdf/$kind/$token'
   id:
     | '__root__'
@@ -352,6 +363,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account/orders'
     | '/api/public/paystack-webhook'
     | '/_authenticated/account/'
+    | '/api/public/v1/$dataset'
     | '/api/public/pdf/$kind/$token'
   fileRoutesById: FileRoutesById
 }
@@ -374,6 +386,7 @@ export interface RootRouteChildren {
   ReceiptTokenRoute: typeof ReceiptTokenRoute
   QuoteIndexRoute: typeof QuoteIndexRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
+  ApiPublicV1DatasetRoute: typeof ApiPublicV1DatasetRoute
   ApiPublicPdfKindTokenRoute: typeof ApiPublicPdfKindTokenRoute
 }
 
@@ -568,6 +581,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdminRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/v1/$dataset': {
+      id: '/api/public/v1/$dataset'
+      path: '/api/public/v1/$dataset'
+      fullPath: '/api/public/v1/$dataset'
+      preLoaderRoute: typeof ApiPublicV1DatasetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/pdf/$kind/$token': {
       id: '/api/public/pdf/$kind/$token'
       path: '/api/public/pdf/$kind/$token'
@@ -659,6 +679,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReceiptTokenRoute: ReceiptTokenRoute,
   QuoteIndexRoute: QuoteIndexRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
+  ApiPublicV1DatasetRoute: ApiPublicV1DatasetRoute,
   ApiPublicPdfKindTokenRoute: ApiPublicPdfKindTokenRoute,
 }
 export const routeTree = rootRouteImport
