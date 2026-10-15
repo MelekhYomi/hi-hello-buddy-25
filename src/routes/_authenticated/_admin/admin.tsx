@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Check, Mail, Trash2, Download, Plus, Pencil } from "lucide-react";
 import { formatNaira } from "@/lib/cart-context";
 import { WorkflowBoard } from "@/components/admin/workflow-board";
+import { ExportsAdmin } from "@/components/admin/exports-admin";
 import { isPdfFile, pdfFileToImageFile } from "@/lib/pdf-to-image";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin")({
@@ -22,7 +23,7 @@ const BOOKING_STATUSES = ["pending", "confirmed", "completed", "cancelled"] as c
 const ORDER_STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"] as const;
 const PAY_STATUSES = ["unpaid", "paid", "pay_on_delivery", "whatsapp_pending", "refunded"] as const;
 
-type Tab = "workflow" | "billing" | "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies" | "categories" | "delivery";
+type Tab = "workflow" | "billing" | "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies" | "categories" | "delivery" | "exports";
 
 function AdminPage() {
   const { user, signOut, isSuperAdmin } = useAuth();
@@ -180,6 +181,7 @@ function AdminPage() {
           <TabButton active={tab === "users"} onClick={() => setTab("users")}>
             Users {isSuperAdmin && <span className="ml-1 font-mono text-[8px] text-imperium">★</span>}
           </TabButton>
+          <TabButton active={tab === "exports"} onClick={() => setTab("exports")}>Exports &amp; API</TabButton>
           <TabButton active={tab === "settings"} onClick={() => setTab("settings")}>Settings</TabButton>
         </div>
 
@@ -293,6 +295,7 @@ function AdminPage() {
         {tab === "testimonials" && <TestimonialsAdmin />}
         {tab === "studio" && <StudioImagesAdmin />}
         {tab === "settings" && <SettingsAdmin />}
+        {tab === "exports" && <ExportsAdmin />}
         {tab === "billing" && <BillingAdmin />}
 
         {tab === "leads" && (
