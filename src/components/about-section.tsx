@@ -6,10 +6,10 @@ import team4 from "@/assets/team/team-4.jpg";
 import { useSiteSettings } from "@/lib/site-settings";
 
 const TEAM = [
-  { name: "Ojoudale John", roles: ["Founder", "Creative Director", "Brand Strategist"], img: team1 },
-  { name: "Ayoola Ojoudale", roles: ["Financial Manager"], img: team2 },
-  { name: "Kish", roles: ["Design Lead"], img: team3 },
-  { name: "Abayomi", roles: ["Tech"], img: team4 },
+  { name: "Ojoudale John", roles: ["Founder", "Creative Director", "Brand Strategist"], img: team1, objectPosition: "50% 20%" },
+  { name: "Ayoola Ojoudale", roles: ["Financial Manager"], img: team2, objectPosition: "50% 0%" },
+  { name: "Kish", roles: ["Design Lead"], img: team3, objectPosition: "50% 50%" },
+  { name: "Abayomi", roles: ["Tech"], img: team4, objectPosition: "50% 0%" },
 ];
 
 const DEFAULT_ABOUT = {
@@ -165,6 +165,7 @@ export function AboutSection() {
                     width={768}
                     height={768}
                     className="h-full w-full rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    style={{ objectPosition: member.objectPosition ?? "50% 50%" }}
                   />
                 </div>
                 <span
