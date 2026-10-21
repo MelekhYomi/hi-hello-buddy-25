@@ -17,12 +17,12 @@ import jemimahAdove from "@/assets/clients/jemimah-adove.png";
 // 15 of 22 confirmed client logos wired in. Still pending logo files for:
 // New Covenant Church, Plateau State Government, Jolex Construction Company,
 // Spring Foundation, Kaylztech, Worshippers City, Wasiku.
-const LOGOS: { src: string; name: string }[] = [
-  { src: moniepoint, name: "Moniepoint" },
+const LOGOS: { src: string; name: string; filter?: string; scale?: number }[] = [
+  { src: moniepoint, name: "Moniepoint", scale: 2.2 },
   { src: zenithBank, name: "Zenith Bank" },
   { src: igniteHouse, name: "Ignite House" },
   { src: chakkamRent, name: "ChakkamRent" },
-  { src: thinqSummit, name: "ThinQ Summit Nigeria" },
+  { src: thinqSummit, name: "ThinQ Summit Nigeria", filter: "brightness(0) invert(1)" },
   { src: viverscuisines, name: "Viverscuisines" },
   { src: umaneGlobal, name: "Umane Global" },
   { src: poundwise, name: "Poundwise" },
@@ -30,7 +30,7 @@ const LOGOS: { src: string; name: string }[] = [
   { src: valueForge, name: "Value Forge" },
   { src: icicHeritage, name: "ICIC Heritage" },
   { src: nexusProMedia, name: "Nexus Pro Media" },
-  { src: blackUnboxMedia, name: "Black Unbox Media" },
+  { src: blackUnboxMedia, name: "Black Unbox Media", scale: 2.2 },
   { src: sketchfinix, name: "Sketchfinix" },
   { src: jemimahAdove, name: "Jemimah Adove" },
 ];
@@ -53,12 +53,14 @@ export function MarqueeStrip() {
                 src={l.src}
                 alt={`${l.name} logo`}
                 loading="lazy"
-                // Force every logo to a solid-white silhouette regardless of its
-                // original colors (brightness(0) flattens to black, invert(1)
-                // flips to white) — keeps mixed dark/colored/white source logos
-                // uniformly legible against the dark strip.
-                style={{ filter: "brightness(0) invert(1)" }}
-                className="h-11 w-auto max-w-[150px] object-contain opacity-75 transition-opacity duration-300 hover:opacity-100 md:h-12"
+                // Logos render in their own brand colours straight from the
+                // source files. A per-logo white filter / scale handles the
+                // few marks that need a silhouette or a tighter crop.
+                className="h-11 w-auto max-w-[150px] object-contain opacity-90 transition-opacity duration-300 hover:opacity-100 md:h-12"
+                style={{
+                  ...(l.filter ? { filter: l.filter } : {}),
+                  ...(l.scale ? { transform: `scale(${l.scale})` } : {}),
+                }}
               />
             </div>
           ))}

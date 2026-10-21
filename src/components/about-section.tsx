@@ -9,7 +9,16 @@ const TEAM = [
   { name: "Ojoudale John", roles: ["Founder", "Creative Director", "Brand Strategist"], img: team1, objectPosition: "50% 20%" },
   { name: "Ayoola Ojoudale", roles: ["Financial Manager"], img: team2, objectPosition: "50% 0%" },
   { name: "Kish", roles: ["Design Lead"], img: team3, objectPosition: "50% 50%" },
-  { name: "Abayomi", roles: ["Tech"], img: team4, objectPosition: "50% 0%" },
+  {
+    name: "Abayomi",
+    roles: ["Tech"],
+    img: team4,
+    objectPosition: "50% 50%",
+    objectFit: "contain",
+    // Blend the photo edges into the dark circle so the backdrop doesn't
+    // read as a hard rectangle (chosen over a full background removal).
+    maskImage: "radial-gradient(circle at center, black 62%, transparent 100%)",
+  },
 ];
 
 const DEFAULT_ABOUT = {
@@ -165,7 +174,13 @@ export function AboutSection() {
                     width={768}
                     height={768}
                     className="h-full w-full rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    style={{ objectPosition: member.objectPosition ?? "50% 50%" }}
+                    style={{
+                      objectPosition: member.objectPosition ?? "50% 50%",
+                      objectFit: member.objectFit ?? "cover",
+                      ...(member.maskImage
+                        ? { WebkitMaskImage: member.maskImage, maskImage: member.maskImage }
+                        : {}),
+                    }}
                   />
                 </div>
                 <span
