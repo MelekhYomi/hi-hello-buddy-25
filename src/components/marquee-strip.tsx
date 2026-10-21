@@ -17,10 +17,13 @@ import jemimahAdove from "@/assets/clients/jemimah-adove.png";
 // 15 of 22 confirmed client logos wired in. Still pending logo files for:
 // New Covenant Church, Plateau State Government, Jolex Construction Company,
 // Spring Foundation, Kaylztech, Worshippers City, Wasiku.
-const LOGOS: { src: string; name: string; filter?: string; scale?: number }[] = [
-  { src: moniepoint, name: "Moniepoint", scale: 2.2 },
+// The source files are tightly trimmed (no transparent padding), so every
+// mark lands at a consistent optical size inside its card. Only logos whose
+// artwork is inherently dark on a dark strip need a filter.
+const LOGOS: { src: string; name: string; filter?: string; scale?: number; badge?: boolean }[] = [
+  { src: moniepoint, name: "Moniepoint", filter: "brightness(1.7)" },
   { src: zenithBank, name: "Zenith Bank" },
-  { src: igniteHouse, name: "Ignite House" },
+  { src: igniteHouse, name: "Ignite House", scale: 1.6 },
   { src: chakkamRent, name: "ChakkamRent" },
   { src: thinqSummit, name: "ThinQ Summit Nigeria", filter: "brightness(0) invert(1)" },
   { src: viverscuisines, name: "Viverscuisines" },
@@ -30,7 +33,7 @@ const LOGOS: { src: string; name: string; filter?: string; scale?: number }[] = 
   { src: valueForge, name: "Value Forge" },
   { src: icicHeritage, name: "ICIC Heritage" },
   { src: nexusProMedia, name: "Nexus Pro Media" },
-  { src: blackUnboxMedia, name: "Black Unbox Media", scale: 2.2 },
+  { src: blackUnboxMedia, name: "Black Unbox Media", badge: true },
   { src: sketchfinix, name: "Sketchfinix" },
   { src: jemimahAdove, name: "Jemimah Adove" },
 ];
@@ -54,12 +57,13 @@ export function MarqueeStrip() {
                 alt={`${l.name} logo`}
                 loading="lazy"
                 // Logos render in their own brand colours straight from the
-                // source files. A per-logo white filter / scale handles the
-                // few marks that need a silhouette or a tighter crop.
+                // trimmed source files. A per-logo filter handles the few
+                // marks that need a white silhouette or a brightness lift.
                 className="h-11 w-auto max-w-[150px] object-contain opacity-90 transition-opacity duration-300 hover:opacity-100 md:h-12"
                 style={{
                   ...(l.filter ? { filter: l.filter } : {}),
                   ...(l.scale ? { transform: `scale(${l.scale})` } : {}),
+                  ...(l.badge ? { borderRadius: 4 } : {}),
                 }}
               />
             </div>

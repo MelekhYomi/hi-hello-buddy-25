@@ -155,7 +155,9 @@ export function AboutSection() {
                   className="relative aspect-square w-full max-w-[8.5rem] overflow-hidden rounded-full border-2 transition-all duration-300 group-hover:-translate-y-1"
                   style={{
                     borderColor: "var(--ci-border)",
-                    background: "var(--ci-charcoal)",
+                    // Match the section background so the fading photo edges of
+                    // the "contain"-fitted portrait blend in seamlessly.
+                    background: "var(--ci-dark)",
                     boxShadow: "0 0 0 0 var(--imperium)",
                   }}
                   onMouseEnter={(e) => {
