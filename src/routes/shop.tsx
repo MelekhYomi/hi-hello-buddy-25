@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart, formatNaira } from "@/lib/cart-context";
+import { SITE_URL } from "@/lib/site-url";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -15,10 +16,10 @@ export const Route = createFileRoute("/shop")({
       { property: "og:title", content: "Shop — C Imperium Branding" },
       { property: "og:description", content: "Branded apparel, stationery and print collateral by C Imperium Branding." },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://hi-hello-buddy-25.lovable.app/shop" },
+      { property: "og:url", content: `${SITE_URL}/shop` },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://hi-hello-buddy-25.lovable.app/shop" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/shop` }],
   }),
   component: ShopPage,
 });

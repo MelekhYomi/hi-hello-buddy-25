@@ -1,12 +1,13 @@
 # Deployment Guide — C Imperium
 
-This project is built using TanStack Start and Nitro, supporting **Full Server-Side Rendering (SSR)** on both **Lovable Publish (Cloudflare Workers)** and **Vercel**. All pages, server functions, dynamic `/api/*` endpoints (e.g. Paystack webhook), and metadata are fully functional.
+This project is built using TanStack Start and Nitro, supporting full SSR. Production runs on **Hostinger** (`www.cimperiumbrand.com`) as a Node.js Web App (Nitro `node-server`); Lovable Publish (Cloudflare Workers) and Vercel remain supported alternatives. All pages, server functions, dynamic `/api/*` endpoints (e.g. Paystack webhook), and metadata are fully functional.
 
 ## TL;DR Deployment Table
 
 | Host | Architecture | What Works | Configuration Requirements |
 | :--- | :--- | :--- | :--- |
-| **Lovable Publish** | Full SSR (Workers) | **Everything**: pages, server functions, `/api/*` webhooks, `/sitemap.xml` | Managed automatically via Lovable. Configure secret keys in Lovable Cloud. |
+| **Hostinger** (production — `www.cimperiumbrand.com`) | Full SSR (Nitro `node-server`) | **Everything**: pages, server functions, `/api/*` webhooks, `/sitemap.xml` | Node.js Web App (Business Web Hosting or Cloud plan). See the Hostinger section below. |
+| **Lovable Publish** | Full SSR (Workers) | **Everything**: pages, server functions, `/api/*` webhooks, `/sitemap.xml` | Managed automatically via Lovable. Configure secret keys in Lovable Cloud. Setting an explicit `DEPLOY_TARGET=cloudflare-module` build env forces this build. |
 | **Vercel** (GitHub hook) | Full SSR (Serverless) | **Everything**: pages, server functions, `/api/*` webhooks, `/sitemap.xml` | Set build to automatic/blank (do **NOT** use `dist` as output directory). |
 | **Netlify** (GitHub hook) | SPA Static | Pages, client-side data, client Supabase reads | Traditional static/SPA. Server functions and server `/api/*` webhooks are unavailable. |
 
@@ -38,6 +39,70 @@ Our Nitro-backed compiler dynamically outputs Vercel's Serverless Build Output A
    - `PAYSTACK_SECRET_KEY_TEST` — Paystack test secret key
    - `PAYSTACK_SECRET_KEY_LIVE` — Paystack live secret key
    - `PAYSTACK_WEBHOOK_SECRET` — (Optional) For secure Paystack webhook timing verification
+
+---
+
+## Hostinger — Production (www.cimperiumbrand.com)
+
+The app ships as a Nitro **node-server** build (default when `NODE_ENV=production`
+in `vite.config.ts`), which is what Hostinger's Node.js Web App feature runs.
+
+### Prerequisites
+- A Hostinger plan that supports **Node.js web apps**: Business Web Hosting,
+  Cloud Startup / Professional / Enterprise / Enterprise Plus (Premium/shared
+  does NOT support Node.js apps).
+- The domains `www.cimperiumbrand.com` and `cimperiumbrand.com` added to the plan.
+
+### hPanel Setup
+1. **Websites -> Add Website -> Node.js web app**, connect the GitHub repo
+   (`MelekhYomi/hi-hello-buddy-25`, branch `main`). Pushes to `main` auto-deploy.
+2. **Build settings** — Hostinger won't auto-detect TanStack Start; if it classifies
+   the project as "Other", set these manually:
+
+   | Setting | Value |
+   | --- | --- |
+   | Application type | `nitro` |
+   | Node version | `22` (default / LTS) |
+   | Build script | `build` |
+   | Output directory | `.output` |
+   | Entry file | `server/index.mjs` |
+   | Package manager | `npm` |
+
+   Nitro's node-server preset binds `0.0.0.0` and takes its port from
+   `process.env.PORT` (supplied by Hostinger) — nothing else to configure.
+   Note: dependency install and build each have a 15-minute limit; a clean
+   install plus `npm run build` takes ~5-6 min here.
+
+3. **Environment variables** (hPanel -> website dashboard -> Environment variables;
+   they are injected into **both** the build and the runtime, so set them before
+   the first build):
+
+   | Variable | Needed for |
+   | --- | --- |
+   | `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID` | Client bundle (baked at build) + SSR fallbacks (same values as the committed `.env`) |
+   | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` | Server-side Supabase reads |
+   | `SUPABASE_SERVICE_ROLE_KEY` | Admin / billing server functions (service-role bypass) |
+   | `VITE_SITE_URL` | `https://www.cimperiumbrand.com` (already committed in `.env`; set here anyway for safety) |
+   | `PAYSTACK_SECRET_KEY_TEST` / `PAYSTACK_SECRET_KEY_LIVE` | Checkout + admin payment tools |
+   | `PAYSTACK_WEBHOOK_SECRET` | Webhook signature verification |
+   | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_CALENDAR_ID` | Booking-form availability + calendar events (falls back to fixed slots if missing) |
+   | `TERMII_API_KEY` | OTP / SMS flows (optional) |
+
+4. **Domain**: assign `www.cimperiumbrand.com` to the web app in hPanel, enable
+   the free SSL, and force HTTPS.
+
+### Post-deploy checklist
+- [ ] `https://www.cimperiumbrand.com/sitemap.xml` lists `www.cimperiumbrand.com`
+      URLs (driven by `VITE_SITE_URL` / the committed default).
+- [ ] Set the Paystack webhook URL on **both** live and test dashboards:
+      `https://www.cimperiumbrand.com/api/public/paystack-webhook`
+- [ ] Supabase -> Authentication -> URL Configuration: Site URL set to
+      `https://www.cimperiumbrand.com` and `https://www.cimperiumbrand.com/**`
+      added to the redirect allow-list.
+- [ ] Retire / redirect the old Vercel domain to avoid duplicate-content SEO.
+- [ ] Hostinger stops Node apps when they idle — first request after idle has a
+      multi-second cold start. If that matters, add a keep-alive ping (e.g. a
+      Hostinger cron hitting the homepage every ~5 minutes).
 
 ---
 

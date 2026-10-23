@@ -2,11 +2,12 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { SITE_URL } from "@/lib/site-url";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ArrowLeft } from "lucide-react";
 
-const SITE = "https://hi-hello-buddy-25.lovable.app";
+const SITE = SITE_URL;
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {

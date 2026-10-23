@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { SITE_URL } from "@/lib/site-url";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -13,10 +14,10 @@ export const Route = createFileRoute("/blog")({
       { property: "og:title", content: "Branding Insights — C Imperium" },
       { property: "og:description", content: "Branding insights, strategy, and creative direction from the C Imperium studio." },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://hi-hello-buddy-25.lovable.app/blog" },
+      { property: "og:url", content: `${SITE_URL}/blog` },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://hi-hello-buddy-25.lovable.app/blog" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/blog` }],
   }),
   component: BlogIndex,
 });

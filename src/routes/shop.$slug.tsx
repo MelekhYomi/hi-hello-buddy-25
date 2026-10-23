@@ -4,10 +4,11 @@ import { useState } from "react";
 import { ShoppingBag, Minus, Plus, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart, formatNaira } from "@/lib/cart-context";
+import { SITE_URL } from "@/lib/site-url";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
-const SITE = "https://hi-hello-buddy-25.lovable.app";
+const SITE = SITE_URL;
 
 export const Route = createFileRoute("/shop/$slug")({
   loader: async ({ params }) => {
