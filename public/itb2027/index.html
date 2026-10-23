@@ -13,6 +13,34 @@
 
 </style>
 <style>
+/* ITB2027 light theme override — page designed for light background */
+:root {
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+  --ink: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #F3C925;
+  --primary-foreground: #1a1a1a;
+  --imperium: #F3C925;
+  --imperium-glow: #F3C925;
+  --charleston: #ffffff;
+  --secondary: #e5e5e5;
+  --secondary-foreground: #1a1a1a;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --accent: #e5e7eb;
+  --accent-foreground: #1a1a1a;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #F3C925;
+}
+body { color: var(--foreground); background: var(--background); }
+</style><style>
 /* ITB2027 layout — kept on top of the site's design system */
 :root { --itb-accent: oklch(0.85 0.18 95); --itb-accent-ink: oklch(0.18 0.012 240); --itb-tint: #FBF1B8; --itb-line: #D9D9D2; --itb-dark: #292929; --itb-on-dark: #F6F6F2; --itb-on-dark-muted: #BDBDB5; --itb-focus: #292929; }
 *, *::before, *::after { box-sizing: border-box; }
@@ -402,3 +430,4 @@ document.querySelectorAll('button[data-copy]').forEach(function (b) {
 </body></html>
 </body>
 </html>
+
