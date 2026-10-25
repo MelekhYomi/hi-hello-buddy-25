@@ -21,7 +21,9 @@ import jemimahAdove from "@/assets/clients/jemimah-adove.png";
 // mark lands at a consistent optical size inside its card. Only logos whose
 // artwork is inherently dark on a dark strip need a filter.
 const LOGOS: { src: string; name: string; filter?: string; scale?: number; badge?: boolean }[] = [
-  { src: moniepoint, name: "Moniepoint", filter: "brightness(1.7)" },
+  // Recolored source: white wordmark + tagline, bright blue mark — reads
+  // clearly on the dark strip, so no brightness lift is needed.
+  { src: moniepoint, name: "Moniepoint" },
   { src: zenithBank, name: "Zenith Bank" },
   { src: igniteHouse, name: "Ignite House", scale: 1.6 },
   { src: chakkamRent, name: "ChakkamRent" },
