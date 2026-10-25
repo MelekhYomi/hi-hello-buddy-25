@@ -83,12 +83,12 @@ export function ContactSection() {
 
             <div className="grid grid-cols-2 gap-4">
               <a
-                href="mailto:hello@cimperium.com"
+                href="mailto:info@cimperiumbrand.com"
                 className="group block border border-border/60 bg-card p-5 transition-all hover:border-imperium hover:-translate-y-1"
               >
                 <Mail className="h-5 w-5 text-imperium" strokeWidth={1.5} />
                 <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Email</div>
-                <div className="mt-1 text-sm">hello@cimperium.com</div>
+                <div className="mt-1 text-sm">info@cimperiumbrand.com</div>
               </a>
               <div className="border border-border/60 bg-card p-5">
                 <MapPin className="h-5 w-5 text-imperium" strokeWidth={1.5} />

@@ -20,7 +20,7 @@ export function SiteFooter() {
   const s = settings as Record<string, unknown> | undefined;
   const footer = { ...DEFAULT_FOOTER, ...((s?.footer as Partial<typeof DEFAULT_FOOTER>) ?? {}) };
   const socials = { ...DEFAULT_SOCIALS, ...((s?.socials as Partial<typeof DEFAULT_SOCIALS>) ?? {}) };
-  const email = (s?.contact_email as string | undefined) ?? "hello@cimperium.com";
+  const email = (s?.contact_email as string | undefined) ?? "info@cimperiumbrand.com";
 
   return (
     <footer className="border-t border-border/40 bg-ink py-16">
