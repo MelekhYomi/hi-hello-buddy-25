@@ -9,7 +9,7 @@ VALUES
     'Branding Agency in Jos, Nigeria: How to Build a Brand That Stands Out',
     'Our philosophy is simple: Stand out. Dominate. Everything you need to know about building a brand that communicates value, connects with its audience, and stands confidently apart from the competition — from C Imperium, Jos, Plateau State.',
     NULL,
-    '<p>Our philosophy is simple: <strong>Stand out. Dominate.</strong> We believe every business deserves a brand that communicates its value, connects with its audience, and stands confidently apart from the competition. Branding is more than a logo — it is the complete impression people form about your business through its visual identity, communication, customer experience, and consistency.</p>
+    $$<p>Our philosophy is simple: <strong>Stand out. Dominate.</strong> We believe every business deserves a brand that communicates its value, connects with its audience, and stands confidently apart from the competition. Branding is more than a logo — it is the complete impression people form about your business through its visual identity, communication, customer experience, and consistency.</p>
 
 <h2>What Is Branding, and Why Does Your Business Need It?</h2>
 <p>Branding is more than a logo, a business card, or a collection of beautiful colours. It is the complete impression people form about your business through its visual identity, communication, customer experience, and consistency.</p>
@@ -27,7 +27,7 @@ VALUES
 <p>Working with a branding agency in Jos gives businesses, organizations, and entrepreneurs in Plateau State access to creative expertise and branding solutions within their region.</p>
 <p>At C Imperium, we work with clients who need thoughtful brand development, professional design, quality print production, and technology solutions that support their business goals.</p>
 <p>From emerging businesses to established organizations, our approach begins with understanding your brand, your audience, and what you want to achieve.</p>
-<p>We don\'t believe in design for design\'s sake. We believe every creative decision should serve a purpose.</p>
+<p>We don't believe in design for design's sake. We believe every creative decision should serve a purpose.</p>
 
 <h2>Our Branding and Creative Services</h2>
 <p>C Imperium brings creative thinking and practical execution together through four core service areas.</p>
@@ -42,7 +42,7 @@ VALUES
 
 <h3>3. Campaign and Corporate Branding</h3>
 <p>Organizations need more than attractive visuals to execute successful campaigns. They need consistency across their communication materials and platforms.</p>
-<p>C Imperium supports corporate branding and campaign projects with coordinated creative design, print materials, and visual communication solutions tailored to each project\'s objectives.</p>
+<p>C Imperium supports corporate branding and campaign projects with coordinated creative design, print materials, and visual communication solutions tailored to each project's objectives.</p>
 
 <h3>4. Digital Design and Web Development</h3>
 <p>Your digital presence is an important extension of your brand. We help businesses communicate professionally online through creative digital assets and web development services.</p>
@@ -57,7 +57,7 @@ VALUES
   <li><strong>Approve.</strong> We work with you to review and approve the proposed direction before execution.</li>
   <li><strong>Execute.</strong> We bring the approved concept to life through the agreed design, printing, branding, or technology deliverables.</li>
 </ul>
-<p>This process helps us keep the work purposeful, organized, and aligned with the client\'s objectives.</p>
+<p>This process helps us keep the work purposeful, organized, and aligned with the client's objectives.</p>
 <p>Our slogan, <em>Stand out. Dominate.</em>, reflects our commitment to helping brands present themselves with clarity, confidence, and distinction.</p>
 
 <h2>Who Do We Work With?</h2>
@@ -85,7 +85,7 @@ VALUES
 <p>Email: ceaserimperium@gmail.com</p>
 <p>Explore our services: Brand identity design, printing, corporate branding, campaign branding, graphic design, and web development.</p>
 <p>Take the next step: Contact C Imperium to discuss your project, request a quotation, or book a branding consultation.</p>
-  ',
+$$,
   ARRAY['Branding', 'Brand Strategy'],
   'C Imperium',
   true,
