@@ -156,6 +156,11 @@ function ClientWorkCard({
             src={primary}
             alt={`${c.client} — ${c.title}`}
             loading="lazy"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              (target as any).onerror = null;
+              target.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='100%25' height='100%25' fill='%231a1a1a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='monospace' font-size='14'%3E${encodeURIComponent(c.title)}%3C/text%3E%3C/svg%3E`;
+            }}
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
@@ -175,6 +180,9 @@ function ClientWorkCard({
                 src={src}
                 alt=""
                 loading="lazy"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
                 className="h-12 w-16 rounded-md border border-imperium/20 bg-card object-cover shadow-md ring-2 ring-background"
               />
             ))}

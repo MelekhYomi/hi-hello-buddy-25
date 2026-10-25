@@ -1417,7 +1417,7 @@ function CaseStudiesAdmin() {
     queryFn: async () => {
       const { data, error } = await supabase.from("case_studies").select("*").order("display_order");
       if (error) throw error;
-      return data as CaseStudyRow[];
+      return data as unknown as CaseStudyRow[];
     },
   });
   const [editing, setEditing] = useState<CaseStudyRow | null>(null);
@@ -1535,8 +1535,8 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
       display_order: Math.round(order), is_featured: featured,
     };
     const q = initial
-      ? supabase.from("case_studies").update(payload).eq("id", initial.id)
-      : supabase.from("case_studies").insert(payload);
+      ? supabase.from("case_studies").update(payload as any).eq("id", initial.id)
+      : supabase.from("case_studies").insert(payload as any);
     const { error } = await q;
     setBusy(false);
     if (error) toast.error(error.message);
