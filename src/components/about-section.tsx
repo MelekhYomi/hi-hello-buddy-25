@@ -13,11 +13,12 @@ const TEAM = [
     name: "Abayomi",
     roles: ["Tech"],
     img: team4,
-    objectPosition: "50% 50%",
-    objectFit: "contain" as const,
-    // Blend the photo edges into the dark circle so the backdrop doesn't
-    // read as a hard rectangle (chosen over a full background removal).
-    maskImage: "radial-gradient(circle at center, black 62%, transparent 100%)",
+    objectPosition: "50% 15%",
+    objectFit: "cover" as const,
+    // Use cover so the portrait fills the circle frame completely instead of
+    // letterboxing with contain. Positioned slightly higher to keep the face
+    // centered in the circle rather than the shoulders.
+    maskImage: undefined,
   },
 ];
 
