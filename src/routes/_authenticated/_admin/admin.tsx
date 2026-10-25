@@ -1407,6 +1407,7 @@ interface CaseStudyRow {
   id: string; slug: string; title: string; client: string; industry: string;
   cover_image: string | null; challenge: string | null; solution: string | null; results: string | null;
   is_featured: boolean; display_order: number; gallery_images: string[];
+  services_delivered: string[]; items_delivered: string[];
 }
 
 function CaseStudiesAdmin() {
@@ -1481,6 +1482,8 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
   const [solution, setSolution] = useState(initial?.solution ?? "");
   const [results, setResults] = useState(initial?.results ?? "");
   const [gallery, setGallery] = useState((initial?.gallery_images ?? []).join("\n"));
+  const [servicesDelivered, setServicesDelivered] = useState((initial?.services_delivered ?? []).join(", "));
+  const [itemsDelivered, setItemsDelivered] = useState((initial?.items_delivered ?? []).join(", "));
   const [order, setOrder] = useState(initial?.display_order ?? 0);
   const [featured, setFeatured] = useState(initial?.is_featured ?? false);
   const [busy, setBusy] = useState(false);
@@ -1527,6 +1530,8 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
       solution: solution.trim() || null,
       results: results.trim() || null,
       gallery_images: gallery.split("\n").map((s) => s.trim()).filter(Boolean),
+      services_delivered: servicesDelivered.split(",").map((s) => s.trim()).filter(Boolean),
+      items_delivered: itemsDelivered.split(",").map((s) => s.trim()).filter(Boolean),
       display_order: Math.round(order), is_featured: featured,
     };
     const q = initial
@@ -1562,6 +1567,8 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
           <textarea className={inp} rows={3} placeholder="Challenge" value={challenge} onChange={(e) => setChallenge(e.target.value)} />
           <textarea className={inp} rows={3} placeholder="Solution" value={solution} onChange={(e) => setSolution(e.target.value)} />
           <textarea className={inp} rows={3} placeholder="Results" value={results} onChange={(e) => setResults(e.target.value)} />
+          <textarea className={inp} rows={2} placeholder="Services delivered (comma-separated, e.g. branding, print, apparel)" value={servicesDelivered} onChange={(e) => setServicesDelivered(e.target.value)} />
+          <textarea className={inp} rows={2} placeholder="Items delivered (comma-separated, e.g. t-shirts, flex banners, business cards)" value={itemsDelivered} onChange={(e) => setItemsDelivered(e.target.value)} />
           <div>
             <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
               <input type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onGalleryFile(f); }} />

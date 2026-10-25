@@ -92,6 +92,26 @@ export function CaseStudyModal({
             <Building2 className="h-4 w-4 text-imperium" /> {study.client}
           </div>
 
+          {((study as any).services_delivered ?? []).length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {((study as any).services_delivered ?? []).map((s: string) => (
+                <span
+                  key={s}
+                  className="px-2.5 py-0.5 rounded border border-imperium/30 bg-imperium/5 text-[9px] font-mono uppercase tracking-[0.15em] text-imperium"
+                >
+                  {s}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {((study as any).items_delivered ?? []).length > 0 && (
+            <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              Items delivered:{" "}
+              {((study as any).items_delivered ?? []).join(", ")}
+            </div>
+          )}
+
           <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
             <Block label="Challenge" body={study.challenge} />
             <Block label="Solution" body={study.solution} />
