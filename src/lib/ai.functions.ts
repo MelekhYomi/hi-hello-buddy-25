@@ -65,7 +65,7 @@ Rules:
 - quantity is how many units of that service they likely need (usually 1).
 - "why" is one short sentence in plain language addressed to the customer.
 - "summary" is 1-2 sentences describing what you think they need.
-- "quote_explanation" explains, in plain language and max 90 words, how the quote works at C Imperium: they get an instant estimate on the website, then an invoice by email or WhatsApp, they can pay in full or pay a deposit to start the job, and a receipt is sent after payment. Mention that items priced "on request" are confirmed by a consultant.
+- "quote_explanation" explains, in plain language and max 90 words, how the quote works at C Imperium: they pick services and send a brief, every line is priced by hand, and the itemised prices come back on WhatsApp or email — usually within one business day. If it looks right, an invoice follows and they can pay in full or pay a deposit to start the job. There is no automatic price on the site.
 - "suggested_plan" is one of full, 70/30, 50/50, 30/70 (upfront/balance), with a one-sentence plan_reason.
 - "questions" is up to 3 short questions a consultant should ask them next.
 - Never invent prices or services that are not in the catalogue.`;

@@ -14,13 +14,14 @@ export function QuoteFab() {
       className="fixed bottom-6 left-6 z-40 inline-flex items-center gap-2 rounded-full border border-imperium bg-card px-5 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-imperium shadow-[0_0_30px_-8px_var(--imperium)]"
     >
       <FileText className="h-4 w-4" />
-      Quote ({count})
+      Request ({count})
     </button>
   );
 }
 
 export function QuoteDrawer() {
-  const { lines, isOpen, setOpen, remove, setQty, estimate, hasOnRequest, clear } = useQuoteBuilder();
+  const { lines, isOpen, setOpen, remove, setQty, estimate, allOnRequest, clear } =
+    useQuoteBuilder();
   const { user } = useAuth();
 
   if (!isOpen) return null;
@@ -34,9 +35,9 @@ export function QuoteDrawer() {
             <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-imperium">
               Your selection
             </div>
-            <h2 className="mt-1 font-display text-2xl">QUOTE BUILDER</h2>
+            <h2 className="mt-1 font-display text-2xl">QUOTE REQUEST</h2>
           </div>
-          <button type="button" onClick={() => setOpen(false)} aria-label="Close quote builder">
+          <button type="button" onClick={() => setOpen(false)} aria-label="Close quote request">
             <X className="h-5 w-5" />
           </button>
         </header>
@@ -44,7 +45,7 @@ export function QuoteDrawer() {
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {!lines.length && (
             <p className="text-sm text-muted-foreground">
-              Nothing selected yet. Add services or products and your quote total updates instantly.
+              Nothing selected yet. Choose a service and we'll price it for you.
             </p>
           )}
 
@@ -52,14 +53,20 @@ export function QuoteDrawer() {
             <div className="mb-4 flex items-start gap-3 rounded-lg border border-imperium/40 bg-imperium/5 p-4">
               <LogIn className="mt-0.5 h-4 w-4 shrink-0 text-imperium" />
               <p className="text-xs leading-relaxed text-muted-foreground">
-                <Link to="/login" onClick={() => setOpen(false)} className="text-imperium hover:underline">
+                <Link
+                  to="/login"
+                  search={{ redirect: "/quote" }}
+                  onClick={() => setOpen(false)}
+                  className="text-imperium hover:underline"
+                >
                   Sign in
                 </Link>{" "}
-                so this quote is saved to your account and you can track it later. You can still submit
-                without signing in.
+                to send this request. That is how we record it against your account and reply
+                promptly — your selection is already saved.
               </p>
             </div>
           )}
+
           <ul className="space-y-4">
             {lines.map((l) => (
               <li key={l.id} className="rounded-lg border border-border/60 bg-card/50 p-4">
@@ -94,8 +101,8 @@ export function QuoteDrawer() {
                       <Plus className="h-3 w-3" />
                     </button>
                   </div>
-                  <div className="text-sm text-imperium">
-                    {l.onRequest ? "On request" : formatNaira(l.unitPrice * l.quantity)}
+                  <div className="text-sm text-muted-foreground">
+                    {l.onRequest ? "Pricing on request" : formatNaira(l.unitPrice * l.quantity)}
                   </div>
                 </div>
               </li>
@@ -105,20 +112,24 @@ export function QuoteDrawer() {
 
         <footer className="border-t border-border px-6 py-5">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Estimated total</span>
-            <span className="font-display text-2xl text-imperium">{formatNaira(estimate)}</span>
+            <span className="text-muted-foreground">
+              {allOnRequest ? "Pricing" : "Items priced so far"}
+            </span>
+            <span className="font-display text-xl text-imperium">
+              {allOnRequest ? "On request" : formatNaira(estimate)}
+            </span>
           </div>
-          {hasOnRequest && (
-            <p className="mt-2 text-xs text-muted-foreground">
-              Some items are scoped on request — we'll confirm those figures with you.
-            </p>
-          )}
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+            {allOnRequest
+              ? "We price every line by hand and send it back on WhatsApp, usually within one business day."
+              : "Anything marked on request is priced after we read your brief."}
+          </p>
           <Link
             to="/quote"
             onClick={() => setOpen(false)}
             className="btn-cta mt-4 inline-flex h-12 w-full items-center justify-center gap-2 px-6"
           >
-            Review my quote <ArrowRight className="h-4 w-4" />
+            {user ? "Review & send request" : "Sign in to send"} <ArrowRight className="h-4 w-4" />
           </Link>
           {!!lines.length && (
             <button

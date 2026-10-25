@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
@@ -751,6 +752,9 @@ import {
   adminRecordPayment,
   adminConfirmPendingPayment,
   adminResendDocument,
+  adminQuoteItems,
+  adminPriceQuote,
+  adminSendQuote,
 } from "@/lib/billing.functions";
 
 function RefundButton({ orderId, disabled }: { orderId: string; disabled?: boolean }) {
@@ -1584,7 +1588,7 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
 // A simpler, flat-list alternative to the Workflow board above. Same
 // underlying admin billing functions; some admins prefer a table/list over
 // a kanban board for triage, so both are kept as a toggle.
-const QUOTE_STATUSES = ["new", "discussing", "converted", "declined"] as const;
+const QUOTE_STATUSES = ["draft", "new", "discussing", "priced", "converted", "declined"] as const;
 const INVOICE_STATUSES = ["draft", "sent", "partially_paid", "paid", "void"] as const;
 const FULFILMENT_STATUSES = ["awaiting_payment", "in_production", "ready", "delivered"] as const;
 
@@ -1592,6 +1596,7 @@ function BillingAdmin() {
   const qc = useQueryClient();
   const [subTab, setSubTab] = useState<"quotes" | "invoices" | "messages">("invoices");
   const [expandedInvoice, setExpandedInvoice] = useState<string | null>(null);
+  const [expandedQuote, setExpandedQuote] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-billing"],
@@ -1683,52 +1688,95 @@ function BillingAdmin() {
       {subTab === "quotes" && (
         <div className="space-y-px bg-border/40">
           {quotes.length === 0 && <Empty>No quotes yet</Empty>}
-          {quotes.map((q: any) => (
-            <article key={q.id} className="bg-card p-6">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                <div className="md:col-span-3">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                    {format(new Date(q.created_at), "MMM d, yyyy")}
-                  </div>
-                  <div className="mt-1 font-display text-lg">{q.quote_number}</div>
-                  <div className="text-sm">{q.full_name}</div>
-                  <div className="font-mono text-[10px] text-muted-foreground">{q.email}</div>
-                </div>
-                <div className="md:col-span-4">
-                  <div className="font-display text-xl text-imperium">{formatNaira(q.total)}</div>
-                  {q.has_custom_items && <div className="text-xs text-muted-foreground">Includes on-request items</div>}
-                  <div className="mt-1 text-xs text-muted-foreground">Valid until {q.valid_until ?? "—"}</div>
-                </div>
-                <div className="flex flex-col items-start gap-2 md:col-span-5 md:items-end">
-                  <select
-                    value={q.status}
-                    onChange={(e) => updateQuoteStatus(q.id, e.target.value)}
-                    className="border border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium"
-                  >
-                    {QUOTE_STATUSES.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                  {q.status !== "converted" && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => convertQuote(q.id, "deposit")}
-                        className="border border-imperium bg-imperium/10 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"
-                      >
-                        Convert (deposit)
-                      </button>
-                      <button
-                        onClick={() => convertQuote(q.id, "full")}
-                        className="border border-border px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
-                      >
-                        Convert (full)
-                      </button>
+          {quotes.map((q: any) => {
+            const isDraft = q.status === "draft";
+            const expanded = expandedQuote === q.id;
+            return (
+              <article key={q.id} className="bg-card p-6">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                  <div className="md:col-span-3">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                      {format(new Date(q.created_at), "MMM d, yyyy")}
+                      {isDraft && " · not submitted"}
                     </div>
-                  )}
+                    <div className="mt-1 font-display text-lg">
+                      {isDraft ? "Started a request" : q.quote_number}
+                    </div>
+                    <div className="text-sm">{isDraft ? "No contact details yet" : q.full_name}</div>
+                    {!isDraft && (
+                      <div className="font-mono text-[10px] text-muted-foreground">{q.email}</div>
+                    )}
+                  </div>
+                  <div className="md:col-span-4">
+                    <div className="font-display text-xl text-imperium">
+                      {q.total > 0 ? formatNaira(q.total) : "Pricing on request"}
+                    </div>
+                    {q.has_custom_items && (
+                      <div className="text-xs text-muted-foreground">Includes on-request items</div>
+                    )}
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {q.status === "priced" || q.priced_at
+                        ? `Priced${q.priced_at ? ` ${format(new Date(q.priced_at), "MMM d, HH:mm")}` : ""}`
+                        : isDraft
+                          ? "Client has not sent it yet"
+                          : "Awaiting your prices"}
+                    </div>
+                    {q.notes && (
+                      <div className="mt-2 line-clamp-2 text-xs text-muted-foreground">{q.notes}</div>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-start gap-2 md:col-span-5 md:items-end">
+                    <select
+                      value={q.status}
+                      onChange={(e) => updateQuoteStatus(q.id, e.target.value)}
+                      className="border border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium"
+                    >
+                      {QUOTE_STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                    {!isDraft && (
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => setExpandedQuote(expanded ? null : q.id)}
+                          className="border border-imperium bg-imperium/10 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"
+                        >
+                          {expanded ? "Hide items" : "Price items"}
+                        </button>
+                        <a
+                          href={`/quote/${q.public_token}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="border border-border px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+                        >
+                          Open ↗
+                        </a>
+                      </div>
+                    )}
+                    {!isDraft && q.status !== "converted" && (
+                      <div className="flex gap-2">                        <button
+                          onClick={() => convertQuote(q.id, "deposit")}
+                          className="border border-border px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+                        >
+                          Convert (deposit)
+                        </button>
+                        <button
+                          onClick={() => convertQuote(q.id, "full")}
+                          className="border border-border px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+                        >
+                          Convert (full)
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+
+                {expanded && <QuotePricing quote={q} onDone={invalidate} />}
+              </article>
+            );
+          })}
         </div>
       )}
 
@@ -1841,6 +1889,186 @@ function BillingAdmin() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function QuotePricing({ quote, onDone }: { quote: any; onDone: () => void }) {
+  const load = useServerFn(adminQuoteItems);
+  const save = useServerFn(adminPriceQuote);
+  const send = useServerFn(adminSendQuote);
+
+  const { data: items, isLoading } = useQuery({
+    queryKey: ["admin-quote-items", quote.id],
+    queryFn: () => load({ data: { quoteId: quote.id } }),
+  });
+
+  const [rows, setRows] = useState<
+    Record<string, { unit: string; note: string; onRequest: boolean }>
+  >({});
+  const [note, setNote] = useState<string>(quote.admin_note ?? "");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!items) return;
+    const next: Record<string, { unit: string; note: string; onRequest: boolean }> = {};
+    for (const i of items as any[]) {
+      next[i.id] = {
+        unit: i.unit_price ? String(i.unit_price) : "",
+        note: i.price_note ?? "",
+        onRequest: !!i.is_on_request,
+      };
+    }
+    setRows(next);
+  }, [items]);
+
+  const patch = (id: string, value: Partial<{ unit: string; note: string; onRequest: boolean }>) =>
+    setRows((prev) => ({
+      ...prev,
+      [id]: { ...(prev[id] ?? { unit: "", note: "", onRequest: true }), ...value },
+    }));
+
+  const savePrices = async () => {
+    if (!items?.length) return;
+    setBusy(true);
+    try {
+      const payload = (items as any[]).map((i) => ({
+        id: i.id,
+        unit_price: Math.max(0, Math.round(Number(rows[i.id]?.unit || 0))),
+        on_request: rows[i.id]?.onRequest ?? true,
+        price_note: rows[i.id]?.note ?? "",
+      }));
+      const res = await save({
+        data: { quoteId: quote.id, admin_note: note, items: payload },
+      });
+      toast.success(
+        res.hasOnRequest
+          ? "Saved — some lines are still on request"
+          : `Saved — total ${formatNaira(res.total)}`,
+      );
+      onDone();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save prices");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const sendBack = async () => {
+    setBusy(true);
+    try {
+      const res = await send({ data: { quoteId: quote.id, origin: window.location.origin } });
+      if (res.email || res.whatsapp) {
+        toast.success(
+          res.email && res.whatsapp
+            ? "Quote sent by email and WhatsApp"
+            : res.email
+              ? "Quote emailed to the client"
+              : "Quote sent on WhatsApp",
+        );
+      } else {
+        toast.message("Saved, but nothing could be sent — check the message log for the draft.");
+      }
+      onDone();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not send the quote");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (isLoading) return <div className="mt-6 border-t border-border/50 pt-6 text-xs text-muted-foreground">Loading items…</div>;
+
+  return (
+    <div className="mt-6 border-t border-border/50 pt-6">
+      <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-imperium">
+        Price each line
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Leave a line on request if it needs a conversation. The client sees these figures on their
+        quote page.
+      </p>
+
+      <div className="mt-4 space-y-3">
+        {(items as any[])?.map((i) => {
+          const row = rows[i.id] ?? { unit: "", note: "", onRequest: !!i.is_on_request };
+          return (
+            <div key={i.id} className="grid grid-cols-1 gap-3 border border-border/50 bg-background/30 p-3 md:grid-cols-12">
+              <div className="md:col-span-5">
+                <div className="text-sm">{i.title_snapshot}</div>
+                <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  Qty {i.quantity} · {i.item_type}
+                </div>
+              </div>
+              <label className="md:col-span-3">
+                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+                  Unit price (₦)
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  disabled={row.onRequest}
+                  value={row.unit}
+                  onChange={(e) => patch(i.id, { unit: e.target.value })}
+                  placeholder="0"
+                  className="mt-1 w-full border border-border bg-background/40 px-3 py-2 text-sm outline-none focus:border-imperium disabled:opacity-40"
+                />
+              </label>
+              <label className="md:col-span-3">
+                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+                  Note (optional)
+                </span>
+                <input
+                  value={row.note}
+                  onChange={(e) => patch(i.id, { note: e.target.value })}
+                  placeholder="e.g. includes 2 revisions"
+                  className="mt-1 w-full border border-border bg-background/40 px-3 py-2 text-sm outline-none focus:border-imperium"
+                />
+              </label>
+              <label className="flex items-center gap-2 md:col-span-1 md:justify-end">
+                <input
+                  type="checkbox"
+                  checked={row.onRequest}
+                  onChange={(e) => patch(i.id, { onRequest: e.target.checked })}
+                />
+                <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">
+                  On request
+                </span>
+              </label>
+            </div>
+          );
+        })}
+      </div>
+
+      <label className="mt-4 block">
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          Note to the client (optional)
+        </span>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          rows={2}
+          className="mt-1 w-full border border-border bg-background/40 px-3 py-2 text-sm outline-none focus:border-imperium"
+          placeholder="Scope assumptions, what is included, next steps…"
+        />
+      </label>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          onClick={savePrices}
+          disabled={busy}
+          className="border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[9px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston disabled:opacity-50"
+        >
+          {busy ? "Saving…" : "Save prices"}
+        </button>
+        <button
+          onClick={sendBack}
+          disabled={busy}
+          className="border border-border px-4 py-2 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground disabled:opacity-50"
+        >
+          Send quote to client
+        </button>
+      </div>
     </div>
   );
 }

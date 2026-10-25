@@ -16,9 +16,16 @@ const submitSchema = z.object({
   company: z.string().trim().max(120).optional().or(z.literal("")),
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
   preferred_contact: z.enum(["call", "whatsapp", "email"]),
-  user_id: z.string().uuid().nullable().optional(),
   advisor_session_id: z.string().uuid().nullable().optional(),
+  draft_key: z.string().regex(/^[a-f0-9]{16,64}$/).optional(),
+  origin: z.string().url(),
 });
+
+const draftSchema = z.object({
+  draft_key: z.string().regex(/^[a-f0-9]{16,64}$/),
+  items: z.array(itemSchema).max(50),
+});
+
 
 const tokenSchema = z.object({ token: z.string().min(10).max(120) });
 
@@ -30,12 +37,54 @@ export const previewQuote = createServerFn({ method: "POST" })
     return priceItems(data.items);
   });
 
-/** Public: save a quote request and return its shareable reference. */
-export const submitQuote = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => submitSchema.parse(d))
+/**
+ * Records an unfinished selection the moment an item is added. Public on
+ * purpose: the request must reach the backend even before the visitor has an
+ * account. The draft key is a random browser-scoped token.
+ */
+export const syncQuoteDraft = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => draftSchema.parse(d))
   .handler(async ({ data }) => {
-    const { createQuote } = await import("./billing.server");
-    const { quote } = await createQuote({
+    const { upsertDraft } = await import("./billing.server");
+    const res = await upsertDraft(data);
+    return {
+      ok: true,
+      quoteNumber: res.quote?.quote_number ?? null,
+      locked: res.locked ?? false,
+    };
+  });
+
+/** Links the recorded draft to the account that just signed in. */
+export const claimQuoteDraft = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ draft_key: z.string().min(16).max(64) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { claimDraft } = await import("./billing.server");
+    const res = await claimDraft(data.draft_key, context.userId);
+    if (!res) return { found: false as const };
+    return {
+      found: true as const,
+      token: res.quote.public_token as string,
+      status: res.quote.status as string,
+      items: res.items,
+    };
+  });
+
+/** The signed-in client's own quotes. */
+export const myQuotes = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { listQuotesForUser } = await import("./billing.server");
+    return listQuotesForUser(context.userId);
+  });
+
+/** Save a quote request and notify the studio. Requires an account. */
+export const submitQuote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => submitSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const { createQuote, notifyQuoteRequest } = await import("./billing.server");
+    const { quote, items } = await createQuote({
       items: data.items,
       full_name: data.full_name,
       email: data.email,
@@ -43,7 +92,8 @@ export const submitQuote = createServerFn({ method: "POST" })
       company: data.company || null,
       notes: data.notes || null,
       preferred_contact: data.preferred_contact,
-      user_id: data.user_id ?? null,
+      user_id: context.userId,
+      draft_key: data.draft_key ?? null,
     });
     if (data.advisor_session_id) {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -52,11 +102,13 @@ export const submitQuote = createServerFn({ method: "POST" })
         .update({ quote_id: quote.id })
         .eq("id", data.advisor_session_id);
     }
+    const notify = await notifyQuoteRequest({ quote, items, origin: data.origin });
     return {
       quoteNumber: quote.quote_number as string,
       token: quote.public_token as string,
       total: quote.total as number,
       validUntil: quote.valid_until as string | null,
+      notified: notify.results.some((r) => r.ok),
     };
   });
 
@@ -89,6 +141,11 @@ export const proceedWithQuote = createServerFn({ method: "POST" })
     } = await import("./billing.server");
     const found = await loadQuoteByToken(data.token);
     if (!found) throw new Error("Quote not found");
+    if (found.items.some((l: any) => l.is_on_request)) {
+      throw new Error(
+        "This quote is still being priced. We'll send the itemised figures first — reply on WhatsApp if you'd like us to hurry it along.",
+      );
+    }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.preferred_contact) {
@@ -304,7 +361,7 @@ export const adminUpdateQuoteStatus = createServerFn({ method: "POST" })
     z
       .object({
         quoteId: z.string().uuid(),
-        status: z.enum(["new", "discussing", "converted", "declined"]),
+        status: z.enum(["draft", "new", "discussing", "priced", "converted", "declined"]),
       })
       .parse(d),
   )
@@ -318,6 +375,51 @@ export const adminUpdateQuoteStatus = createServerFn({ method: "POST" })
       .eq("id", data.quoteId);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+/** Admin: price individual lines on a quote request. */
+export const adminPriceQuote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        quoteId: z.string().uuid(),
+        admin_note: z.string().max(2000).optional(),
+        items: z
+          .array(
+            z.object({
+              id: z.string().uuid(),
+              unit_price: z.number().int().min(0).max(500_000_000),
+              on_request: z.boolean().optional(),
+              price_note: z.string().max(200).optional().or(z.literal("")),
+            }),
+          )
+          .min(1),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStaff, priceQuoteItems } = await import("./billing.server");
+    await assertStaff(context.supabase as any, context.userId);
+    const res = await priceQuoteItems({
+      quote_id: data.quoteId,
+      items: data.items,
+      admin_note: data.admin_note ?? null,
+      priced_by: context.userId,
+    });
+    return { ok: true, total: res.subtotal, hasOnRequest: res.hasOnRequest };
+  });
+
+/** Admin: send the priced quote back to the client. */
+export const adminSendQuote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ quoteId: z.string().uuid(), origin: z.string().url() }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStaff, sendPricedQuote } = await import("./billing.server");
+    await assertStaff(context.supabase as any, context.userId);
+    return sendPricedQuote(data.quoteId, data.origin);
   });
 
 export const adminConvertQuote = createServerFn({ method: "POST" })

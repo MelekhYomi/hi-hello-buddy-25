@@ -14,7 +14,7 @@ const TEAM = [
     roles: ["Tech"],
     img: team4,
     objectPosition: "50% 50%",
-    objectFit: "contain",
+    objectFit: "contain" as const,
     // Blend the photo edges into the dark circle so the backdrop doesn't
     // read as a hard rectangle (chosen over a full background removal).
     maskImage: "radial-gradient(circle at center, black 62%, transparent 100%)",
