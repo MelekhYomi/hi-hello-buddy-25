@@ -6,19 +6,19 @@ import team4 from "@/assets/team/team-4.jpg";
 import { useSiteSettings } from "@/lib/site-settings";
 
 const TEAM = [
-  { name: "Ojoudale John", roles: ["Founder", "Creative Director", "Brand Strategist"], img: team1, objectPosition: "50% 20%" },
+  // object-position 0% keeps the full margin above the head, so there's a
+  // small gap between his head and the top of the circle.
+  { name: "Ojoudale John", roles: ["Founder", "Creative Director", "Brand Strategist"], img: team1, objectPosition: "50% 0%" },
   { name: "Ayoola Ojoudale", roles: ["Financial Manager"], img: team2, objectPosition: "50% 0%" },
   { name: "Kish", roles: ["Design Lead"], img: team3, objectPosition: "50% 50%" },
   {
+    // Wider photo (full figure with margin) so the subject sits zoomed-out
+    // in the circle instead of the head touching the frame.
     name: "Abayomi",
     roles: ["Tech"],
     img: team4,
-    objectPosition: "50% 15%",
+    objectPosition: "50% 50%",
     objectFit: "cover" as const,
-    // Use cover so the portrait fills the circle frame completely instead of
-    // letterboxing with contain. Positioned slightly higher to keep the face
-    // centered in the circle rather than the shoulders.
-    maskImage: undefined,
   },
 ];
 
@@ -156,8 +156,7 @@ export function AboutSection() {
                   className="relative aspect-square w-full max-w-[8.5rem] overflow-hidden rounded-full border-2 transition-all duration-300 group-hover:-translate-y-1"
                   style={{
                     borderColor: "var(--ci-border)",
-                    // Match the section background so the fading photo edges of
-                    // the "contain"-fitted portrait blend in seamlessly.
+                    // Section background so any letterboxed edges blend in.
                     background: "var(--ci-dark)",
                     boxShadow: "0 0 0 0 var(--imperium)",
                   }}
@@ -180,9 +179,6 @@ export function AboutSection() {
                     style={{
                       objectPosition: member.objectPosition ?? "50% 50%",
                       objectFit: member.objectFit ?? "cover",
-                      ...(member.maskImage
-                        ? { WebkitMaskImage: member.maskImage, maskImage: member.maskImage }
-                        : {}),
                     }}
                   />
                 </div>
