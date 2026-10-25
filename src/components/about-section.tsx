@@ -12,8 +12,9 @@ const TEAM = [
   { name: "Ayoola Ojoudale", roles: ["Financial Manager"], img: team2, objectPosition: "50% 0%" },
   { name: "Kish", roles: ["Design Lead"], img: team3, objectPosition: "50% 50%" },
   {
-    // Wider photo (full figure with margin) so the subject sits zoomed-out
-    // in the circle instead of the head touching the frame.
+    // Cropped from the wider photo to a square centred on the figure, so
+    // he sits in the circle with the same head-and-shoulders framing as
+    // the rest of the team.
     name: "Abayomi",
     roles: ["Tech"],
     img: team4,
