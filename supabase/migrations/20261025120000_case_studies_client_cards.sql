@@ -118,8 +118,8 @@ INSERT INTO public.case_studies
 VALUES
   (
     'custom-made-shirts-apparel',
-    'Custom-Made Shirts',
-    'Apparel Client',
+    'Custom Made T-Shirts',
+    'Custom Made T-Shirts',
     'Print & Apparel',
     '/portfolio/shirts-1.jpg',
     ARRAY['/portfolio/shirts-1.jpg', '/portfolio/shirts-3.jpg', '/portfolio/shirts-5.jpg'],
