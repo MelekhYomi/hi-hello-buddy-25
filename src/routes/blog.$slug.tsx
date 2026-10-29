@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
+import { blogPostBySlugQuery } from "@/lib/queries";
+import { RichText } from "@/components/rich-text";
 import { SITE_URL } from "@/lib/site-url";
 import { BUSINESS_ID, DEFAULT_BLOG_COVER, absUrl } from "@/lib/seo";
 import { SiteHeader } from "@/components/site-header";
@@ -11,13 +12,9 @@ import { ArrowLeft } from "lucide-react";
 const SITE = SITE_URL;
 
 export const Route = createFileRoute("/blog/$slug")({
-  loader: async ({ params }) => {
-    const { data } = await supabase
-      .from("blog_posts")
-      .select("slug,title,excerpt,cover_image,published_at")
-      .eq("slug", params.slug)
-      .eq("is_published", true)
-      .maybeSingle();
+  // Load the whole article on the server so the first HTML contains the text Google indexes.
+  loader: async ({ params, context: { queryClient } }) => {
+    const data = await queryClient.ensureQueryData(blogPostBySlugQuery(params.slug));
     if (!data) throw notFound();
     return data;
   },
@@ -75,20 +72,7 @@ export const Route = createFileRoute("/blog/$slug")({
 
 function BlogPostPage() {
   const { slug } = Route.useParams();
-  const { data: post, isLoading } = useQuery({
-    queryKey: ["blog-post", slug],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .select("*")
-        .eq("slug", slug)
-        .eq("is_published", true)
-        .maybeSingle();
-      if (error) throw error;
-      if (!data) throw notFound();
-      return data;
-    },
-  });
+  const { data: post, isLoading } = useQuery(blogPostBySlugQuery(slug));
 
   return (
     <div className="grain relative min-h-screen bg-background">
@@ -129,12 +113,7 @@ function BlogPostPage() {
             {post.excerpt && (
               <p className="mt-10 border-l-2 border-imperium pl-6 text-lg italic text-foreground/90">{post.excerpt}</p>
             )}
-            <div
-              className="prose prose-invert mt-10 max-w-none whitespace-pre-wrap text-base leading-[1.85] text-foreground/85"
-              style={{ fontFamily: "'Poppins', sans-serif" }}
-            >
-              {post.body}
-            </div>
+            <RichText body={post.body} className="mt-10 text-base leading-[1.85] text-foreground/85" />
           </article>
         )}
       </main>

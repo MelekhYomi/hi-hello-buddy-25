@@ -8,7 +8,7 @@ import { SITE_URL } from "@/lib/site-url";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
-export const Route = createFileRoute("/shop")({
+export const Route = createFileRoute("/shop/")({
   head: () => ({
     meta: [
       { title: "Shop — C Imperium Branding" },

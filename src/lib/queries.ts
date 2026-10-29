@@ -149,3 +149,30 @@ export const serviceBySlugQuery = (slug: string) =>
         return data;
       }),
   });
+
+export const productBySlugQuery = (slug: string) =>
+  queryOptions({
+    queryKey: ["product", slug],
+    queryFn: () =>
+      cached(`product:${slug}`, TTL, async () => {
+        const { data, error } = await supabase.from("products").select("*").eq("slug", slug).maybeSingle();
+        if (error) throw error;
+        return data;
+      }),
+  });
+
+export const blogPostBySlugQuery = (slug: string) =>
+  queryOptions({
+    queryKey: ["blog-post", slug],
+    queryFn: () =>
+      cached(`blog-post:${slug}`, TTL, async () => {
+        const { data, error } = await supabase
+          .from("blog_posts")
+          .select("*")
+          .eq("slug", slug)
+          .eq("is_published", true)
+          .maybeSingle();
+        if (error) throw error;
+        return data;
+      }),
+  });

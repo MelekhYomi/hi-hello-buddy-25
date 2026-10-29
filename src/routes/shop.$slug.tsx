@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ShoppingBag, Minus, Plus, ArrowLeft } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { productBySlugQuery } from "@/lib/queries";
 import { useCart, formatNaira } from "@/lib/cart-context";
 import { SITE_URL } from "@/lib/site-url";
 import { SiteHeader } from "@/components/site-header";
@@ -11,14 +11,10 @@ import { SiteFooter } from "@/components/site-footer";
 const SITE = SITE_URL;
 
 export const Route = createFileRoute("/shop/$slug")({
-  loader: async ({ params }) => {
-    const { data } = await supabase
-      .from("products")
-      .select("slug,title,description,images,price")
-      .eq("slug", params.slug)
-      .eq("is_active", true)
-      .maybeSingle();
-    if (!data) throw notFound();
+  // Load the full product on the server so the first HTML already has the name, price and photos.
+  loader: async ({ params, context: { queryClient } }) => {
+    const data = await queryClient.ensureQueryData(productBySlugQuery(params.slug));
+    if (!data || data.is_active === false) throw notFound();
     return data;
   },
   head: ({ params, loaderData }) => {
@@ -71,15 +67,7 @@ function ProductPage() {
   const [qty, setQty] = useState(1);
   const [imgIdx, setImgIdx] = useState(0);
 
-  const { data: product, isLoading } = useQuery({
-    queryKey: ["product", slug],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("products").select("*").eq("slug", slug).maybeSingle();
-      if (error) throw error;
-      if (!data) throw notFound();
-      return data;
-    },
-  });
+  const { data: product, isLoading } = useQuery(productBySlugQuery(slug));
 
   if (isLoading) return <div className="grid min-h-screen place-items-center bg-background"><span className="font-mono text-xs">Loading…</span></div>;
   if (!product) return null;

@@ -11,26 +11,26 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
-import { Route as BlogRouteImport } from './routes/blog'
 import { Route as BookingSuccessRouteImport } from './routes/booking-success'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CheckoutPayRouteImport } from './routes/checkout-pay'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OrderSuccessRouteImport } from './routes/order-success'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StaffLoginRouteImport } from './routes/staff-login'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/_admin'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as InvoiceTokenRouteImport } from './routes/invoice.$token'
 import { Route as QuoteIndexRouteImport } from './routes/quote.index'
 import { Route as QuoteTokenRouteImport } from './routes/quote.$token'
 import { Route as ReceiptTokenRouteImport } from './routes/receipt.$token'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
+import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as WorkSlugRouteImport } from './routes/work.$slug'
 import { Route as AuthenticatedAdminAdminRouteImport } from './routes/_authenticated/_admin/admin'
@@ -50,11 +50,6 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BlogRoute = BlogRouteImport.update({
-  id: '/blog',
-  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookingSuccessRoute = BookingSuccessRouteImport.update({
@@ -87,11 +82,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ShopRoute = ShopRouteImport.update({
-  id: '/shop',
-  path: '/shop',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -121,10 +111,15 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => BlogRoute,
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const InvoiceTokenRoute = InvoiceTokenRouteImport.update({
   id: '/invoice/$token',
@@ -151,10 +146,15 @@ const ServicesSlugRoute = ServicesSlugRouteImport.update({
   path: '/services/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopIndexRoute = ShopIndexRouteImport.update({
+  id: '/shop/',
+  path: '/shop/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopSlugRoute = ShopSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ShopRoute,
+  id: '/shop/$slug',
+  path: '/shop/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const WorkSlugRoute = WorkSlugRouteImport.update({
   id: '/work/$slug',
@@ -215,14 +215,12 @@ const ApiPublicPdfKindTokenRoute = ApiPublicPdfKindTokenRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/blog': typeof BlogRouteWithChildren
   '/booking-success': typeof BookingSuccessRoute
   '/checkout': typeof CheckoutRoute
   '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/shop': typeof ShopRouteWithChildren
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/staff-login': typeof StaffLoginRoute
@@ -235,7 +233,9 @@ export interface FileRoutesByFullPath {
   '/services/$slug': typeof ServicesSlugRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/work/$slug': typeof WorkSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/quote/': typeof QuoteIndexRoute
+  '/shop/': typeof ShopIndexRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
   '/account/orders': typeof AuthenticatedAccountOrdersRoute
@@ -248,14 +248,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/blog': typeof BlogRouteWithChildren
   '/booking-success': typeof BookingSuccessRoute
   '/checkout': typeof CheckoutRoute
   '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/shop': typeof ShopRouteWithChildren
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/staff-login': typeof StaffLoginRoute
@@ -267,7 +265,9 @@ export interface FileRoutesByTo {
   '/services/$slug': typeof ServicesSlugRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/work/$slug': typeof WorkSlugRoute
+  '/blog': typeof BlogIndexRoute
   '/quote': typeof QuoteIndexRoute
+  '/shop': typeof ShopIndexRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
   '/account/orders': typeof AuthenticatedAccountOrdersRoute
@@ -282,14 +282,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/blog': typeof BlogRouteWithChildren
   '/booking-success': typeof BookingSuccessRoute
   '/checkout': typeof CheckoutRoute
   '/checkout-pay': typeof CheckoutPayRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/shop': typeof ShopRouteWithChildren
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/staff-login': typeof StaffLoginRoute
@@ -303,7 +301,9 @@ export interface FileRoutesById {
   '/services/$slug': typeof ServicesSlugRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/work/$slug': typeof WorkSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/quote/': typeof QuoteIndexRoute
+  '/shop/': typeof ShopIndexRoute
   '/_authenticated/_admin/admin': typeof AuthenticatedAdminAdminRoute
   '/_authenticated/account/bookings': typeof AuthenticatedAccountBookingsRoute
   '/_authenticated/account/orders': typeof AuthenticatedAccountOrdersRoute
@@ -318,14 +318,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/blog'
     | '/booking-success'
     | '/checkout'
     | '/checkout-pay'
     | '/login'
     | '/order-success'
     | '/reset-password'
-    | '/shop'
     | '/signup'
     | '/sitemap.xml'
     | '/staff-login'
@@ -338,7 +336,9 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/shop/$slug'
     | '/work/$slug'
+    | '/blog/'
     | '/quote/'
+    | '/shop/'
     | '/admin'
     | '/account/bookings'
     | '/account/orders'
@@ -351,14 +351,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/blog'
     | '/booking-success'
     | '/checkout'
     | '/checkout-pay'
     | '/login'
     | '/order-success'
     | '/reset-password'
-    | '/shop'
     | '/signup'
     | '/sitemap.xml'
     | '/staff-login'
@@ -370,7 +368,9 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/shop/$slug'
     | '/work/$slug'
+    | '/blog'
     | '/quote'
+    | '/shop'
     | '/admin'
     | '/account/bookings'
     | '/account/orders'
@@ -384,14 +384,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/blog'
     | '/booking-success'
     | '/checkout'
     | '/checkout-pay'
     | '/login'
     | '/order-success'
     | '/reset-password'
-    | '/shop'
     | '/signup'
     | '/sitemap.xml'
     | '/staff-login'
@@ -405,7 +403,9 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/shop/$slug'
     | '/work/$slug'
+    | '/blog/'
     | '/quote/'
+    | '/shop/'
     | '/_authenticated/_admin/admin'
     | '/_authenticated/account/bookings'
     | '/_authenticated/account/orders'
@@ -420,23 +420,25 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  BlogRoute: typeof BlogRouteWithChildren
   BookingSuccessRoute: typeof BookingSuccessRoute
   CheckoutRoute: typeof CheckoutRoute
   CheckoutPayRoute: typeof CheckoutPayRoute
   LoginRoute: typeof LoginRoute
   OrderSuccessRoute: typeof OrderSuccessRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  ShopRoute: typeof ShopRouteWithChildren
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StaffLoginRoute: typeof StaffLoginRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   InvoiceTokenRoute: typeof InvoiceTokenRoute
   QuoteTokenRoute: typeof QuoteTokenRoute
   ReceiptTokenRoute: typeof ReceiptTokenRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
+  ShopSlugRoute: typeof ShopSlugRoute
   WorkSlugRoute: typeof WorkSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   QuoteIndexRoute: typeof QuoteIndexRoute
+  ShopIndexRoute: typeof ShopIndexRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
   ApiPublicSyncGoogleReviewsRoute: typeof ApiPublicSyncGoogleReviewsRoute
   ApiPublicV1DatasetRoute: typeof ApiPublicV1DatasetRoute
@@ -457,13 +459,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blog': {
-      id: '/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/booking-success': {
@@ -508,13 +503,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/shop': {
-      id: '/shop'
-      path: '/shop'
-      fullPath: '/shop'
-      preLoaderRoute: typeof ShopRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -557,12 +545,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/$slug': {
       id: '/blog/$slug'
-      path: '/$slug'
+      path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof BlogRoute
+      parentRoute: typeof rootRouteImport
     }
     '/invoice/$token': {
       id: '/invoice/$token'
@@ -599,12 +594,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shop/': {
+      id: '/shop/'
+      path: '/shop'
+      fullPath: '/shop/'
+      preLoaderRoute: typeof ShopIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop/$slug': {
       id: '/shop/$slug'
-      path: '/$slug'
+      path: '/shop/$slug'
       fullPath: '/shop/$slug'
       preLoaderRoute: typeof ShopSlugRouteImport
-      parentRoute: typeof ShopRoute
+      parentRoute: typeof rootRouteImport
     }
     '/work/$slug': {
       id: '/work/$slug'
@@ -723,46 +725,28 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
-interface BlogRouteChildren {
-  BlogSlugRoute: typeof BlogSlugRoute
-}
-
-const BlogRouteChildren: BlogRouteChildren = {
-  BlogSlugRoute: BlogSlugRoute,
-}
-
-const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
-
-interface ShopRouteChildren {
-  ShopSlugRoute: typeof ShopSlugRoute
-}
-
-const ShopRouteChildren: ShopRouteChildren = {
-  ShopSlugRoute: ShopSlugRoute,
-}
-
-const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  BlogRoute: BlogRouteWithChildren,
   BookingSuccessRoute: BookingSuccessRoute,
   CheckoutRoute: CheckoutRoute,
   CheckoutPayRoute: CheckoutPayRoute,
   LoginRoute: LoginRoute,
   OrderSuccessRoute: OrderSuccessRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  ShopRoute: ShopRouteWithChildren,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StaffLoginRoute: StaffLoginRoute,
+  BlogSlugRoute: BlogSlugRoute,
   InvoiceTokenRoute: InvoiceTokenRoute,
   QuoteTokenRoute: QuoteTokenRoute,
   ReceiptTokenRoute: ReceiptTokenRoute,
   ServicesSlugRoute: ServicesSlugRoute,
+  ShopSlugRoute: ShopSlugRoute,
   WorkSlugRoute: WorkSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
   QuoteIndexRoute: QuoteIndexRoute,
+  ShopIndexRoute: ShopIndexRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
   ApiPublicSyncGoogleReviewsRoute: ApiPublicSyncGoogleReviewsRoute,
   ApiPublicV1DatasetRoute: ApiPublicV1DatasetRoute,
