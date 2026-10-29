@@ -23,22 +23,22 @@ COMMENT ON COLUMN public.case_studies.items_delivered IS
 -- Images live in /public/portfolio/ (copied from attachments/).
 -- ------------------------------------------------------------------
 
--- NCC Jos — branded t-shirts
+-- New Covenant Church Jos — branded t-shirts
 INSERT INTO public.case_studies
   (slug, title, client, industry, cover_image, gallery_images, services_delivered, items_delivered, challenge, solution, results, is_featured, display_order)
 VALUES
   (
     'ncc-jos-branded-apparel',
-    'NCC Jos Branded Apparel',
-    'NCC Jos',
+    'New Covenant Church Jos Branded Apparel',
+    'New Covenant Church Jos',
     'Print & Apparel',
     '/portfolio/ncc-jos-tshirt.jpg',
     ARRAY['/portfolio/ncc-jos-tshirt.jpg'],
     ARRAY['Branding', 'Print', 'Apparel'],
     ARRAY['T-shirts', 'Branded apparel'],
-    'NCC Jos needed branded t-shirts for its team and event staff — a clean, wearable mark that reads well in the field.',
-    'We designed a bold, single-colour chest mark and applied it across a run of quality cotton t-shirts, with screen-printed backs for event staff.',
-    'NCC Jos staff now wear consistent, on-brand apparel at events and in the office.',
+    'New Covenant Church Jos needed branded T-shirts for evangelism and outreach.',
+    'We created something that communicated the message even before they spoke.',
+    'T-shirts that carry the church’s message wherever the outreach team goes, and start conversations before a word is said.',
     false,
     10
   );
