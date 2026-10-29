@@ -8,7 +8,10 @@ WHERE slug = 'custom-made-shirts-apparel'
   AND challenge = 'A client needed custom-made shirts with a clean, personalised brand mark applied across a small run.';
 
 UPDATE public.case_studies
-SET solution = 'We applied the text-based and scriptural designs to quality shirts, keeping the finish clean and premium.',
+SET solution = 'We designed subtle DTF prints on quality T-shirts, keeping the branding minimal but premium.',
     updated_at = now()
 WHERE slug = 'custom-made-shirts-apparel'
-  AND solution = 'We placed a subtle embroidered/printed mark on quality shirts, keeping the branding minimal and premium.';
+  AND solution IN (
+    'We placed a subtle embroidered/printed mark on quality shirts, keeping the branding minimal and premium.',
+    'We applied the text-based and scriptural designs to quality shirts, keeping the finish clean and premium.'
+  );

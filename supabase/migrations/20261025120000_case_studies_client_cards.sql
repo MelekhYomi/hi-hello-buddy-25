@@ -126,7 +126,7 @@ VALUES
     ARRAY['Print', 'Apparel', 'Branding'],
     ARRAY['Custom shirts', 'Branded apparel'],
     'A client needed custom-made shirts with personalised, text-based and scriptural designs applied across a small run.',
-    'We applied the text-based and scriptural designs to quality shirts, keeping the finish clean and premium.',
+    'We designed subtle DTF prints on quality T-shirts, keeping the branding minimal but premium.',
     'The client received a cohesive set of branded shirts ready to wear.',
     false,
     14
