@@ -60,9 +60,9 @@ VALUES
       '/portfolio/umane-13.jpg'
     ],
     ARRAY['Branding', 'Print', 'Event Design'],
-    ARRAY['Flex banners', 'Backdrops', 'Flyers', 'ID cards'],
-    'Umane Global Ventures needed a complete visual identity for a corporate event — signage, collateral and staff materials that looked unified from the gate to the stage.',
-    'We built an event brand system around a clean mark and applied it across flex banners, stage backdrops, flyers and staff ID cards, keeping every touchpoint consistent.',
+    ARRAY['Flex banners', 'Backdrops', 'Flyers'],
+    'Umane Global Ventures needed a complete visual identity for a corporate event — signage and collateral that looked unified from the gate to the stage.',
+    'We built an event brand system around a clean mark and applied it across flex banners, stage backdrops and flyers, keeping every touchpoint consistent.',
     'The event ran with a cohesive, professional look across all printed and branded materials.',
     true,
     11
