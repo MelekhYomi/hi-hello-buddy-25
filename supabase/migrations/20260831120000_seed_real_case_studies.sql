@@ -17,7 +17,8 @@ VALUES
     '/portfolio/maynova-2-shirt.jpg',
     '/portfolio/maynova-3-van.jpg',
     '/portfolio/maynova-4-appicon.jpg',
-    '/portfolio/maynova-5-palette.jpg'
+    '/portfolio/maynova-5-palette.jpg',
+    '/portfolio/maynova-6-rider.jpg'
   ],
   'Maynova Global needed a distinct visual identity for its dispatch and logistics operations — something that reads as fast, trustworthy, and easy to recognize across vehicles, uniforms, and paperwork.',
   'We built a full identity system around a green dispatch mark, extending it across letterheads, business cards, staff shirts, an app icon, and vehicle livery for the delivery fleet.',
