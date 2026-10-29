@@ -68,14 +68,14 @@ VALUES
     11
   );
 
--- Vivers — social media ads
+-- Viverscuisines — social media ads
 INSERT INTO public.case_studies
   (slug, title, client, industry, cover_image, gallery_images, services_delivered, items_delivered, challenge, solution, results, is_featured, display_order)
 VALUES
   (
     'vivers-social-media-ads',
-    'Vivers Social Media Ads',
-    'Vivers',
+    'Viverscuisines Social Media Ads',
+    'Viverscuisines',
     'Digital / Social Media',
     '/portfolio/vivers-ads-1.jpg',
     ARRAY[
@@ -85,9 +85,9 @@ VALUES
     ],
     ARRAY['Digital', 'Social Media', 'Branding'],
     ARRAY['E-flyers', 'Social media ads', 'Digital artwork'],
-    'Vivers needed eye-catching social media artwork to promote its products online — scroll-stopping visuals that carried the brand.',
-    'We designed a series of e-flyers and social ads built around Vivers’ colours and product photography, optimised for Instagram and Facebook feeds.',
-    'Vivers now has a repeatable ad template system for ongoing social campaigns.',
+    'Viverscuisines needed eye-catching social media artwork to promote its products online — scroll-stopping visuals that carried the brand.',
+    'We designed a series of e-flyers and social ads built around Viverscuisines’ colours and product photography, optimised for Instagram and Facebook feeds.',
+    'Viverscuisines now has a repeatable ad template system for ongoing social campaigns.',
     false,
     12
   );
