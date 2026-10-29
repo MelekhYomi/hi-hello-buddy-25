@@ -17,17 +17,12 @@ import jemimahAdove from "@/assets/clients/jemimah-adove.png";
 // 15 of 22 confirmed client logos wired in. Still pending logo files for:
 // New Covenant Church, Plateau State Government, Jolex Construction Company,
 // Spring Foundation, Kaylztech, Worshippers City, Wasiku.
-// The source files are tightly trimmed (no transparent padding), so every
-// mark lands at a consistent optical size inside its card. Only logos whose
-// artwork is inherently dark on a dark strip need a filter.
-const LOGOS: { src: string; name: string; filter?: string; scale?: number; badge?: boolean }[] = [
-  // Recolored source: white wordmark + tagline, bright blue mark — reads
-  // clearly on the dark strip, so no brightness lift is needed.
+const LOGOS: { src: string; name: string }[] = [
   { src: moniepoint, name: "Moniepoint" },
   { src: zenithBank, name: "Zenith Bank" },
-  { src: igniteHouse, name: "Ignite House", scale: 1.6 },
+  { src: igniteHouse, name: "Ignite House" },
   { src: chakkamRent, name: "ChakkamRent" },
-  { src: thinqSummit, name: "ThinQ Summit Nigeria", filter: "brightness(0) invert(1)" },
+  { src: thinqSummit, name: "ThinQ Summit Nigeria" },
   { src: viverscuisines, name: "Viverscuisines" },
   { src: umaneGlobal, name: "Umane Global" },
   { src: poundwise, name: "Poundwise" },
@@ -35,7 +30,7 @@ const LOGOS: { src: string; name: string; filter?: string; scale?: number; badge
   { src: valueForge, name: "Value Forge" },
   { src: icicHeritage, name: "ICIC Heritage" },
   { src: nexusProMedia, name: "Nexus Pro Media" },
-  { src: blackUnboxMedia, name: "Black Unbox Media", badge: true },
+  { src: blackUnboxMedia, name: "Black Unbox Media" },
   { src: sketchfinix, name: "Sketchfinix" },
   { src: jemimahAdove, name: "Jemimah Adove" },
 ];
@@ -58,15 +53,12 @@ export function MarqueeStrip() {
                 src={l.src}
                 alt={`${l.name} logo`}
                 loading="lazy"
-                // Logos render in their own brand colours straight from the
-                // trimmed source files. A per-logo filter handles the few
-                // marks that need a white silhouette or a brightness lift.
-                className="h-11 w-auto max-w-[150px] object-contain opacity-90 transition-opacity duration-300 hover:opacity-100 md:h-12"
-                style={{
-                  ...(l.filter ? { filter: l.filter } : {}),
-                  ...(l.scale ? { transform: `scale(${l.scale})` } : {}),
-                  ...(l.badge ? { borderRadius: 4 } : {}),
-                }}
+                // Force every logo to a solid-white silhouette regardless of its
+                // original colors (brightness(0) flattens to black, invert(1)
+                // flips to white) — keeps mixed dark/colored/white source logos
+                // uniformly legible against the dark strip.
+                style={{ filter: "brightness(0) invert(1)" }}
+                className="h-11 w-auto max-w-[150px] object-contain opacity-75 transition-opacity duration-300 hover:opacity-100 md:h-12"
               />
             </div>
           ))}

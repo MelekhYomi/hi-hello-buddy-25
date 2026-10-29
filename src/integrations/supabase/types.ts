@@ -200,7 +200,10 @@ export type Database = {
           id: string
           industry: string
           is_featured: boolean
+          items_delivered: string[]
+          jobs: Json
           results: string | null
+          services_delivered: string[]
           slug: string
           solution: string | null
           title: string
@@ -216,7 +219,10 @@ export type Database = {
           id?: string
           industry: string
           is_featured?: boolean
+          items_delivered?: string[]
+          jobs?: Json
           results?: string | null
+          services_delivered?: string[]
           slug: string
           solution?: string | null
           title: string
@@ -232,7 +238,10 @@ export type Database = {
           id?: string
           industry?: string
           is_featured?: boolean
+          items_delivered?: string[]
+          jobs?: Json
           results?: string | null
+          services_delivered?: string[]
           slug?: string
           solution?: string | null
           title?: string
@@ -846,6 +855,7 @@ export type Database = {
           is_on_request: boolean
           item_type: string
           line_total: number
+          price_note: string | null
           quantity: number
           quote_id: string
           ref_id: string | null
@@ -859,6 +869,7 @@ export type Database = {
           is_on_request?: boolean
           item_type?: string
           line_total?: number
+          price_note?: string | null
           quantity?: number
           quote_id: string
           ref_id?: string | null
@@ -872,6 +883,7 @@ export type Database = {
           is_on_request?: boolean
           item_type?: string
           line_total?: number
+          price_note?: string | null
           quantity?: number
           quote_id?: string
           ref_id?: string | null
@@ -890,6 +902,7 @@ export type Database = {
       }
       quotes: {
         Row: {
+          admin_note: string | null
           company: string | null
           created_at: string
           currency: string
@@ -900,6 +913,8 @@ export type Database = {
           notes: string | null
           phone: string | null
           preferred_contact: string
+          priced_at: string | null
+          priced_by: string | null
           public_token: string
           quote_number: string
           status: string
@@ -910,6 +925,7 @@ export type Database = {
           valid_until: string | null
         }
         Insert: {
+          admin_note?: string | null
           company?: string | null
           created_at?: string
           currency?: string
@@ -920,6 +936,8 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           preferred_contact?: string
+          priced_at?: string | null
+          priced_by?: string | null
           public_token: string
           quote_number: string
           status?: string
@@ -930,6 +948,7 @@ export type Database = {
           valid_until?: string | null
         }
         Update: {
+          admin_note?: string | null
           company?: string | null
           created_at?: string
           currency?: string
@@ -940,6 +959,8 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           preferred_contact?: string
+          priced_at?: string | null
+          priced_by?: string | null
           public_token?: string
           quote_number?: string
           status?: string
@@ -1098,6 +1119,7 @@ export type Database = {
           company: string
           created_at: string
           display_order: number
+          external_id: string | null
           id: string
           is_published: boolean
           name: string
@@ -1107,13 +1129,13 @@ export type Database = {
           review_url: string | null
           role: string
           source: string
-          external_id: string | null
         }
         Insert: {
           avatar_url?: string | null
           company: string
           created_at?: string
           display_order?: number
+          external_id?: string | null
           id?: string
           is_published?: boolean
           name: string
@@ -1123,13 +1145,13 @@ export type Database = {
           review_url?: string | null
           role: string
           source?: string
-          external_id?: string | null
         }
         Update: {
           avatar_url?: string | null
           company?: string
           created_at?: string
           display_order?: number
+          external_id?: string | null
           id?: string
           is_published?: boolean
           name?: string
@@ -1139,7 +1161,6 @@ export type Database = {
           review_url?: string | null
           role?: string
           source?: string
-          external_id?: string | null
         }
         Relationships: []
       }

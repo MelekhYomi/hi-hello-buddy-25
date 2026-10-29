@@ -17,8 +17,7 @@ VALUES
     '/portfolio/maynova-2-shirt.jpg',
     '/portfolio/maynova-3-van.jpg',
     '/portfolio/maynova-4-appicon.jpg',
-    '/portfolio/maynova-5-palette.jpg',
-    '/portfolio/maynova-6-rider.jpg'
+    '/portfolio/maynova-5-palette.jpg'
   ],
   'Maynova Global needed a distinct visual identity for its dispatch and logistics operations — something that reads as fast, trustworthy, and easy to recognize across vehicles, uniforms, and paperwork.',
   'We built a full identity system around a green dispatch mark, extending it across letterheads, business cards, staff shirts, an app icon, and vehicle livery for the delivery fleet.',
@@ -40,7 +39,7 @@ VALUES
     '/portfolio/poundwise-5-stationeries.jpg'
   ],
   'As a capital advisory firm, Poundwise needed a brand that projected financial credibility and trust from the very first handshake.',
-  'We designed a premium blue-and-white identity system — business cards, banners, branded apparel, and stationery — anchored by a coin-inspired mark.',
+  'We designed a premium blue-and-silver identity system — business cards, banners, branded apparel, and stationery — anchored by a coin-inspired mark.',
   'The finished system gives Poundwise''s team polished, client-ready materials across print and merchandise.',
   true,
   2

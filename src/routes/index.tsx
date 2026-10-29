@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { SITE_URL } from "@/lib/site-url";
 import { Hero } from "@/components/hero";
 import { MarqueeStrip } from "@/components/marquee-strip";
 import { AboutSection } from "@/components/about-section";
@@ -32,10 +31,10 @@ export const Route = createFileRoute("/")({
           "Premium brand transformation. We build visual identities and brand experiences that dominate.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: `${SITE_URL}/` },
+      { property: "og:url", content: "https://hi-hello-buddy-25.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/` }],
+    links: [{ rel: "canonical", href: "https://hi-hello-buddy-25.lovable.app/" }],
   }),
   component: HomePage,
 });

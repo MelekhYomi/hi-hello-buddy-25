@@ -6,21 +6,10 @@ import team4 from "@/assets/team/team-4.jpg";
 import { useSiteSettings } from "@/lib/site-settings";
 
 const TEAM = [
-  // object-position 0% keeps the full margin above the head, so there's a
-  // small gap between his head and the top of the circle.
-  { name: "Ojoudale John", roles: ["Founder", "Creative Director", "Brand Strategist"], img: team1, objectPosition: "50% 0%" },
-  { name: "Ayoola Ojoudale", roles: ["Financial Manager"], img: team2, objectPosition: "50% 0%" },
-  { name: "Kish", roles: ["Design Lead"], img: team3, objectPosition: "50% 50%" },
-  {
-    // Cropped from the wider photo to a square centred on the figure, so
-    // he sits in the circle with the same head-and-shoulders framing as
-    // the rest of the team.
-    name: "Abayomi",
-    roles: ["Tech"],
-    img: team4,
-    objectPosition: "50% 50%",
-    objectFit: "cover" as const,
-  },
+  { name: "Ojoudale John", roles: ["Founder", "Creative Director", "Brand Strategist"], img: team1 },
+  { name: "Ayoola Ojoudale", roles: ["Financial Manager"], img: team2 },
+  { name: "Kish", roles: ["Design Lead"], img: team3 },
+  { name: "Abayomi", roles: ["Tech"], img: team4 },
 ];
 
 const DEFAULT_ABOUT = {
@@ -48,26 +37,23 @@ export function AboutSection() {
       className="relative z-[2] border-t border-border/40 px-6 py-24 md:px-16 md:py-32"
       style={{ background: "var(--ci-dark)" }}
     >
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-[7fr_5fr] lg:gap-20">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-32">
         {/* Visual */}
         <div className="relative">
           <div
-            className="relative aspect-square w-full overflow-hidden border"
+            className="relative aspect-[3/4] w-full overflow-hidden border"
             style={{
               background: "var(--ci-charcoal)",
               borderColor: "var(--ci-border)",
             }}
           >
-            {/* Photo is 3:4. Crop window = x 20-100%, y 16.8%-76.8% of it: starts below the
-                ceiling light and keeps the shelf, slat wall and reception desk. */}
             <img
               src={studioPhoto}
               alt="C Imperium branding and printing studio in Nigeria"
               loading="lazy"
-              width={1920}
-              height={2560}
-              className="absolute max-w-none"
-              style={{ width: "120%", height: "160%", left: "-20%", top: "-16.8%" }}
+              width={896}
+              height={1184}
+              className="h-full w-full object-cover"
             />
           </div>
           {/* Accent square */}
@@ -160,8 +146,7 @@ export function AboutSection() {
                   className="relative aspect-square w-full max-w-[8.5rem] overflow-hidden rounded-full border-2 transition-all duration-300 group-hover:-translate-y-1"
                   style={{
                     borderColor: "var(--ci-border)",
-                    // Section background so any letterboxed edges blend in.
-                    background: "var(--ci-dark)",
+                    background: "var(--ci-charcoal)",
                     boxShadow: "0 0 0 0 var(--imperium)",
                   }}
                   onMouseEnter={(e) => {
@@ -180,10 +165,6 @@ export function AboutSection() {
                     width={768}
                     height={768}
                     className="h-full w-full rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    style={{
-                      objectPosition: member.objectPosition ?? "50% 50%",
-                      objectFit: member.objectFit ?? "cover",
-                    }}
                   />
                 </div>
                 <span

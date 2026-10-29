@@ -69,20 +69,8 @@ function LoginPage() {
         </Link>
         <h1 className="mt-12 font-display text-4xl">SIGN IN.</h1>
         <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-          Access your bookings and quotes
+          Access your bookings
         </p>
-
-        {search.redirect === "/quote" && (
-          <div className="mt-6 border border-imperium/40 bg-imperium/5 p-4 text-xs leading-relaxed text-muted-foreground">
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-imperium">
-              Why sign in?
-            </span>
-            <p className="mt-2">
-              Signing in lets us record your quote request against your account and reply promptly.
-              Your selection is already saved — it will be waiting right here.
-            </p>
-          </div>
-        )}
 
         <form onSubmit={submit} className="mt-10 space-y-5">
           <Field label="Email" type="email" value={email} onChange={setEmail} autoComplete="email" />
@@ -123,11 +111,7 @@ function LoginPage() {
           <Link to="/reset-password" className="story-link hover:text-foreground">
             Forgot password
           </Link>
-          <Link
-            to="/signup"
-            search={{ redirect: search.redirect }}
-            className="story-link hover:text-foreground"
-          >
+          <Link to="/signup" className="story-link hover:text-foreground">
             Create account
           </Link>
         </div>

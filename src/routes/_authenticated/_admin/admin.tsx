@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
@@ -13,7 +12,6 @@ import { Check, Mail, Trash2, Download, Plus, Pencil } from "lucide-react";
 import { formatNaira } from "@/lib/cart-context";
 import { WorkflowBoard } from "@/components/admin/workflow-board";
 import { ExportsAdmin } from "@/components/admin/exports-admin";
-import { syncGoogleReviewsNow } from "@/lib/google-reviews.functions";
 import { isPdfFile, pdfFileToImageFile } from "@/lib/pdf-to-image";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin")({
@@ -753,9 +751,6 @@ import {
   adminRecordPayment,
   adminConfirmPendingPayment,
   adminResendDocument,
-  adminQuoteItems,
-  adminPriceQuote,
-  adminSendQuote,
 } from "@/lib/billing.functions";
 
 function RefundButton({ orderId, disabled }: { orderId: string; disabled?: boolean }) {
@@ -1022,35 +1017,10 @@ interface TestimonialRow {
   id: string; name: string; role: string | null; company: string | null;
   quote: string; rating: number | null; avatar_url: string | null;
   display_order: number; is_published: boolean;
-  source?: string | null;
 }
 
 function TestimonialsAdmin() {
   const qc = useQueryClient();
-  const syncGoogle = useServerFn(syncGoogleReviewsNow);
-  const [syncing, setSyncing] = useState(false);
-  const { data: googleInfo, refetch: refetchGoogleInfo } = useQuery({
-    queryKey: ["admin-google-reviews"],
-    queryFn: async () => {
-      const { data } = await supabase.from("site_settings").select("value").eq("key", "google_reviews").maybeSingle();
-      return (data?.value ?? null) as { rating?: number | null; total?: number | null; last_synced_at?: string } | null;
-    },
-  });
-  const runSync = async () => {
-    setSyncing(true);
-    try {
-      const r = await syncGoogle();
-      toast.success(`Google sync done: ${r.imported} new, ${r.updated} refreshed${r.rating ? ` (rated ${r.rating})` : ""}`);
-      qc.invalidateQueries({ queryKey: ["admin-testimonials"] });
-      qc.invalidateQueries({ queryKey: ["testimonials"] });
-      qc.invalidateQueries({ queryKey: ["site-settings"] });
-      refetchGoogleInfo();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Google sync failed");
-    } finally {
-      setSyncing(false);
-    }
-  };
   const { data } = useQuery({
     queryKey: ["admin-testimonials"],
     queryFn: async () => {
@@ -1069,16 +1039,8 @@ function TestimonialsAdmin() {
   };
   return (
     <div className="mt-8">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-          {googleInfo?.last_synced_at
-            ? `Google: ${googleInfo.rating ?? "–"}★ · ${googleInfo.total ?? "–"} reviews · synced ${format(new Date(googleInfo.last_synced_at), "d MMM yyyy, HH:mm")}`
-            : "Google reviews: not synced yet"}
-        </div>
-        <div className="flex gap-3">
-          <button onClick={runSync} disabled={syncing} className="inline-flex items-center gap-2 border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] hover:border-imperium hover:text-imperium disabled:opacity-50">{syncing ? "Syncing…" : "Sync from Google"}</button>
-          <button onClick={() => setCreating(true)} className="inline-flex items-center gap-2 border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"><Plus className="h-3 w-3" /> New testimonial</button>
-        </div>
+      <div className="mb-4 flex justify-end">
+        <button onClick={() => setCreating(true)} className="inline-flex items-center gap-2 border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"><Plus className="h-3 w-3" /> New testimonial</button>
       </div>
       <div className="space-y-px bg-border/40">
         {(!data || data.length === 0) && <Empty>No testimonials yet</Empty>}
@@ -1087,7 +1049,7 @@ function TestimonialsAdmin() {
             <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
               <div className="md:col-span-1">{t.avatar_url && <img src={t.avatar_url} alt={t.name} className="aspect-square w-full rounded-full object-cover" />}</div>
               <div className="md:col-span-7">
-                <div className="font-display text-lg">{t.name}{t.source === "google" && <span className="ml-2 border border-border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-imperium">Google</span>}{t.source === "placeholder" && <span className="ml-2 border border-border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">Sample</span>}</div>
+                <div className="font-display text-lg">{t.name}</div>
                 <div className="font-mono text-[10px] text-muted-foreground">{[t.role, t.company].filter(Boolean).join(" · ") || "—"}</div>
                 <p className="mt-1 line-clamp-2 text-sm italic text-muted-foreground">"{t.quote}"</p>
               </div>
@@ -1441,7 +1403,6 @@ interface CaseStudyRow {
   id: string; slug: string; title: string; client: string; industry: string;
   cover_image: string | null; challenge: string | null; solution: string | null; results: string | null;
   is_featured: boolean; display_order: number; gallery_images: string[];
-  services_delivered: string[]; items_delivered: string[];
 }
 
 function CaseStudiesAdmin() {
@@ -1451,7 +1412,7 @@ function CaseStudiesAdmin() {
     queryFn: async () => {
       const { data, error } = await supabase.from("case_studies").select("*").order("display_order");
       if (error) throw error;
-      return data as unknown as CaseStudyRow[];
+      return data as CaseStudyRow[];
     },
   });
   const [editing, setEditing] = useState<CaseStudyRow | null>(null);
@@ -1516,8 +1477,6 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
   const [solution, setSolution] = useState(initial?.solution ?? "");
   const [results, setResults] = useState(initial?.results ?? "");
   const [gallery, setGallery] = useState((initial?.gallery_images ?? []).join("\n"));
-  const [servicesDelivered, setServicesDelivered] = useState((initial?.services_delivered ?? []).join(", "));
-  const [itemsDelivered, setItemsDelivered] = useState((initial?.items_delivered ?? []).join(", "));
   const [order, setOrder] = useState(initial?.display_order ?? 0);
   const [featured, setFeatured] = useState(initial?.is_featured ?? false);
   const [busy, setBusy] = useState(false);
@@ -1564,13 +1523,11 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
       solution: solution.trim() || null,
       results: results.trim() || null,
       gallery_images: gallery.split("\n").map((s) => s.trim()).filter(Boolean),
-      services_delivered: servicesDelivered.split(",").map((s) => s.trim()).filter(Boolean),
-      items_delivered: itemsDelivered.split(",").map((s) => s.trim()).filter(Boolean),
       display_order: Math.round(order), is_featured: featured,
     };
     const q = initial
-      ? supabase.from("case_studies").update(payload as any).eq("id", initial.id)
-      : supabase.from("case_studies").insert(payload as any);
+      ? supabase.from("case_studies").update(payload).eq("id", initial.id)
+      : supabase.from("case_studies").insert(payload);
     const { error } = await q;
     setBusy(false);
     if (error) toast.error(error.message);
@@ -1601,8 +1558,6 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
           <textarea className={inp} rows={3} placeholder="Challenge" value={challenge} onChange={(e) => setChallenge(e.target.value)} />
           <textarea className={inp} rows={3} placeholder="Solution" value={solution} onChange={(e) => setSolution(e.target.value)} />
           <textarea className={inp} rows={3} placeholder="Results" value={results} onChange={(e) => setResults(e.target.value)} />
-          <textarea className={inp} rows={2} placeholder="Services delivered (comma-separated, e.g. branding, print, apparel)" value={servicesDelivered} onChange={(e) => setServicesDelivered(e.target.value)} />
-          <textarea className={inp} rows={2} placeholder="Items delivered (comma-separated, e.g. t-shirts, flex banners, business cards)" value={itemsDelivered} onChange={(e) => setItemsDelivered(e.target.value)} />
           <div>
             <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
               <input type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onGalleryFile(f); }} />
@@ -1629,7 +1584,7 @@ function CaseStudyForm({ initial, onClose, onSaved }: { initial: CaseStudyRow | 
 // A simpler, flat-list alternative to the Workflow board above. Same
 // underlying admin billing functions; some admins prefer a table/list over
 // a kanban board for triage, so both are kept as a toggle.
-const QUOTE_STATUSES = ["draft", "new", "discussing", "priced", "converted", "declined"] as const;
+const QUOTE_STATUSES = ["new", "discussing", "converted", "declined"] as const;
 const INVOICE_STATUSES = ["draft", "sent", "partially_paid", "paid", "void"] as const;
 const FULFILMENT_STATUSES = ["awaiting_payment", "in_production", "ready", "delivered"] as const;
 
@@ -1637,7 +1592,6 @@ function BillingAdmin() {
   const qc = useQueryClient();
   const [subTab, setSubTab] = useState<"quotes" | "invoices" | "messages">("invoices");
   const [expandedInvoice, setExpandedInvoice] = useState<string | null>(null);
-  const [expandedQuote, setExpandedQuote] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-billing"],
@@ -1729,95 +1683,52 @@ function BillingAdmin() {
       {subTab === "quotes" && (
         <div className="space-y-px bg-border/40">
           {quotes.length === 0 && <Empty>No quotes yet</Empty>}
-          {quotes.map((q: any) => {
-            const isDraft = q.status === "draft";
-            const expanded = expandedQuote === q.id;
-            return (
-              <article key={q.id} className="bg-card p-6">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                  <div className="md:col-span-3">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                      {format(new Date(q.created_at), "MMM d, yyyy")}
-                      {isDraft && " · not submitted"}
-                    </div>
-                    <div className="mt-1 font-display text-lg">
-                      {isDraft ? "Started a request" : q.quote_number}
-                    </div>
-                    <div className="text-sm">{isDraft ? "No contact details yet" : q.full_name}</div>
-                    {!isDraft && (
-                      <div className="font-mono text-[10px] text-muted-foreground">{q.email}</div>
-                    )}
+          {quotes.map((q: any) => (
+            <article key={q.id} className="bg-card p-6">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                <div className="md:col-span-3">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                    {format(new Date(q.created_at), "MMM d, yyyy")}
                   </div>
-                  <div className="md:col-span-4">
-                    <div className="font-display text-xl text-imperium">
-                      {q.total > 0 ? formatNaira(q.total) : "Pricing on request"}
-                    </div>
-                    {q.has_custom_items && (
-                      <div className="text-xs text-muted-foreground">Includes on-request items</div>
-                    )}
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      {q.status === "priced" || q.priced_at
-                        ? `Priced${q.priced_at ? ` ${format(new Date(q.priced_at), "MMM d, HH:mm")}` : ""}`
-                        : isDraft
-                          ? "Client has not sent it yet"
-                          : "Awaiting your prices"}
-                    </div>
-                    {q.notes && (
-                      <div className="mt-2 line-clamp-2 text-xs text-muted-foreground">{q.notes}</div>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-start gap-2 md:col-span-5 md:items-end">
-                    <select
-                      value={q.status}
-                      onChange={(e) => updateQuoteStatus(q.id, e.target.value)}
-                      className="border border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium"
-                    >
-                      {QUOTE_STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                    {!isDraft && (
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() => setExpandedQuote(expanded ? null : q.id)}
-                          className="border border-imperium bg-imperium/10 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"
-                        >
-                          {expanded ? "Hide items" : "Price items"}
-                        </button>
-                        <a
-                          href={`/quote/${q.public_token}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="border border-border px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
-                        >
-                          Open ↗
-                        </a>
-                      </div>
-                    )}
-                    {!isDraft && q.status !== "converted" && (
-                      <div className="flex gap-2">                        <button
-                          onClick={() => convertQuote(q.id, "deposit")}
-                          className="border border-border px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
-                        >
-                          Convert (deposit)
-                        </button>
-                        <button
-                          onClick={() => convertQuote(q.id, "full")}
-                          className="border border-border px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
-                        >
-                          Convert (full)
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  <div className="mt-1 font-display text-lg">{q.quote_number}</div>
+                  <div className="text-sm">{q.full_name}</div>
+                  <div className="font-mono text-[10px] text-muted-foreground">{q.email}</div>
                 </div>
-
-                {expanded && <QuotePricing quote={q} onDone={invalidate} />}
-              </article>
-            );
-          })}
+                <div className="md:col-span-4">
+                  <div className="font-display text-xl text-imperium">{formatNaira(q.total)}</div>
+                  {q.has_custom_items && <div className="text-xs text-muted-foreground">Includes on-request items</div>}
+                  <div className="mt-1 text-xs text-muted-foreground">Valid until {q.valid_until ?? "—"}</div>
+                </div>
+                <div className="flex flex-col items-start gap-2 md:col-span-5 md:items-end">
+                  <select
+                    value={q.status}
+                    onChange={(e) => updateQuoteStatus(q.id, e.target.value)}
+                    className="border border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] outline-none focus:border-imperium"
+                  >
+                    {QUOTE_STATUSES.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                  {q.status !== "converted" && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => convertQuote(q.id, "deposit")}
+                        className="border border-imperium bg-imperium/10 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"
+                      >
+                        Convert (deposit)
+                      </button>
+                      <button
+                        onClick={() => convertQuote(q.id, "full")}
+                        className="border border-border px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+                      >
+                        Convert (full)
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
       )}
 
@@ -1930,186 +1841,6 @@ function BillingAdmin() {
           ))}
         </div>
       )}
-    </div>
-  );
-}
-
-function QuotePricing({ quote, onDone }: { quote: any; onDone: () => void }) {
-  const load = useServerFn(adminQuoteItems);
-  const save = useServerFn(adminPriceQuote);
-  const send = useServerFn(adminSendQuote);
-
-  const { data: items, isLoading } = useQuery({
-    queryKey: ["admin-quote-items", quote.id],
-    queryFn: () => load({ data: { quoteId: quote.id } }),
-  });
-
-  const [rows, setRows] = useState<
-    Record<string, { unit: string; note: string; onRequest: boolean }>
-  >({});
-  const [note, setNote] = useState<string>(quote.admin_note ?? "");
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (!items) return;
-    const next: Record<string, { unit: string; note: string; onRequest: boolean }> = {};
-    for (const i of items as any[]) {
-      next[i.id] = {
-        unit: i.unit_price ? String(i.unit_price) : "",
-        note: i.price_note ?? "",
-        onRequest: !!i.is_on_request,
-      };
-    }
-    setRows(next);
-  }, [items]);
-
-  const patch = (id: string, value: Partial<{ unit: string; note: string; onRequest: boolean }>) =>
-    setRows((prev) => ({
-      ...prev,
-      [id]: { ...(prev[id] ?? { unit: "", note: "", onRequest: true }), ...value },
-    }));
-
-  const savePrices = async () => {
-    if (!items?.length) return;
-    setBusy(true);
-    try {
-      const payload = (items as any[]).map((i) => ({
-        id: i.id,
-        unit_price: Math.max(0, Math.round(Number(rows[i.id]?.unit || 0))),
-        on_request: rows[i.id]?.onRequest ?? true,
-        price_note: rows[i.id]?.note ?? "",
-      }));
-      const res = await save({
-        data: { quoteId: quote.id, admin_note: note, items: payload },
-      });
-      toast.success(
-        res.hasOnRequest
-          ? "Saved — some lines are still on request"
-          : `Saved — total ${formatNaira(res.total)}`,
-      );
-      onDone();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not save prices");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const sendBack = async () => {
-    setBusy(true);
-    try {
-      const res = await send({ data: { quoteId: quote.id, origin: window.location.origin } });
-      if (res.email || res.whatsapp) {
-        toast.success(
-          res.email && res.whatsapp
-            ? "Quote sent by email and WhatsApp"
-            : res.email
-              ? "Quote emailed to the client"
-              : "Quote sent on WhatsApp",
-        );
-      } else {
-        toast.message("Saved, but nothing could be sent — check the message log for the draft.");
-      }
-      onDone();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not send the quote");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  if (isLoading) return <div className="mt-6 border-t border-border/50 pt-6 text-xs text-muted-foreground">Loading items…</div>;
-
-  return (
-    <div className="mt-6 border-t border-border/50 pt-6">
-      <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-imperium">
-        Price each line
-      </div>
-      <p className="mt-2 text-xs text-muted-foreground">
-        Leave a line on request if it needs a conversation. The client sees these figures on their
-        quote page.
-      </p>
-
-      <div className="mt-4 space-y-3">
-        {(items as any[])?.map((i) => {
-          const row = rows[i.id] ?? { unit: "", note: "", onRequest: !!i.is_on_request };
-          return (
-            <div key={i.id} className="grid grid-cols-1 gap-3 border border-border/50 bg-background/30 p-3 md:grid-cols-12">
-              <div className="md:col-span-5">
-                <div className="text-sm">{i.title_snapshot}</div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                  Qty {i.quantity} · {i.item_type}
-                </div>
-              </div>
-              <label className="md:col-span-3">
-                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
-                  Unit price (₦)
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  disabled={row.onRequest}
-                  value={row.unit}
-                  onChange={(e) => patch(i.id, { unit: e.target.value })}
-                  placeholder="0"
-                  className="mt-1 w-full border border-border bg-background/40 px-3 py-2 text-sm outline-none focus:border-imperium disabled:opacity-40"
-                />
-              </label>
-              <label className="md:col-span-3">
-                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
-                  Note (optional)
-                </span>
-                <input
-                  value={row.note}
-                  onChange={(e) => patch(i.id, { note: e.target.value })}
-                  placeholder="e.g. includes 2 revisions"
-                  className="mt-1 w-full border border-border bg-background/40 px-3 py-2 text-sm outline-none focus:border-imperium"
-                />
-              </label>
-              <label className="flex items-center gap-2 md:col-span-1 md:justify-end">
-                <input
-                  type="checkbox"
-                  checked={row.onRequest}
-                  onChange={(e) => patch(i.id, { onRequest: e.target.checked })}
-                />
-                <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">
-                  On request
-                </span>
-              </label>
-            </div>
-          );
-        })}
-      </div>
-
-      <label className="mt-4 block">
-        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-          Note to the client (optional)
-        </span>
-        <textarea
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          rows={2}
-          className="mt-1 w-full border border-border bg-background/40 px-3 py-2 text-sm outline-none focus:border-imperium"
-          placeholder="Scope assumptions, what is included, next steps…"
-        />
-      </label>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button
-          onClick={savePrices}
-          disabled={busy}
-          className="border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[9px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston disabled:opacity-50"
-        >
-          {busy ? "Saving…" : "Save prices"}
-        </button>
-        <button
-          onClick={sendBack}
-          disabled={busy}
-          className="border border-border px-4 py-2 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground disabled:opacity-50"
-        >
-          Send quote to client
-        </button>
-      </div>
     </div>
   );
 }

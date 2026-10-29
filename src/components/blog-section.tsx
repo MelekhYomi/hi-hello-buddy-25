@@ -33,9 +33,7 @@ export function BlogSection() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="ci-section-label" style={{ fontSize: "1.4rem" }}>
-              Branding Insights
-            </div>
+            <div className="ci-section-label" style={{ fontSize: "1.4rem" }}>Branding Insights</div>
           </div>
           <Link to="/blog" className="font-mono text-[11px] uppercase tracking-[0.25em] text-imperium hover:underline">
             View all posts →

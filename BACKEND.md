@@ -35,44 +35,6 @@ This file is the single source of truth for everything backend on this project. 
 | `bookings` | Consultation requests | Own + admin | Anyone INSERT |
 | `contacts` | Contact-form messages | Admin only | Anyone INSERT |
 
-### Request-a-quote tables (billing)
-| Table | Purpose | Access |
-|---|---|---|
-| `quotes` | Quote requests and their status/total | SELECT own or admin (RLS); server functions write with the service role |
-| `quote_items` | One row per requested line (title snapshot, qty, price) | SELECT own or admin; service role writes |
-| `invoices` / `payments` / `receipts` | Post-approval billing documents | Same pattern |
-| `outbound_messages` | Every email/WhatsApp the backend tries to send (status `sent` or `queued`) | Admin only |
-
-### Quote lifecycle
-- Services are **never pre-priced**. `priceItems()` always writes `unit_price: 0`,
-  `is_on_request: true` for `item_type = 'service'`. Products keep their fixed price.
-- `draft` — the visitor added at least one item but has not submitted. The row is
-  created immediately by `syncQuoteDraft` (public) and its `quote_number` is
-  `DRAFT-<browser key>` (the key lives in `localStorage.ci_quote_draft_key`).
-  Drafts are refreshed on every add/remove/quantity change, so an abandoned
-  request is still recorded.
-- `new` — submitted via `submitQuote` (requires auth). The draft row is promoted
-  in place, gets a real `CI-Q-YYYY-NNNN` number, and the studio is notified.
-- `priced` — an admin set per-line prices (`adminPriceQuote`) and optionally left
-  an `admin_note`.
-- `discussing` / `converted` / `declined` — reply sent / invoice raised / closed.
-- Quote submission requires an account: `/quote` redirects to
-  `/login?redirect=/quote`, and `claimQuoteDraft` links the browser draft to the
-  user as soon as they sign in so the request appears immediately.
-
-### Quote notifications
-- On submit, `notifyQuoteRequest` messages the studio's WhatsApp number
-  (`site_settings.whatsapp_number`, or `quote_notifications.whatsapp_numbers[]`
-  when set) and the contact email (`quote_notifications.emails[]` fallback
-  `site_settings.contact_email`). The client gets a `quote_received` email.
-- On send-back, `adminSendQuote` emails and WhatsApps the itemised quote.
-- WhatsApp sends through Termii only when `site_settings.termii` has
-  `enabled` + `whatsapp` and `TERMII_API_KEY` is present; otherwise the message
-  is stored as `queued` so it can be sent manually. Every attempt is logged in
-  `outbound_messages`.
-- `site_settings` key `quote_notifications` (optional):
-  `{ "whatsapp_numbers": ["+234..."], "emails": ["..."] }`.
-
 ### Enum
 - `app_role`: `'admin' | 'customer'`
 
@@ -134,5 +96,4 @@ const isAdmin = roles?.some(r => r.role === "admin");
 
 ## Changelog
 
-- **2026-10-24**: Services moved to a request-a-quote flow. "Add to quote" → "Get a Quote"; services carry no price (`priceItems` always marks them on request). Unfinished selections are recorded as `draft` quotes under `DRAFT-<browser key>`; submitting requires sign-in and promotes the draft to a real quote number. Admins price individual lines (`adminPriceQuote`) and send the itemised quote back by email + WhatsApp (`adminSendQuote`). Studio notification on every request. Migration `20261024120000_quote_requests_and_drafts.sql` adds `quotes.priced_at/priced_by/admin_note`, `quote_items.price_note` and indexes; the code degrades gracefully if it has not been applied yet.
 - **2026-05-10**: Initial schema (5 content tables + profiles + roles), RLS, seed data, auth configured (email/pass auto-confirm + HIBP).

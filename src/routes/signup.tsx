@@ -15,13 +15,10 @@ export const Route = createFileRoute("/signup")({
       { name: "description", content: "Create an account to book consultations with C Imperium Branding." },
     ],
   }),
-  beforeLoad: async ({ search }) => {
+  beforeLoad: async () => {
     const { data } = await supabase.auth.getSession();
-    if (data.session) throw redirect({ to: search.redirect || "/dashboard" });
+    if (data.session) throw redirect({ to: "/dashboard" });
   },
-  validateSearch: (s: Record<string, unknown>): { redirect?: string } => ({
-    redirect: typeof s.redirect === "string" ? s.redirect : undefined,
-  }),
   component: SignupPage,
 });
 
@@ -34,8 +31,6 @@ const schema = z.object({
 
 function SignupPage() {
   const navigate = useNavigate();
-  const { redirect: redirectTo } = Route.useSearch();
-  const afterAuth = redirectTo || "/dashboard";
   const send = useServerFn(sendPhoneOtp);
   const verify = useServerFn(verifyPhoneOtpPublic);
   const status = useServerFn(termiiStatus);
@@ -53,7 +48,7 @@ function SignupPage() {
 
   const finish = () => {
     toast.success("Account created. Welcome to the empire.");
-    navigate({ to: afterAuth });
+    navigate({ to: "/dashboard" });
   };
 
   const submit = async (e: FormEvent) => {
@@ -68,7 +63,7 @@ function SignupPage() {
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: `${window.location.origin}${afterAuth}`,
+        emailRedirectTo: `${window.location.origin}/dashboard`,
         data: { display_name: parsed.data.displayName, phone: parsed.data.phone || null },
       },
     });
@@ -119,18 +114,6 @@ function SignupPage() {
         <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
           Create your account
         </p>
-
-        {redirectTo === "/quote" && (
-          <div className="mt-6 border border-imperium/40 bg-imperium/5 p-4 text-xs leading-relaxed text-muted-foreground">
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-imperium">
-              Why an account?
-            </span>
-            <p className="mt-2">
-              Your quote request is saved to your account so the team can price it, reply on
-              WhatsApp, and you can follow it here. Nothing you selected is lost.
-            </p>
-          </div>
-        )}
 
         {!pinId ? (
           <form onSubmit={submit} className="mt-10 space-y-5">
@@ -203,7 +186,7 @@ function SignupPage() {
 
         <div className="mt-6 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
           Already a client?{" "}
-          <Link to="/login" search={{ redirect: redirectTo }} className="story-link text-foreground">
+          <Link to="/login" className="story-link text-foreground">
             Sign in
           </Link>
         </div>

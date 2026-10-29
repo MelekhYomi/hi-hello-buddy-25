@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { SITE_URL } from "@/lib/site-url";
 
-const BASE_URL = SITE_URL;
+const BASE_URL = "https://hi-hello-buddy-25.lovable.app";
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {

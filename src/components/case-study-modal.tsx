@@ -4,17 +4,6 @@ import type { Database } from "@/integrations/supabase/types";
 
 type CaseStudy = Database["public"]["Tables"]["case_studies"]["Row"];
 
-// A case study can bundle several jobs for the same client (e.g. packaging + social ads).
-// Stored in case_studies.jobs; when empty the modal shows the classic single story.
-export type CaseJob = {
-  title: string;
-  tag?: string;
-  images?: string[];
-  challenge?: string;
-  solution?: string;
-  results?: string;
-};
-
 export function CaseStudyModal({
   study,
   onClose,
@@ -43,8 +32,6 @@ export function CaseStudyModal({
         ? [study.cover_image]
         : [];
   const marqueeImages = gallery.length ? [...gallery, ...gallery] : [];
-  const rawJobs = (study as any).jobs;
-  const jobs: CaseJob[] = Array.isArray(rawJobs) ? rawJobs.filter((j: CaseJob) => j && j.title) : [];
 
   return (
     <div
@@ -105,86 +92,11 @@ export function CaseStudyModal({
             <Building2 className="h-4 w-4 text-imperium" /> {study.client}
           </div>
 
-          {((study as any).services_delivered ?? []).length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {((study as any).services_delivered ?? []).map((s: string) => (
-                <span
-                  key={s}
-                  className="px-2.5 py-0.5 rounded border border-imperium/30 bg-imperium/5 text-[9px] font-mono uppercase tracking-[0.15em] text-imperium"
-                >
-                  {s}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {((study as any).items_delivered ?? []).length > 0 && (
-            <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              Items delivered:{" "}
-              {((study as any).items_delivered ?? []).join(", ")}
-            </div>
-          )}
-
-          {jobs.length > 0 ? (
-            <>
-              <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-                <Block label="The brief" body={study.challenge} />
-                <Block label="Our approach" body={study.solution} />
-              </div>
-
-              <div className="mt-12 space-y-14">
-                {jobs.map((job, i) => (
-                  <section key={`${job.title}-${i}`}>
-                    <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-t border-border pt-8">
-                      <span className="font-mono text-[11px] tracking-[0.3em] text-imperium">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <h3 className="font-display text-2xl md:text-3xl">{job.title}</h3>
-                      {job.tag && (
-                        <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                          {job.tag}
-                        </span>
-                      )}
-                    </div>
-
-                    {job.images && job.images.length > 0 && (
-                      <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">
-                        {job.images.map((src) => (
-                          <div
-                            key={src}
-                            className="relative aspect-[4/3] overflow-hidden rounded-md border border-border/60 bg-ink"
-                          >
-                            <img
-                              src={src}
-                              alt={`${study.client} — ${job.title}`}
-                              loading="lazy"
-                              className="absolute inset-0 h-full w-full object-cover"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
-                      <Block label="Challenge" body={job.challenge ?? null} />
-                      <Block label="Solution" body={job.solution ?? null} />
-                      <Block label="Results" body={job.results ?? null} />
-                    </div>
-                  </section>
-                ))}
-              </div>
-
-              <div className="mt-12">
-                <Block label="Overall result" body={study.results} />
-              </div>
-            </>
-          ) : (
-            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-              <Block label="Challenge" body={study.challenge} />
-              <Block label="Solution" body={study.solution} />
-              <Block label="Results" body={study.results} />
-            </div>
-          )}
+          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <Block label="Challenge" body={study.challenge} />
+            <Block label="Solution" body={study.solution} />
+            <Block label="Results" body={study.results} />
+          </div>
 
           <a
             href="#book"

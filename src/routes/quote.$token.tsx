@@ -66,24 +66,6 @@ function QuoteDocPage() {
 
   const { quote, items, invoice } = data;
 
-  const allOnRequest = items.length > 0 && items.every((l: any) => l.is_on_request);
-  // A quote can only be turned into an invoice once every line has a price.
-  // Products arrive priced; services are filled in by the studio.
-  const stillOnRequest = items.some((l: any) => l.is_on_request);
-  const priced = items.length > 0 && !stillOnRequest;
-  const statusLabel =
-    quote.status === "new"
-      ? "Received"
-      : quote.status === "discussing"
-        ? "In discussion"
-        : quote.status === "priced"
-          ? "Priced"
-          : quote.status === "converted"
-            ? "Converted"
-            : quote.status === "declined"
-              ? "Closed"
-              : quote.status;
-
   const onProceed = async () => {
     setBusy(true);
     try {
@@ -106,9 +88,7 @@ function QuoteDocPage() {
 
   const waNumber = cleanWaNumber(settings?.whatsapp_number) || "2348038577654";
   const waText = encodeURIComponent(
-    stillOnRequest
-      ? `Hello C Imperium, I'd like to discuss my quote request ${quote.quote_number}.`
-      : `Hello C Imperium, I'd like to discuss my quote ${quote.quote_number} (total ${formatNaira(quote.total)}).`,
+    `Hello C Imperium, I'd like to discuss my quote ${quote.quote_number} (total ${formatNaira(quote.total)}).`,
   );
 
   return (
@@ -116,7 +96,7 @@ function QuoteDocPage() {
       <SiteHeader />
       <main className="mx-auto max-w-4xl px-6 py-16">
         <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-imperium">
-          Your quote · {statusLabel}
+          Step 2 of 3 · Your quote
         </div>
         <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
           <h1 className="font-display text-4xl leading-none md:text-5xl">{quote.quote_number}</h1>
@@ -180,21 +160,7 @@ function QuoteDocPage() {
                   </td>
                   <td className="py-3 text-center">{l.quantity}</td>
                   <td className="py-3 text-right">
-                    {l.is_on_request ? (
-                      <span className="text-muted-foreground">On request</span>
-                    ) : (
-                      <div>
-                        <div>{formatNaira(l.line_total)}</div>
-                        {l.quantity > 1 && (
-                          <div className="font-mono text-[10px] text-muted-foreground">
-                            {formatNaira(l.unit_price)} each
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {l.price_note && (
-                      <div className="mt-1 text-[11px] text-muted-foreground">{l.price_note}</div>
-                    )}
+                    {l.is_on_request ? "On request" : formatNaira(l.line_total)}
                   </td>
                 </tr>
               ))}
@@ -203,27 +169,13 @@ function QuoteDocPage() {
 
           <div className="mt-6 flex items-center justify-between">
             <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-              {stillOnRequest ? "Pricing" : "Quote total"}
+              Quote total
             </span>
-            <span className="font-display text-3xl text-imperium">
-              {stillOnRequest ? "On request" : formatNaira(quote.total)}
-            </span>
+            <span className="font-display text-3xl text-imperium">{formatNaira(quote.total)}</span>
           </div>
-          {quote.admin_note && (
-            <div className="mt-5 border-t border-border/50 pt-4">
-              <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                Note from the team
-              </div>
-              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed">{quote.admin_note}</p>
-            </div>
-          )}
-          {stillOnRequest && (
-            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-              {allOnRequest
-                ? "We price every line by hand. You'll get the itemised figures"
-                : "The priced lines are shown above; the rest are still being quoted. We'll send the full breakdown"}{" "}
-              on {quote.preferred_contact === "call" ? "a call" : quote.preferred_contact} — usually
-              within one business day.
+          {quote.has_custom_items && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              Items priced on request are confirmed after your consultation and reflected on the invoice.
             </p>
           )}
         </div>
@@ -240,33 +192,6 @@ function QuoteDocPage() {
             >
               View invoice <ArrowRight className="h-4 w-4" />
             </Link>
-          </div>
-        ) : !priced ? (
-          <div className="mt-8 rounded-lg border border-border/60 bg-card/40 p-6">
-            <h2 className="font-display text-xl">WHAT HAPPENS NEXT</h2>
-            <ol className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <li>
-                <span className="text-foreground">1.</span> We read your brief and price each line by
-                hand.
-              </li>
-              <li>
-                <span className="text-foreground">2.</span> You get the itemised prices on{" "}
-                {quote.preferred_contact === "call" ? "a phone call" : quote.preferred_contact} —
-                usually within one business day.
-              </li>
-              <li>
-                <span className="text-foreground">3.</span> Happy with it? We raise the invoice and
-                start.
-              </li>
-            </ol>
-            <a
-              href={`https://wa.me/${waNumber}?text=${waText}`}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-6 inline-flex h-12 items-center gap-2 rounded-md border border-border px-6 text-sm hover:border-imperium hover:text-imperium"
-            >
-              <MessageCircle className="h-4 w-4" /> Discuss on WhatsApp
-            </a>
           </div>
         ) : (
           <div className="mt-8 rounded-lg border border-border/60 bg-card/40 p-6">

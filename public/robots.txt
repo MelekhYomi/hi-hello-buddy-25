@@ -10,4 +10,4 @@ Disallow: /order-success
 Disallow: /account
 Disallow: /reset-password
 
-Sitemap: https://www.cimperiumbrand.com/sitemap.xml
+Sitemap: https://hi-hello-buddy-25.lovable.app/sitemap.xml

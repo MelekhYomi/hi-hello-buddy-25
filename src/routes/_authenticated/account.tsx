@@ -33,7 +33,6 @@ function AccountLayout() {
 
         <div className="mt-10 flex flex-wrap gap-8 border-b border-border/60">
           {tab("/account", "Profile")}
-          {tab("/account/quotes", "Quotes")}
           {tab("/account/orders", "Orders")}
           {tab("/account/bookings", "Bookings")}
         </div>

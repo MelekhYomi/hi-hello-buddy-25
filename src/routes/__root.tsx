@@ -15,8 +15,8 @@ import { CartDrawer } from "@/components/cart-drawer";
 import { QuoteDrawer } from "@/components/quote-drawer";
 import { SignInNudge } from "@/components/sign-in-nudge";
 import { LeadCapturePopup } from "@/components/lead-capture-popup";
+import { CustomCursor } from "@/components/custom-cursor";
 import { useVisitorTracker } from "@/lib/use-visitor-tracker";
-import { SITE_URL } from "@/lib/site-url";
 
 import appCss from "../styles.css?url";
 
@@ -117,8 +117,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "C Imperium Branding",
-          url: SITE_URL,
-          logo: `${SITE_URL}/favicon.ico`,
+          url: "https://hi-hello-buddy-25.lovable.app",
+          logo: "https://hi-hello-buddy-25.lovable.app/favicon.ico",
           description: "Premium branding agency from Jos, Nigeria. Logo design, print, web, and campaigns.",
           address: { "@type": "PostalAddress", addressLocality: "Jos", addressRegion: "Plateau", addressCountry: "NG" },
           sameAs: [],
@@ -167,6 +167,7 @@ function RootComponent() {
       <AuthProvider>
         <CartProvider>
           <QuoteProvider>
+            <CustomCursor />
             <TrackerHost />
             <Outlet />
             <CartDrawer />

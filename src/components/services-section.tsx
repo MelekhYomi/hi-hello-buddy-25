@@ -1,20 +1,7 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Palette,
-  Printer,
-  Globe,
-  Share2,
-  Megaphone,
-  Sparkles,
-  ArrowRight,
-  Check,
-  type LucideIcon,
-} from "lucide-react";
+import { Palette, Printer, Globe, Share2, Megaphone, Sparkles, ArrowRight, FileText, type LucideIcon } from "lucide-react";
 import { useQuoteBuilder } from "@/lib/quote-context";
-import { useAuth } from "@/lib/auth-context";
-import { QuoteSignInGate } from "@/components/quote-sign-in-gate";
 
 const ICONS: Record<string, LucideIcon> = {
   palette: Palette,
@@ -24,11 +11,11 @@ const ICONS: Record<string, LucideIcon> = {
   megaphone: Megaphone,
 };
 
-export function ServicesSection() {
-  const { add, has, setOpen, count } = useQuoteBuilder();
-  const { user } = useAuth();
-  const [gate, setGate] = useState(false);
+const formatNaira = (n: number | null) =>
+  n == null ? "" : `₦${n.toLocaleString("en-NG")}`;
 
+export function ServicesSection() {
+  const { add: addToQuote, has: inQuote } = useQuoteBuilder();
   const { data: services, isLoading } = useQuery({
     queryKey: ["services"],
     queryFn: async () => {
@@ -42,39 +29,6 @@ export function ServicesSection() {
     },
   });
 
-  const requestQuote = (service: {
-    id: string;
-    slug: string;
-    title: string;
-  }) => {
-    if (has(service.id)) {
-      // Already chosen — just show the request.
-      if (user) setOpen(true);
-      else setGate(true);
-      return;
-    }
-    add(
-      {
-        id: service.id,
-        type: "service",
-        slug: service.slug,
-        title: service.title,
-        // Services are never pre-priced. The team quotes each line by hand.
-        unitPrice: 0,
-        onRequest: true,
-      },
-      1,
-      // Signed-out visitors get the sign-in gate instead of the drawer.
-      { open: !!user },
-    );
-    if (!user) setGate(true);
-  };
-
-  const goToConsultation = () => {
-    document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    history.replaceState(null, "", "#book");
-  };
-
   return (
     <section id="services" className="relative border-t border-border/40 py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-6">
@@ -84,36 +38,41 @@ export function ServicesSection() {
           </div>
           <div className="mx-auto mt-6 h-px w-24 bg-imperium" />
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
-            Pick what you need. Tell us the brief. We price it and come back to you — no guesswork,
-            no haggling with a price list.
+            From concept to execution, we deliver comprehensive branding solutions that transform
+            businesses into market leaders.
           </p>
         </div>
 
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {isLoading &&
             Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-80 animate-pulse bg-card" />
+              <div key={i} className="h-96 animate-pulse bg-card" />
             ))}
           {services?.map((s) => {
             const Icon = ICONS[s.icon] ?? Sparkles;
-            const chosen = has(s.id);
+            const isMonthly = s.slug === "social-media";
             return (
               <article
                 key={s.id}
-                className="group relative flex flex-col border border-border/60 bg-card p-8 transition-all duration-300 hover:-translate-y-1 hover:border-imperium hover:shadow-[0_0_40px_-10px_var(--imperium)]"
+                className="group relative flex flex-col border border-border/60 bg-card p-8 transition-all duration-300 hover:border-imperium hover:shadow-[0_0_40px_-10px_var(--imperium)] hover:-translate-y-1"
               >
-                <Icon
-                  className="h-8 w-8 text-imperium transition-transform duration-300 group-hover:scale-110"
-                  strokeWidth={1.5}
-                />
+                <Icon className="h-8 w-8 text-imperium transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />
 
                 <h3 className="mt-8 font-display text-2xl tracking-tight">
                   {s.title.toUpperCase()}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.description}</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {s.description}
+                </p>
+
+                {s.price_min != null && (
+                  <div className="mt-5 font-mono text-xs tracking-wider text-imperium">
+                    {formatNaira(s.price_min)} - {formatNaira(s.price_max)}{isMonthly ? "/month" : ""}
+                  </div>
+                )}
 
                 <ul className="mt-5 flex-1 space-y-2">
-                  {(s.features ?? []).map((f: string) => (
+                  {(s.features ?? []).map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-foreground/80">
                       <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-imperium" strokeWidth={2} />
                       {f}
@@ -123,23 +82,31 @@ export function ServicesSection() {
 
                 <button
                   type="button"
-                  onClick={() => requestQuote(s)}
-                  aria-pressed={chosen}
-                  className={
-                    chosen
-                      ? "mt-8 inline-flex h-11 w-full items-center justify-center gap-2 border border-imperium/60 bg-imperium/10 px-6 font-mono text-[11px] uppercase tracking-[0.2em] text-imperium transition-colors hover:bg-imperium/15"
-                      : "btn-cta mt-8 inline-flex h-11 w-full items-center justify-center gap-2 px-6"
+                  onClick={() =>
+                    addToQuote({
+                      id: s.id,
+                      type: "service",
+                      slug: s.slug,
+                      title: s.title,
+                      unitPrice: s.price_min ?? 0,
+                      onRequest: s.price_min == null,
+                    })
                   }
+                  className="btn-cta mt-8 inline-flex h-11 w-full px-6"
                 >
-                  {chosen ? (
-                    <>
-                      <Check className="h-4 w-4" /> In your request
-                    </>
-                  ) : (
-                    <>
-                      Get a Quote <ArrowRight className="h-4 w-4" />
-                    </>
-                  )}
+                  {inQuote(s.id) ? "In your quote" : "Add to quote"} <FileText className="h-3.5 w-3.5" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    try { sessionStorage.setItem("ci_preselect_service", s.id); } catch {}
+                    window.dispatchEvent(new CustomEvent("ci:preselect-service", { detail: { id: s.id } }));
+                    document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-border text-xs uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-imperium hover:text-imperium"
+                >
+                  Book consultation <ArrowRight className="h-3.5 w-3.5" />
                 </button>
 
                 <div className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-imperium transition-transform duration-500 group-hover:scale-x-100" />
@@ -147,24 +114,7 @@ export function ServicesSection() {
             );
           })}
         </div>
-
-        {/* One calm escape hatch instead of a button on every card. */}
-        <div className="mt-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            Not sure what you need?{" "}
-            <button
-              type="button"
-              onClick={goToConsultation}
-              className="story-link font-medium text-foreground underline decoration-imperium decoration-2 underline-offset-4 hover:text-imperium"
-            >
-              Talk it through with the team
-            </button>{" "}
-            instead of building a quote.
-          </p>
-        </div>
       </div>
-
-      <QuoteSignInGate open={gate} count={count} onClose={() => setGate(false)} />
     </section>
   );
 }

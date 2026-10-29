@@ -90,8 +90,8 @@ export function AiAdvisor() {
           type: "service",
           slug: svc.slug,
           title: svc.title,
-          unitPrice: 0,
-          onRequest: true,
+          unitPrice: svc.price_min ?? 0,
+          onRequest: svc.price_min == null,
         },
         r.quantity,
       );
@@ -212,8 +212,8 @@ export function AiAdvisor() {
                               type: "service",
                               slug: svc.slug,
                               title: svc.title,
-                              unitPrice: 0,
-                              onRequest: true,
+                              unitPrice: svc.price_min ?? 0,
+                              onRequest: svc.price_min == null,
                             },
                             r.quantity,
                           )

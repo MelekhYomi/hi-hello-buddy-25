@@ -35,9 +35,7 @@ import { Route as AuthenticatedAdminAdminRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
 import { Route as AuthenticatedAccountBookingsRouteImport } from './routes/_authenticated/account.bookings'
 import { Route as AuthenticatedAccountOrdersRouteImport } from './routes/_authenticated/account.orders'
-import { Route as AuthenticatedAccountQuotesRouteImport } from './routes/_authenticated/account.quotes'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
-import { Route as ApiPublicSyncGoogleReviewsRouteImport } from './routes/api/public/sync-google-reviews'
 import { Route as ApiPublicV1DatasetRouteImport } from './routes/api/public/v1.$dataset'
 import { Route as ApiPublicPdfKindTokenRouteImport } from './routes/api/public/pdf.$kind.$token'
 
@@ -172,22 +170,10 @@ const AuthenticatedAccountOrdersRoute =
     path: '/orders',
     getParentRoute: () => AuthenticatedAccountRoute,
   } as any)
-const AuthenticatedAccountQuotesRoute =
-  AuthenticatedAccountQuotesRouteImport.update({
-    id: '/quotes',
-    path: '/quotes',
-    getParentRoute: () => AuthenticatedAccountRoute,
-  } as any)
 const ApiPublicPaystackWebhookRoute =
   ApiPublicPaystackWebhookRouteImport.update({
     id: '/api/public/paystack-webhook',
     path: '/api/public/paystack-webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicSyncGoogleReviewsRoute =
-  ApiPublicSyncGoogleReviewsRouteImport.update({
-    id: '/api/public/sync-google-reviews',
-    path: '/api/public/sync-google-reviews',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicV1DatasetRoute = ApiPublicV1DatasetRouteImport.update({
@@ -225,9 +211,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
   '/account/orders': typeof AuthenticatedAccountOrdersRoute
-  '/account/quotes': typeof AuthenticatedAccountQuotesRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
-  '/api/public/sync-google-reviews': typeof ApiPublicSyncGoogleReviewsRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/api/public/v1/$dataset': typeof ApiPublicV1DatasetRoute
   '/api/public/pdf/$kind/$token': typeof ApiPublicPdfKindTokenRoute
@@ -255,9 +239,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
   '/account/orders': typeof AuthenticatedAccountOrdersRoute
-  '/account/quotes': typeof AuthenticatedAccountQuotesRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
-  '/api/public/sync-google-reviews': typeof ApiPublicSyncGoogleReviewsRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/api/public/v1/$dataset': typeof ApiPublicV1DatasetRoute
   '/api/public/pdf/$kind/$token': typeof ApiPublicPdfKindTokenRoute
@@ -289,9 +271,7 @@ export interface FileRoutesById {
   '/_authenticated/_admin/admin': typeof AuthenticatedAdminAdminRoute
   '/_authenticated/account/bookings': typeof AuthenticatedAccountBookingsRoute
   '/_authenticated/account/orders': typeof AuthenticatedAccountOrdersRoute
-  '/_authenticated/account/quotes': typeof AuthenticatedAccountQuotesRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
-  '/api/public/sync-google-reviews': typeof ApiPublicSyncGoogleReviewsRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/api/public/v1/$dataset': typeof ApiPublicV1DatasetRoute
   '/api/public/pdf/$kind/$token': typeof ApiPublicPdfKindTokenRoute
@@ -322,9 +302,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/account/bookings'
     | '/account/orders'
-    | '/account/quotes'
     | '/api/public/paystack-webhook'
-    | '/api/public/sync-google-reviews'
     | '/account/'
     | '/api/public/v1/$dataset'
     | '/api/public/pdf/$kind/$token'
@@ -352,9 +330,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/account/bookings'
     | '/account/orders'
-    | '/account/quotes'
     | '/api/public/paystack-webhook'
-    | '/api/public/sync-google-reviews'
     | '/account'
     | '/api/public/v1/$dataset'
     | '/api/public/pdf/$kind/$token'
@@ -385,9 +361,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_admin/admin'
     | '/_authenticated/account/bookings'
     | '/_authenticated/account/orders'
-    | '/_authenticated/account/quotes'
     | '/api/public/paystack-webhook'
-    | '/api/public/sync-google-reviews'
     | '/_authenticated/account/'
     | '/api/public/v1/$dataset'
     | '/api/public/pdf/$kind/$token'
@@ -412,7 +386,6 @@ export interface RootRouteChildren {
   ReceiptTokenRoute: typeof ReceiptTokenRoute
   QuoteIndexRoute: typeof QuoteIndexRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
-  ApiPublicSyncGoogleReviewsRoute: typeof ApiPublicSyncGoogleReviewsRoute
   ApiPublicV1DatasetRoute: typeof ApiPublicV1DatasetRoute
   ApiPublicPdfKindTokenRoute: typeof ApiPublicPdfKindTokenRoute
 }
@@ -601,25 +574,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountOrdersRouteImport
       parentRoute: typeof AuthenticatedAccountRoute
     }
-    '/_authenticated/account/quotes': {
-      id: '/_authenticated/account/quotes'
-      path: '/quotes'
-      fullPath: '/account/quotes'
-      preLoaderRoute: typeof AuthenticatedAccountQuotesRouteImport
-      parentRoute: typeof AuthenticatedAccountRoute
-    }
     '/api/public/paystack-webhook': {
       id: '/api/public/paystack-webhook'
       path: '/api/public/paystack-webhook'
       fullPath: '/api/public/paystack-webhook'
       preLoaderRoute: typeof ApiPublicPaystackWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/sync-google-reviews': {
-      id: '/api/public/sync-google-reviews'
-      path: '/api/public/sync-google-reviews'
-      fullPath: '/api/public/sync-google-reviews'
-      preLoaderRoute: typeof ApiPublicSyncGoogleReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/$dataset': {
@@ -653,14 +612,12 @@ const AuthenticatedAdminRouteWithChildren =
 interface AuthenticatedAccountRouteChildren {
   AuthenticatedAccountBookingsRoute: typeof AuthenticatedAccountBookingsRoute
   AuthenticatedAccountOrdersRoute: typeof AuthenticatedAccountOrdersRoute
-  AuthenticatedAccountQuotesRoute: typeof AuthenticatedAccountQuotesRoute
   AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
 }
 
 const AuthenticatedAccountRouteChildren: AuthenticatedAccountRouteChildren = {
   AuthenticatedAccountBookingsRoute: AuthenticatedAccountBookingsRoute,
   AuthenticatedAccountOrdersRoute: AuthenticatedAccountOrdersRoute,
-  AuthenticatedAccountQuotesRoute: AuthenticatedAccountQuotesRoute,
   AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
 }
 
@@ -722,7 +679,6 @@ const rootRouteChildren: RootRouteChildren = {
   ReceiptTokenRoute: ReceiptTokenRoute,
   QuoteIndexRoute: QuoteIndexRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
-  ApiPublicSyncGoogleReviewsRoute: ApiPublicSyncGoogleReviewsRoute,
   ApiPublicV1DatasetRoute: ApiPublicV1DatasetRoute,
   ApiPublicPdfKindTokenRoute: ApiPublicPdfKindTokenRoute,
 }
