@@ -30,7 +30,9 @@ import { Route as InvoiceTokenRouteImport } from './routes/invoice.$token'
 import { Route as QuoteIndexRouteImport } from './routes/quote.index'
 import { Route as QuoteTokenRouteImport } from './routes/quote.$token'
 import { Route as ReceiptTokenRouteImport } from './routes/receipt.$token'
+import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
+import { Route as WorkSlugRouteImport } from './routes/work.$slug'
 import { Route as AuthenticatedAdminAdminRouteImport } from './routes/_authenticated/_admin/admin'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
 import { Route as AuthenticatedAccountBookingsRouteImport } from './routes/_authenticated/account.bookings'
@@ -144,10 +146,20 @@ const ReceiptTokenRoute = ReceiptTokenRouteImport.update({
   path: '/receipt/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesSlugRoute = ServicesSlugRouteImport.update({
+  id: '/services/$slug',
+  path: '/services/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopSlugRoute = ShopSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => ShopRoute,
+} as any)
+const WorkSlugRoute = WorkSlugRouteImport.update({
+  id: '/work/$slug',
+  path: '/work/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminAdminRoute = AuthenticatedAdminAdminRouteImport.update({
   id: '/admin',
@@ -220,7 +232,9 @@ export interface FileRoutesByFullPath {
   '/invoice/$token': typeof InvoiceTokenRoute
   '/quote/$token': typeof QuoteTokenRoute
   '/receipt/$token': typeof ReceiptTokenRoute
+  '/services/$slug': typeof ServicesSlugRoute
   '/shop/$slug': typeof ShopSlugRoute
+  '/work/$slug': typeof WorkSlugRoute
   '/quote/': typeof QuoteIndexRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
@@ -250,7 +264,9 @@ export interface FileRoutesByTo {
   '/invoice/$token': typeof InvoiceTokenRoute
   '/quote/$token': typeof QuoteTokenRoute
   '/receipt/$token': typeof ReceiptTokenRoute
+  '/services/$slug': typeof ServicesSlugRoute
   '/shop/$slug': typeof ShopSlugRoute
+  '/work/$slug': typeof WorkSlugRoute
   '/quote': typeof QuoteIndexRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/account/bookings': typeof AuthenticatedAccountBookingsRoute
@@ -284,7 +300,9 @@ export interface FileRoutesById {
   '/invoice/$token': typeof InvoiceTokenRoute
   '/quote/$token': typeof QuoteTokenRoute
   '/receipt/$token': typeof ReceiptTokenRoute
+  '/services/$slug': typeof ServicesSlugRoute
   '/shop/$slug': typeof ShopSlugRoute
+  '/work/$slug': typeof WorkSlugRoute
   '/quote/': typeof QuoteIndexRoute
   '/_authenticated/_admin/admin': typeof AuthenticatedAdminAdminRoute
   '/_authenticated/account/bookings': typeof AuthenticatedAccountBookingsRoute
@@ -317,7 +335,9 @@ export interface FileRouteTypes {
     | '/invoice/$token'
     | '/quote/$token'
     | '/receipt/$token'
+    | '/services/$slug'
     | '/shop/$slug'
+    | '/work/$slug'
     | '/quote/'
     | '/admin'
     | '/account/bookings'
@@ -347,7 +367,9 @@ export interface FileRouteTypes {
     | '/invoice/$token'
     | '/quote/$token'
     | '/receipt/$token'
+    | '/services/$slug'
     | '/shop/$slug'
+    | '/work/$slug'
     | '/quote'
     | '/admin'
     | '/account/bookings'
@@ -380,7 +402,9 @@ export interface FileRouteTypes {
     | '/invoice/$token'
     | '/quote/$token'
     | '/receipt/$token'
+    | '/services/$slug'
     | '/shop/$slug'
+    | '/work/$slug'
     | '/quote/'
     | '/_authenticated/_admin/admin'
     | '/_authenticated/account/bookings'
@@ -410,6 +434,8 @@ export interface RootRouteChildren {
   InvoiceTokenRoute: typeof InvoiceTokenRoute
   QuoteTokenRoute: typeof QuoteTokenRoute
   ReceiptTokenRoute: typeof ReceiptTokenRoute
+  ServicesSlugRoute: typeof ServicesSlugRoute
+  WorkSlugRoute: typeof WorkSlugRoute
   QuoteIndexRoute: typeof QuoteIndexRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
   ApiPublicSyncGoogleReviewsRoute: typeof ApiPublicSyncGoogleReviewsRoute
@@ -566,12 +592,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReceiptTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/services/$slug': {
+      id: '/services/$slug'
+      path: '/services/$slug'
+      fullPath: '/services/$slug'
+      preLoaderRoute: typeof ServicesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop/$slug': {
       id: '/shop/$slug'
       path: '/$slug'
       fullPath: '/shop/$slug'
       preLoaderRoute: typeof ShopSlugRouteImport
       parentRoute: typeof ShopRoute
+    }
+    '/work/$slug': {
+      id: '/work/$slug'
+      path: '/work/$slug'
+      fullPath: '/work/$slug'
+      preLoaderRoute: typeof WorkSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/_admin/admin': {
       id: '/_authenticated/_admin/admin'
@@ -720,6 +760,8 @@ const rootRouteChildren: RootRouteChildren = {
   InvoiceTokenRoute: InvoiceTokenRoute,
   QuoteTokenRoute: QuoteTokenRoute,
   ReceiptTokenRoute: ReceiptTokenRoute,
+  ServicesSlugRoute: ServicesSlugRoute,
+  WorkSlugRoute: WorkSlugRoute,
   QuoteIndexRoute: QuoteIndexRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
   ApiPublicSyncGoogleReviewsRoute: ApiPublicSyncGoogleReviewsRoute,

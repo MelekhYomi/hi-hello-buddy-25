@@ -103,7 +103,7 @@ function ProductPage() {
               <div className="mt-4 grid grid-cols-4 gap-3">
                 {product.images.map((src, i) => (
                   <button key={i} onClick={() => setImgIdx(i)} className={`aspect-square overflow-hidden rounded-md border-2 ${i === imgIdx ? "border-imperium" : "border-transparent"}`}>
-                    <img src={src} alt="" className="h-full w-full object-cover" />
+                    <img src={src} alt={`${product.title} — view ${i + 1}`} loading="lazy" className="h-full w-full object-cover" />
                   </button>
                 ))}
               </div>

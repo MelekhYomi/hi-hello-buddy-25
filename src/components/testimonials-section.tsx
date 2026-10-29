@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { testimonialsQuery } from "@/lib/queries";
 import { useSiteSettings } from "@/lib/site-settings";
 
 type GoogleSummary = {
@@ -15,25 +15,7 @@ export function TestimonialsSection() {
   const { data: settings } = useSiteSettings();
   const google = (settings as Record<string, unknown> | undefined)?.google_reviews as GoogleSummary | undefined;
 
-  const { data: items, isLoading } = useQuery({
-    queryKey: ["testimonials"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("testimonials")
-        .select("*")
-        .eq("is_published", true)
-        .order("display_order");
-      if (error) throw error;
-      // Newest Google reviews first within the same display_order. Sorted here (not in SQL)
-      // so the page keeps working before the review_time column exists.
-      return [...data].sort(
-        (a, b) =>
-          a.display_order - b.display_order ||
-          Date.parse(b.review_time ?? "") - Date.parse(a.review_time ?? "") ||
-          0,
-      );
-    },
-  });
+  const { data: items, isLoading } = useQuery(testimonialsQuery);
 
   // Sample copy is only shown until a real (Google or hand-entered) review exists.
   const real = (items ?? []).filter((t) => t.source !== "placeholder");
@@ -136,7 +118,7 @@ export function TestimonialsSection() {
                       className="mt-8 flex items-center gap-4 border-t pt-6"
                       style={{ borderColor: "var(--ci-border)" }}
                     >
-                      {t.avatar_url ? (
+                      {t.avatar_url && t.source !== "placeholder" ? (
                         <img
                           src={t.avatar_url}
                           alt=""

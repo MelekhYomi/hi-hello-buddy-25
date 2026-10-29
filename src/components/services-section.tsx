@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { Link } from "@tanstack/react-router";
+import { servicesQuery } from "@/lib/queries";
 import {
   Palette,
   Printer,
@@ -29,18 +30,7 @@ export function ServicesSection() {
   const { user } = useAuth();
   const [gate, setGate] = useState(false);
 
-  const { data: services, isLoading } = useQuery({
-    queryKey: ["services"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("services")
-        .select("*")
-        .eq("is_active", true)
-        .order("display_order");
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: services, isLoading } = useQuery(servicesQuery);
 
   const requestQuote = (service: {
     id: string;
@@ -121,14 +111,22 @@ export function ServicesSection() {
                   ))}
                 </ul>
 
+                <Link
+                  to="/services/$slug"
+                  params={{ slug: s.slug }}
+                  className="mt-6 inline-flex items-center gap-1.5 self-start font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:underline"
+                >
+                  Learn more <ArrowRight className="h-3 w-3" />
+                </Link>
+
                 <button
                   type="button"
                   onClick={() => requestQuote(s)}
                   aria-pressed={chosen}
                   className={
                     chosen
-                      ? "mt-8 inline-flex h-11 w-full items-center justify-center gap-2 border border-imperium/60 bg-imperium/10 px-6 font-mono text-[11px] uppercase tracking-[0.2em] text-imperium transition-colors hover:bg-imperium/15"
-                      : "btn-cta mt-8 inline-flex h-11 w-full items-center justify-center gap-2 px-6"
+                      ? "mt-4 inline-flex h-11 w-full items-center justify-center gap-2 border border-imperium/60 bg-imperium/10 px-6 font-mono text-[11px] uppercase tracking-[0.2em] text-imperium transition-colors hover:bg-imperium/15"
+                      : "btn-cta mt-4 inline-flex h-11 w-full items-center justify-center gap-2 px-6"
                   }
                 >
                   {chosen ? (

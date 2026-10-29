@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useSiteSettings } from "@/lib/site-settings";
+import { servicesQuery } from "@/lib/queries";
 
 const DEFAULT_FOOTER = {
   tagline:
@@ -17,6 +19,7 @@ const DEFAULT_SOCIALS = {
 
 export function SiteFooter() {
   const { data: settings } = useSiteSettings();
+  const { data: services } = useQuery(servicesQuery);
   const s = settings as Record<string, unknown> | undefined;
   const footer = { ...DEFAULT_FOOTER, ...((s?.footer as Partial<typeof DEFAULT_FOOTER>) ?? {}) };
   const socials = { ...DEFAULT_SOCIALS, ...((s?.socials as Partial<typeof DEFAULT_SOCIALS>) ?? {}) };
@@ -25,7 +28,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border/40 bg-ink py-16">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="grid gap-12 md:grid-cols-4">
+        <div className="grid gap-12 md:grid-cols-5">
           <div className="md:col-span-2">
             <Link to="/" className="inline-flex items-center gap-2 group">
               <span className="font-display text-2xl text-imperium leading-none transition-transform group-hover:scale-110">C</span>
@@ -41,13 +44,28 @@ export function SiteFooter() {
           <div>
             <h4 className="font-mono text-[11px] uppercase tracking-[0.2em] text-imperium">Navigate</h4>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-              <li><a href="#services" className="hover:text-foreground transition-colors">Services</a></li>
-              <li><a href="#portfolio" className="hover:text-foreground transition-colors">Portfolio</a></li>
-              <li><a href="#testimonials" className="hover:text-foreground transition-colors">Testimonials</a></li>
-              <li><a href="#book" className="hover:text-foreground transition-colors">Book Now</a></li>
-              <li><a href="#contact" className="hover:text-foreground transition-colors">Contact</a></li>
+              <li><a href="/#portfolio" className="hover:text-foreground transition-colors">Portfolio</a></li>
+              <li><Link to="/shop" className="hover:text-foreground transition-colors">Shop</Link></li>
+              <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
+              <li><a href="/#testimonials" className="hover:text-foreground transition-colors">Testimonials</a></li>
+              <li><a href="/#book" className="hover:text-foreground transition-colors">Book Now</a></li>
+              <li><a href="/#contact" className="hover:text-foreground transition-colors">Contact</a></li>
             </ul>
           </div>
+          {services && services.length > 0 && (
+            <div>
+              <h4 className="font-mono text-[11px] uppercase tracking-[0.2em] text-imperium">Services</h4>
+              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                {services.map((svc) => (
+                  <li key={svc.id}>
+                    <Link to="/services/$slug" params={{ slug: svc.slug }} className="hover:text-foreground transition-colors">
+                      {svc.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div>
             <h4 className="font-mono text-[11px] uppercase tracking-[0.2em] text-imperium">Reach Us</h4>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">

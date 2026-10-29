@@ -1,7 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { SITE_URL } from "@/lib/site-url";
+import { seoHead } from "@/lib/seo";
+import {
+  servicesQuery,
+  featuredProductsQuery,
+  caseStudiesQuery,
+  testimonialsQuery,
+  homeBlogQuery,
+  prefetch,
+} from "@/lib/queries";
 import { Hero } from "@/components/hero";
 import { MarqueeStrip } from "@/components/marquee-strip";
 import { AboutSection } from "@/components/about-section";
@@ -17,26 +25,33 @@ import { BookingSection } from "@/components/booking-section";
 import { ContactSection } from "@/components/contact-section";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "C Imperium — Stand Out. Dominate." },
-      {
-        name: "description",
-        content:
-          "C Imperium is a brand transformation agency in Nigeria. Brand identity, print, packaging, web, social, and creative direction that makes brands impossible to ignore.",
-      },
-      { property: "og:title", content: "C Imperium — Stand Out. Dominate." },
-      {
-        property: "og:description",
-        content:
-          "Premium brand transformation. We build visual identities and brand experiences that dominate.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: `${SITE_URL}/` },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/` }],
+  // Prefetch everything the sections show so crawlers and first paint get real content.
+  // A failed query never blocks the page: the section just fetches in the browser instead.
+  loader: async ({ context: { queryClient } }) => {
+    await Promise.all([
+      prefetch(queryClient, servicesQuery),
+      prefetch(queryClient, featuredProductsQuery),
+      prefetch(queryClient, caseStudiesQuery),
+      prefetch(queryClient, testimonialsQuery),
+      prefetch(queryClient, homeBlogQuery),
+    ]);
+  },
+  headers: () => ({
+    "Cache-Control": "public, max-age=0, s-maxage=60, stale-while-revalidate=300",
   }),
+  head: () => {
+    const seo = seoHead({
+      title: "Branding Agency in Jos, Nigeria | C Imperium Branding",
+      description:
+        "C Imperium is a branding agency in Jos, Plateau State. Brand identity, logo design, printing, packaging, social media and web design for businesses, ministries and organisations.",
+      path: "/",
+    });
+    return {
+      ...seo,
+      // The hero background is the biggest thing in the first view: fetch it immediately.
+      links: [...seo.links, { rel: "preload", as: "image", href: "/hero-bg.jpg", fetchPriority: "high" as const }],
+    };
+  },
   component: HomePage,
 });
 

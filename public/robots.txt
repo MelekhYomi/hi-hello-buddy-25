@@ -1,13 +1,21 @@
 User-agent: *
 Allow: /
 
+# Private, transactional or login pages: nothing here should appear in search results.
 Disallow: /admin
 Disallow: /staff-login
 Disallow: /dashboard
 Disallow: /checkout
 Disallow: /checkout-pay
 Disallow: /order-success
+Disallow: /booking-success
 Disallow: /account
 Disallow: /reset-password
+Disallow: /login
+Disallow: /signup
+Disallow: /quote
+Disallow: /invoice
+Disallow: /receipt
+Disallow: /api/
 
 Sitemap: https://www.cimperiumbrand.com/sitemap.xml

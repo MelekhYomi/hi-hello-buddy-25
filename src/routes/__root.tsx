@@ -16,9 +16,12 @@ import { QuoteDrawer } from "@/components/quote-drawer";
 import { SignInNudge } from "@/components/sign-in-nudge";
 import { LeadCapturePopup } from "@/components/lead-capture-popup";
 import { useVisitorTracker } from "@/lib/use-visitor-tracker";
-import { SITE_URL } from "@/lib/site-url";
+import { siteSettingsQuery, servicesQuery, prefetch } from "@/lib/queries";
+import { DEFAULT_OG_IMAGE, businessJsonLd } from "@/lib/seo";
 
 import appCss from "../styles.css?url";
+import poppins400 from "@fontsource/poppins/files/poppins-latin-400-normal.woff2?url";
+import poppins800 from "@fontsource/poppins/files/poppins-latin-800-normal.woff2?url";
 
 function NotFoundComponent() {
   return (
@@ -78,6 +81,14 @@ function ErrorComponent({ error, reset }: { error: unknown; reset: () => void })
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  // Site settings feed the header, footer and most sections; load them with the HTML.
+  loader: async ({ context }) => {
+    await Promise.all([
+      prefetch(context.queryClient, siteSettingsQuery),
+      // Also feeds the footer's service links, so every page links to the service pages.
+      prefetch(context.queryClient, servicesQuery),
+    ]);
+  },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -94,8 +105,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "C Imperium Branding" },
       { property: "og:description", content: "Premium branding agency from Jos, Nigeria." },
       { name: "twitter:description", content: "Premium branding agency from Jos, Nigeria." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/ba3c633b-0cf6-4dd4-9dc7-30828782145d" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/ba3c633b-0cf6-4dd4-9dc7-30828782145d" },
+      { property: "og:image", content: DEFAULT_OG_IMAGE },
+      { name: "twitter:image", content: DEFAULT_OG_IMAGE },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -103,28 +114,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/icon-192.png" },
       { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
       { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-512.png" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap",
-      },
+      // Preload the two weights used above the fold (body text and display headings).
+      { rel: "preload", as: "font", type: "font/woff2", href: poppins400, crossOrigin: "anonymous" },
+      { rel: "preload", as: "font", type: "font/woff2", href: poppins800, crossOrigin: "anonymous" },
     ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          name: "C Imperium Branding",
-          url: SITE_URL,
-          logo: `${SITE_URL}/favicon.ico`,
-          description: "Premium branding agency from Jos, Nigeria. Logo design, print, web, and campaigns.",
-          address: { "@type": "PostalAddress", addressLocality: "Jos", addressRegion: "Plateau", addressCountry: "NG" },
-          sameAs: [],
-        }),
-      },
-    ],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(businessJsonLd) }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -134,7 +128,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-NG">
       <head>
         <HeadContent />
       </head>

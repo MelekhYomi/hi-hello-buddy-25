@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { caseStudiesQuery } from "@/lib/queries";
+import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 import { CaseStudyModal } from "@/components/case-study-modal";
@@ -45,17 +46,7 @@ export function PortfolioSection() {
   const [open, setOpen] = useState<CaseStudy | null>(null);
   const [filter, setFilter] = useState("all");
 
-  const { data: cases, isLoading } = useQuery({
-    queryKey: ["case_studies"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("case_studies")
-        .select("*")
-        .order("display_order");
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: cases, isLoading } = useQuery(caseStudiesQuery);
 
   const visible = (cases ?? []).filter((c) => matchFilter(c.industry, filter));
 
@@ -144,10 +135,16 @@ function ClientWorkCard({
   const thumbs = gallery.slice(1, 3);
 
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className="group relative block overflow-hidden rounded-xl border border-border/60 bg-card transition-all duration-300 hover:border-imperium hover:shadow-[0_0_40px_-12px_var(--imperium)]"
+    <Link
+      to="/work/$slug"
+      params={{ slug: c.slug }}
+      onClick={(e) => {
+        // A plain click opens the popup; ctrl/cmd/middle-click still opens the full page.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        e.preventDefault();
+        onSelect();
+      }}
+      className="group relative block overflow-hidden rounded-xl border border-border/60 bg-card text-center transition-all duration-300 hover:border-imperium hover:shadow-[0_0_40px_-12px_var(--imperium)]"
     >
       {/* Image preview area */}
       <div className="relative aspect-[4/3] bg-card/40 overflow-hidden">
@@ -235,7 +232,7 @@ function ClientWorkCard({
           </div>
         </div>
       </div>
-    </button>
+    </Link>
   );
 }
 

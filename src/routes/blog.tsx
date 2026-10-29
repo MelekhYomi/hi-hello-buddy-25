@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE_URL } from "@/lib/site-url";
+import { DEFAULT_BLOG_COVER } from "@/lib/seo";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -75,11 +76,13 @@ function BlogIndex() {
                 className="group overflow-hidden border border-border/60 bg-card transition-all hover:border-imperium hover:-translate-y-1"
               >
                 <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-muted/20">
-                  {p.cover_image ? (
-                    <img src={p.cover_image} alt={p.title} loading="lazy" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="px-4 text-center font-display text-2xl text-muted-foreground/40">{p.title}</span>
-                  )}
+                  <img
+                    src={p.cover_image || DEFAULT_BLOG_COVER}
+                    alt={p.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                  />
                   <span className="absolute bottom-3 left-3 bg-imperium px-3 py-1 text-[0.6rem] font-bold uppercase tracking-[0.12em] text-charleston">{tag}</span>
                 </div>
                 <div className="p-6">

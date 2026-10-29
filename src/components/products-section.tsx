@@ -1,25 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ShoppingBag, ArrowRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { featuredProductsQuery } from "@/lib/queries";
 import { useCart, formatNaira } from "@/lib/cart-context";
 
 export function ProductsSection() {
   const { add } = useCart();
-  const { data: products } = useQuery({
-    queryKey: ["featured-products"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id,slug,title,description,price,compare_at_price,images,stock")
-        .eq("is_active", true)
-        .eq("is_featured", true)
-        .order("display_order")
-        .limit(6);
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: products } = useQuery(featuredProductsQuery);
 
   return (
     <section id="products" className="relative border-t border-border/40 py-16 md:py-20">

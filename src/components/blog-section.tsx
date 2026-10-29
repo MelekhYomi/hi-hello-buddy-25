@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
+import { homeBlogQuery } from "@/lib/queries";
+import { DEFAULT_BLOG_COVER } from "@/lib/seo";
 
 export function BlogSection() {
   const [isMounted, setIsMounted] = useState(false);
@@ -10,19 +11,7 @@ export function BlogSection() {
     setIsMounted(true);
   }, []);
 
-  const { data: posts } = useQuery({
-    queryKey: ["blog-posts-home"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .select("id, slug, title, excerpt, cover_image, tags, published_at, created_at")
-        .eq("is_published", true)
-        .order("published_at", { ascending: false, nullsFirst: false })
-        .limit(3);
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: posts } = useQuery(homeBlogQuery);
 
   return (
     <section
@@ -42,19 +31,19 @@ export function BlogSection() {
           </Link>
         </div>
 
-        {(!isMounted || !posts || posts.length === 0) && (
+        {(!posts || posts.length === 0) && (
           <p className="mt-12 text-sm italic" style={{ color: "var(--ci-gray)", fontFamily: "'Poppins', sans-serif" }}>
             New insights coming soon. Check back shortly.
           </p>
         )}
 
         <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {isMounted && posts?.map((p) => {
+          {posts?.map((p) => {
             const tag = p.tags?.[0] ?? "Insights";
             let dateStr = "";
             try {
               const dateVal = p.published_at ?? p.created_at;
-              if (dateVal) {
+              if (isMounted && dateVal) {
                 const dateObj = new Date(dateVal);
                 if (!isNaN(dateObj.getTime())) {
                   dateStr = format(dateObj, "MMM yyyy");
@@ -72,13 +61,13 @@ export function BlogSection() {
                 style={{ background: "var(--ci-dark)", borderColor: "var(--ci-border)" }}
               >
                 <div className="relative flex aspect-video items-center justify-center overflow-hidden" style={{ background: "var(--ci-charcoal)" }}>
-                  {p.cover_image ? (
-                    <img src={p.cover_image} alt={p.title} loading="lazy" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="px-4 text-center text-sm italic" style={{ fontFamily: "'Poppins', sans-serif", color: "var(--ci-gray)" }}>
-                      {p.title}
-                    </span>
-                  )}
+                  <img
+                    src={p.cover_image || DEFAULT_BLOG_COVER}
+                    alt={p.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                  />
                   <span className="absolute bottom-3 left-3 px-3 py-1 text-[0.6rem] font-bold uppercase tracking-[0.12em]" style={{ background: "var(--imperium)", color: "var(--ci-black)" }}>
                     {tag}
                   </span>

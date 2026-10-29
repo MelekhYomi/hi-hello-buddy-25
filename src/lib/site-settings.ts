@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { siteSettingsQuery } from "@/lib/queries";
 
 export type SiteSettings = {
   whatsapp_number?: string;
@@ -18,19 +18,7 @@ export type SiteSettings = {
 };
 
 export function useSiteSettings() {
-  return useQuery({
-    queryKey: ["site-settings"],
-    staleTime: 60_000,
-    queryFn: async (): Promise<SiteSettings> => {
-      const { data, error } = await supabase.from("site_settings").select("key, value");
-      if (error) throw error;
-      const out: SiteSettings = {};
-      for (const row of data ?? []) {
-        (out as Record<string, unknown>)[row.key] = row.value as unknown;
-      }
-      return out;
-    },
-  });
+  return useQuery({ ...siteSettingsQuery, select: (d): SiteSettings => d as SiteSettings });
 }
 
 export const cleanWaNumber = (raw?: string) =>

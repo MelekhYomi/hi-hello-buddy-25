@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE_URL } from "@/lib/site-url";
+import { BUSINESS_ID, DEFAULT_BLOG_COVER, absUrl } from "@/lib/seo";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ArrowLeft } from "lucide-react";
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/blog/$slug")({
     }
     const title = `${loaderData.title} — C Imperium`;
     const desc = (loaderData.excerpt ?? "").slice(0, 155) || "Insights from C Imperium Branding.";
-    const img = loaderData.cover_image;
+    const img = loaderData.cover_image || DEFAULT_BLOG_COVER;
     return {
       meta: [
         { title },
@@ -36,7 +37,8 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
-        ...(img ? [{ property: "og:image", content: img }, { name: "twitter:image", content: img }] : []),
+        { property: "og:image", content: absUrl(img) },
+        { name: "twitter:image", content: absUrl(img) },
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: [{
@@ -46,8 +48,12 @@ export const Route = createFileRoute("/blog/$slug")({
           "@type": "Article",
           headline: loaderData.title,
           description: desc,
-          image: img,
+          image: absUrl(img),
           datePublished: loaderData.published_at,
+          dateModified: loaderData.published_at,
+          author: { "@id": BUSINESS_ID },
+          publisher: { "@id": BUSINESS_ID },
+          mainEntityOfPage: url,
           url,
         }),
       }],
@@ -115,13 +121,11 @@ function BlogPostPage() {
               })()}</span>
               {post.author && <><span>·</span><span>{post.author}</span></>}
             </div>
-            {post.cover_image && (
-              <img
-                src={post.cover_image}
-                alt={post.title}
-                className="mt-10 aspect-video w-full rounded-md object-cover"
-              />
-            )}
+            <img
+              src={post.cover_image || DEFAULT_BLOG_COVER}
+              alt={post.title}
+              className="mt-10 aspect-video w-full rounded-md object-cover"
+            />
             {post.excerpt && (
               <p className="mt-10 border-l-2 border-imperium pl-6 text-lg italic text-foreground/90">{post.excerpt}</p>
             )}
