@@ -82,7 +82,7 @@ VALUES
 <p>Whether you are starting from scratch, refreshing an existing identity, planning a campaign, or looking for a reliable design and printing partner, C Imperium is ready to help.</p>
 <p><strong>C Imperium — Stand out. Dominate.</strong></p>
 <p>Visit us: No. 4 Boulevard Road, Shop 2, Jolex Plaza, Jos, Plateau State, Nigeria.</p>
-<p>Email: ceaserimperium@gmail.com</p>
+<p>Email: info@cimperiumbrand.com</p>
 <p>Explore our services: Brand identity design, printing, corporate branding, campaign branding, graphic design, and web development.</p>
 <p>Take the next step: Contact C Imperium to discuss your project, request a quotation, or book a branding consultation.</p>
 $$,
