@@ -39,7 +39,7 @@ VALUES
     '/portfolio/poundwise-5-stationeries.jpg'
   ],
   'As a capital advisory firm, Poundwise needed a brand that projected financial credibility and trust from the very first handshake.',
-  'We designed a premium blue-and-silver identity system — business cards, banners, branded apparel, and stationery — anchored by a coin-inspired mark.',
+  'We designed a premium blue-and-white identity system — business cards, banners, branded apparel, and stationery — anchored by a coin-inspired mark.',
   'The finished system gives Poundwise''s team polished, client-ready materials across print and merchandise.',
   true,
   2
