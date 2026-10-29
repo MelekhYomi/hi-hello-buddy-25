@@ -125,8 +125,8 @@ VALUES
     ARRAY['/portfolio/shirts-1.jpg', '/portfolio/shirts-3.jpg', '/portfolio/shirts-5.jpg'],
     ARRAY['Print', 'Apparel', 'Branding'],
     ARRAY['Custom shirts', 'Branded apparel'],
-    'A client needed custom-made shirts with a clean, personalised brand mark applied across a small run.',
-    'We placed a subtle embroidered/printed mark on quality shirts, keeping the branding minimal and premium.',
+    'A client needed custom-made shirts with personalised, text-based and scriptural designs applied across a small run.',
+    'We applied the text-based and scriptural designs to quality shirts, keeping the finish clean and premium.',
     'The client received a cohesive set of branded shirts ready to wear.',
     false,
     14
