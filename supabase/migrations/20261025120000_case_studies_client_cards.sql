@@ -55,9 +55,9 @@ VALUES
     '/portfolio/umane-1.jpg',
     ARRAY[
       '/portfolio/umane-1.jpg',
-      '/portfolio/umane-5.jpg',
-      '/portfolio/umane-9.jpg',
-      '/portfolio/umane-13.jpg'
+      '/portfolio/umane-2.jpg',
+      '/portfolio/umane-3.jpg',
+      '/portfolio/umane-4.jpg'
     ],
     ARRAY['Branding', 'Print', 'Event Design'],
     ARRAY['Flex banners', 'Backdrops', 'Flyers'],
