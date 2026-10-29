@@ -15,7 +15,6 @@ import { CartDrawer } from "@/components/cart-drawer";
 import { QuoteDrawer } from "@/components/quote-drawer";
 import { SignInNudge } from "@/components/sign-in-nudge";
 import { LeadCapturePopup } from "@/components/lead-capture-popup";
-import { CustomCursor } from "@/components/custom-cursor";
 import { useVisitorTracker } from "@/lib/use-visitor-tracker";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -168,7 +167,6 @@ function RootComponent() {
       <AuthProvider>
         <CartProvider>
           <QuoteProvider>
-            <CustomCursor />
             <TrackerHost />
             <Outlet />
             <CartDrawer />
