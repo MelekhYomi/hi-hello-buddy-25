@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CaseStudyBanner, CaseStudyBody } from "@/components/case-study-modal";
 import { caseStudyBySlugQuery } from "@/lib/queries";
-import { BUSINESS_ID, absUrl, seoHead, snippet } from "@/lib/seo";
+import { BUSINESS_ID, absUrl, breadcrumbJsonLd, seoHead, snippet } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site-url";
 
 export const Route = createFileRoute("/work/$slug")({
@@ -23,7 +23,13 @@ export const Route = createFileRoute("/work/$slug")({
       description: description || study.title,
       path,
       image: study.cover_image,
-      jsonLd: {
+      jsonLd: [
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Our work", path: "/#portfolio" },
+          { name: study.title, path },
+        ]),
+        {
         "@context": "https://schema.org",
         "@type": "CreativeWork",
         name: study.title,
@@ -34,7 +40,8 @@ export const Route = createFileRoute("/work/$slug")({
           .map((u) => absUrl(u as string)),
         creator: { "@id": BUSINESS_ID },
         about: study.client,
-      },
+        },
+      ],
     });
   },
   component: WorkPage,

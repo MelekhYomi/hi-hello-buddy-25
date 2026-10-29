@@ -8,7 +8,7 @@ import { useState } from "react";
 import { useQuoteBuilder } from "@/lib/quote-context";
 import { useAuth } from "@/lib/auth-context";
 import { QuoteSignInGate } from "@/components/quote-sign-in-gate";
-import { BUSINESS_ID, seoHead, snippet } from "@/lib/seo";
+import { BUSINESS_ID, breadcrumbJsonLd, seoHead, snippet } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site-url";
 
 export const Route = createFileRoute("/services/$slug")({
@@ -27,7 +27,13 @@ export const Route = createFileRoute("/services/$slug")({
       title: `${service.title} in Jos, Nigeria | C Imperium Branding`,
       description,
       path,
-      jsonLd: {
+      jsonLd: [
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Services", path: "/#services" },
+          { name: service.title, path },
+        ]),
+        {
         "@context": "https://schema.org",
         "@type": "Service",
         name: service.title,
@@ -36,7 +42,8 @@ export const Route = createFileRoute("/services/$slug")({
         serviceType: service.title,
         provider: { "@id": BUSINESS_ID },
         areaServed: { "@type": "Country", name: "Nigeria" },
-      },
+        },
+      ],
     });
   },
   component: ServicePage,
