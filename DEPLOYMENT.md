@@ -142,3 +142,33 @@ Configure your Paystack Dashboard's Webhook URL to point to the active productio
 https://<your-production-domain>/api/public/paystack-webhook
 ```
 Because full SSR is enabled on both Vercel and Cloudflare, both environments will process incoming webhook signals flawlessly to update order tables in real-time.
+
+---
+
+## Google reviews sync
+
+Client reviews are pulled from the Google Business listing (Place ID `ChIJpYDYfYpzUxARKEg_uG6FovM`)
+into the `testimonials` table, and shown in the "Client Stories" section with the overall Google rating.
+
+1. **Run the migration** `supabase/migrations/20261029130000_google_reviews.sql` (adds `source`, `external_id`,
+   `review_url`, `review_time`; tags the four sample testimonials as `placeholder`).
+2. **Google Cloud**: create/choose a project, enable **Places API (New)**, create an API key and restrict it to
+   that API. Billing must be enabled on the project (one lookup a day is well inside the free usage).
+3. **Environment variables** (Vercel / Hostinger / Lovable Cloud secrets):
+
+   | Variable | Purpose |
+   | --- | --- |
+   | `GOOGLE_PLACES_API_KEY` | Places API (New) key |
+   | `CRON_SECRET` | Long random string protecting the scheduled sync endpoint |
+   | `GOOGLE_PLACE_ID` | Optional override; defaults to the Place ID above |
+
+4. **Keeping it fresh**: Google returns at most 5 reviews per call, so the sync runs on a schedule and
+   accumulates new ones (matched by Google's review id, never duplicated).
+   - Vercel: `vercel.json` already schedules `/api/public/sync-google-reviews` daily; Vercel sends
+     `Authorization: Bearer $CRON_SECRET` automatically when `CRON_SECRET` is set.
+   - Hostinger: add a daily cron job in hPanel:
+     `curl -fsS -H "Authorization: Bearer YOUR_CRON_SECRET" https://www.cimperiumbrand.com/api/public/sync-google-reviews`
+   - Any time: Admin -> Testimonials -> **Sync from Google**.
+5. 4-5 star reviews with text are published automatically; lower ratings are imported unpublished for review.
+   Publishing, ordering and deleting still work from the admin Testimonials tab, and a sync never overrides them.
+   The sample testimonials are hidden automatically once a real review exists.

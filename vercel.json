@@ -2,5 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
   "framework": null,
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "crons": [{ "path": "/api/public/sync-google-reviews", "schedule": "0 5 * * *" }]
 }

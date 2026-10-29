@@ -1103,7 +1103,11 @@ export type Database = {
           name: string
           quote: string
           rating: number
+          review_time: string | null
+          review_url: string | null
           role: string
+          source: string
+          external_id: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -1115,7 +1119,11 @@ export type Database = {
           name: string
           quote: string
           rating?: number
+          review_time?: string | null
+          review_url?: string | null
           role: string
+          source?: string
+          external_id?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -1127,7 +1135,11 @@ export type Database = {
           name?: string
           quote?: string
           rating?: number
+          review_time?: string | null
+          review_url?: string | null
           role?: string
+          source?: string
+          external_id?: string | null
         }
         Relationships: []
       }

@@ -13,6 +13,7 @@ import { Check, Mail, Trash2, Download, Plus, Pencil } from "lucide-react";
 import { formatNaira } from "@/lib/cart-context";
 import { WorkflowBoard } from "@/components/admin/workflow-board";
 import { ExportsAdmin } from "@/components/admin/exports-admin";
+import { syncGoogleReviewsNow } from "@/lib/google-reviews.functions";
 import { isPdfFile, pdfFileToImageFile } from "@/lib/pdf-to-image";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin")({
@@ -1021,10 +1022,35 @@ interface TestimonialRow {
   id: string; name: string; role: string | null; company: string | null;
   quote: string; rating: number | null; avatar_url: string | null;
   display_order: number; is_published: boolean;
+  source?: string | null;
 }
 
 function TestimonialsAdmin() {
   const qc = useQueryClient();
+  const syncGoogle = useServerFn(syncGoogleReviewsNow);
+  const [syncing, setSyncing] = useState(false);
+  const { data: googleInfo, refetch: refetchGoogleInfo } = useQuery({
+    queryKey: ["admin-google-reviews"],
+    queryFn: async () => {
+      const { data } = await supabase.from("site_settings").select("value").eq("key", "google_reviews").maybeSingle();
+      return (data?.value ?? null) as { rating?: number | null; total?: number | null; last_synced_at?: string } | null;
+    },
+  });
+  const runSync = async () => {
+    setSyncing(true);
+    try {
+      const r = await syncGoogle();
+      toast.success(`Google sync done: ${r.imported} new, ${r.updated} refreshed${r.rating ? ` (rated ${r.rating})` : ""}`);
+      qc.invalidateQueries({ queryKey: ["admin-testimonials"] });
+      qc.invalidateQueries({ queryKey: ["testimonials"] });
+      qc.invalidateQueries({ queryKey: ["site-settings"] });
+      refetchGoogleInfo();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Google sync failed");
+    } finally {
+      setSyncing(false);
+    }
+  };
   const { data } = useQuery({
     queryKey: ["admin-testimonials"],
     queryFn: async () => {
@@ -1043,8 +1069,16 @@ function TestimonialsAdmin() {
   };
   return (
     <div className="mt-8">
-      <div className="mb-4 flex justify-end">
-        <button onClick={() => setCreating(true)} className="inline-flex items-center gap-2 border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"><Plus className="h-3 w-3" /> New testimonial</button>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+          {googleInfo?.last_synced_at
+            ? `Google: ${googleInfo.rating ?? "–"}★ · ${googleInfo.total ?? "–"} reviews · synced ${format(new Date(googleInfo.last_synced_at), "d MMM yyyy, HH:mm")}`
+            : "Google reviews: not synced yet"}
+        </div>
+        <div className="flex gap-3">
+          <button onClick={runSync} disabled={syncing} className="inline-flex items-center gap-2 border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] hover:border-imperium hover:text-imperium disabled:opacity-50">{syncing ? "Syncing…" : "Sync from Google"}</button>
+          <button onClick={() => setCreating(true)} className="inline-flex items-center gap-2 border border-imperium bg-imperium/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:bg-imperium hover:text-charleston"><Plus className="h-3 w-3" /> New testimonial</button>
+        </div>
       </div>
       <div className="space-y-px bg-border/40">
         {(!data || data.length === 0) && <Empty>No testimonials yet</Empty>}
@@ -1053,7 +1087,7 @@ function TestimonialsAdmin() {
             <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
               <div className="md:col-span-1">{t.avatar_url && <img src={t.avatar_url} alt={t.name} className="aspect-square w-full rounded-full object-cover" />}</div>
               <div className="md:col-span-7">
-                <div className="font-display text-lg">{t.name}</div>
+                <div className="font-display text-lg">{t.name}{t.source === "google" && <span className="ml-2 border border-border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-imperium">Google</span>}{t.source === "placeholder" && <span className="ml-2 border border-border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">Sample</span>}</div>
                 <div className="font-mono text-[10px] text-muted-foreground">{[t.role, t.company].filter(Boolean).join(" · ") || "—"}</div>
                 <p className="mt-1 line-clamp-2 text-sm italic text-muted-foreground">"{t.quote}"</p>
               </div>
