@@ -48,23 +48,26 @@ export function AboutSection() {
       className="relative z-[2] border-t border-border/40 px-6 py-24 md:px-16 md:py-32"
       style={{ background: "var(--ci-dark)" }}
     >
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-32">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-[7fr_5fr] lg:gap-20">
         {/* Visual */}
         <div className="relative">
           <div
-            className="relative aspect-[3/4] w-full overflow-hidden border"
+            className="relative aspect-square w-full overflow-hidden border"
             style={{
               background: "var(--ci-charcoal)",
               borderColor: "var(--ci-border)",
             }}
           >
+            {/* Photo is 3:4. Crop window = x 20-100%, y 16.8%-76.8% of it: starts below the
+                ceiling light and keeps the shelf, slat wall and reception desk. */}
             <img
               src={studioPhoto}
               alt="C Imperium branding and printing studio in Nigeria"
               loading="lazy"
-              width={896}
-              height={1184}
-              className="h-full w-full object-cover"
+              width={1920}
+              height={2560}
+              className="absolute max-w-none"
+              style={{ width: "120%", height: "160%", left: "-20%", top: "-16.8%" }}
             />
           </div>
           {/* Accent square */}
