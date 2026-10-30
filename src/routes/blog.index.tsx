@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE_URL } from "@/lib/site-url";
 import { DEFAULT_BLOG_COVER } from "@/lib/seo";
+import { SafeImg } from "@/components/safe-img";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -76,8 +77,9 @@ function BlogIndex() {
                 className="group overflow-hidden border border-border/60 bg-card transition-all hover:border-imperium hover:-translate-y-1"
               >
                 <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-muted/20">
-                  <img
-                    src={p.cover_image || DEFAULT_BLOG_COVER}
+                  <SafeImg
+                    src={p.cover_image}
+                    fallback={DEFAULT_BLOG_COVER}
                     alt={p.title}
                     loading="lazy"
                     decoding="async"

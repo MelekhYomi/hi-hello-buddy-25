@@ -5,6 +5,8 @@ import { ShoppingBag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart, formatNaira } from "@/lib/cart-context";
 import { SITE_URL } from "@/lib/site-url";
+import { PRODUCT_PLACEHOLDER } from "@/lib/seo";
+import { SafeImg } from "@/components/safe-img";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -83,9 +85,7 @@ function ShopPage() {
           {products?.map((p) => (
             <article key={p.id} className="group flex flex-col overflow-hidden rounded-lg border border-border/60 bg-card transition-all hover:-translate-y-1 hover:border-imperium hover:shadow-[0_0_40px_-10px_var(--imperium)]">
               <Link to="/shop/$slug" params={{ slug: p.slug }} className="aspect-square overflow-hidden bg-muted">
-                {p.images?.[0] && (
-                  <img src={p.images[0]} alt={p.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                )}
+                <SafeImg src={p.images?.[0]} fallback={PRODUCT_PLACEHOLDER} alt={p.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
               </Link>
               <div className="flex flex-1 flex-col p-5">
                 <Link to="/shop/$slug" params={{ slug: p.slug }} className="font-display text-lg hover:text-imperium">{p.title}</Link>

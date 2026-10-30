@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { blogPostBySlugQuery } from "@/lib/queries";
 import { RichText } from "@/components/rich-text";
+import { SafeImg } from "@/components/safe-img";
 import { SITE_URL } from "@/lib/site-url";
 import { BUSINESS_ID, DEFAULT_BLOG_COVER, absUrl } from "@/lib/seo";
 import { SiteHeader } from "@/components/site-header";
@@ -35,6 +36,7 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
         { property: "og:image", content: absUrl(img) },
+        ...(loaderData.cover_image ? [] : [{ property: "og:image:width", content: "1200" }, { property: "og:image:height", content: "630" }]),
         { name: "twitter:image", content: absUrl(img) },
       ],
       links: [{ rel: "canonical", href: url }],
@@ -105,8 +107,9 @@ function BlogPostPage() {
               })()}</span>
               {post.author && <><span>·</span><span>{post.author}</span></>}
             </div>
-            <img
-              src={post.cover_image || DEFAULT_BLOG_COVER}
+            <SafeImg
+              src={post.cover_image}
+              fallback={DEFAULT_BLOG_COVER}
               alt={post.title}
               className="mt-10 aspect-video w-full rounded-md object-cover"
             />

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { homeBlogQuery } from "@/lib/queries";
 import { DEFAULT_BLOG_COVER } from "@/lib/seo";
+import { SafeImg } from "@/components/safe-img";
 
 export function BlogSection() {
   const [isMounted, setIsMounted] = useState(false);
@@ -61,8 +62,9 @@ export function BlogSection() {
                 style={{ background: "var(--ci-dark)", borderColor: "var(--ci-border)" }}
               >
                 <div className="relative flex aspect-video items-center justify-center overflow-hidden" style={{ background: "var(--ci-charcoal)" }}>
-                  <img
-                    src={p.cover_image || DEFAULT_BLOG_COVER}
+                  <SafeImg
+                    src={p.cover_image}
+                    fallback={DEFAULT_BLOG_COVER}
                     alt={p.title}
                     loading="lazy"
                     decoding="async"

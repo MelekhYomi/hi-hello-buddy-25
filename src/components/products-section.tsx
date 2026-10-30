@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ShoppingBag, ArrowRight } from "lucide-react";
 import { featuredProductsQuery } from "@/lib/queries";
+import { PRODUCT_PLACEHOLDER } from "@/lib/seo";
+import { SafeImg } from "@/components/safe-img";
 import { useCart, formatNaira } from "@/lib/cart-context";
 
 export function ProductsSection() {
@@ -32,18 +34,12 @@ export function ProductsSection() {
                 data-track={`product-card:${p.slug}`}
                 className="aspect-square overflow-hidden bg-muted"
               >
-                {p.images?.[0] && (
-                  <img
-                    src={p.images[0]}
-                    alt={p.title}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      (target as any).onerror = null;
-                      target.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect width='100%25' height='100%25' fill='%231a1a1a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='monospace' font-size='14'%3E${encodeURIComponent(p.title)}%3C/text%3E%3C/svg%3E`;
-                    }}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                )}
+                <SafeImg
+                  src={p.images?.[0]}
+                  fallback={PRODUCT_PLACEHOLDER}
+                  alt={p.title}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
               </Link>
               <div className="flex flex-1 flex-col p-5">
                 <Link to="/shop/$slug" params={{ slug: p.slug }} className="font-display text-lg leading-tight hover:text-imperium">

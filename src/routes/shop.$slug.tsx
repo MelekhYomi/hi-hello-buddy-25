@@ -5,6 +5,8 @@ import { ShoppingBag, Minus, Plus, ArrowLeft } from "lucide-react";
 import { productBySlugQuery } from "@/lib/queries";
 import { useCart, formatNaira } from "@/lib/cart-context";
 import { SITE_URL } from "@/lib/site-url";
+import { PRODUCT_PLACEHOLDER } from "@/lib/seo";
+import { SafeImg } from "@/components/safe-img";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -83,15 +85,13 @@ function ProductPage() {
         <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-2">
           <div>
             <div className="aspect-square overflow-hidden rounded-lg bg-muted">
-              {product.images?.[imgIdx] && (
-                <img src={product.images[imgIdx]} alt={product.title} className="h-full w-full object-cover" />
-              )}
+              <SafeImg src={product.images?.[imgIdx]} fallback={PRODUCT_PLACEHOLDER} alt={product.title} className="h-full w-full object-cover" />
             </div>
             {product.images && product.images.length > 1 && (
               <div className="mt-4 grid grid-cols-4 gap-3">
                 {product.images.map((src, i) => (
                   <button key={i} onClick={() => setImgIdx(i)} className={`aspect-square overflow-hidden rounded-md border-2 ${i === imgIdx ? "border-imperium" : "border-transparent"}`}>
-                    <img src={src} alt={`${product.title} — view ${i + 1}`} loading="lazy" className="h-full w-full object-cover" />
+                    <SafeImg src={src} fallback={PRODUCT_PLACEHOLDER} alt={`${product.title} — view ${i + 1}`} loading="lazy" className="h-full w-full object-cover" />
                   </button>
                 ))}
               </div>

@@ -4,6 +4,8 @@ export const SITE_NAME = "C Imperium Branding";
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
 /** Shown for blog posts that have no cover image of their own. */
 export const DEFAULT_BLOG_COVER = "/blog/default-cover.jpg";
+/** Shown for products that have no photo (or whose photo fails to load). */
+export const PRODUCT_PLACEHOLDER = "/products/placeholder.jpg";
 
 /** Makes a site-relative path ("/work/x") or already-absolute URL absolute. */
 export function absUrl(pathOrUrl: string | null | undefined): string {
