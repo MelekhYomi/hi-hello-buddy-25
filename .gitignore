@@ -33,3 +33,6 @@ dist-ssr
 .vercel
 .env*
 .claude/
+
+# Local content snapshots for moving databases (regenerate with scripts/export-content.mjs)
+supabase/export/
