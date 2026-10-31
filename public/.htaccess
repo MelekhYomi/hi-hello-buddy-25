@@ -4,7 +4,9 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # One canonical address: https://www.cimperiumbrand.com (HTTPS + www).
+  # One canonical address: https://www.cimperiumbrand.com (HTTPS + www). Only for our own domain, so the
+  # temporary Hostinger test address does not bounce to the live site while testing.
+  RewriteCond %{HTTP_HOST} ^(www\.)?cimperiumbrand\.com$ [NC]
   RewriteCond %{HTTPS} off [OR]
   RewriteCond %{HTTP_HOST} !^www\. [NC]
   RewriteRule ^ https://www.cimperiumbrand.com%{REQUEST_URI} [L,R=301]
