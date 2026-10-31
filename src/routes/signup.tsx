@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { signInWithGoogle } from "@/lib/google-auth";
 import { sendPhoneOtp, verifyPhoneOtpPublic, termiiStatus } from "@/lib/termii.functions";
 import { toast } from "sonner";
 
@@ -192,7 +192,7 @@ function SignupPage() {
         <button
           type="button"
           onClick={async () => {
-            const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+            const r = await signInWithGoogle(window.location.origin);
             if (r.error) toast.error(r.error.message ?? "Google sign-up failed");
           }}
           className="flex w-full items-center justify-center gap-2 border border-border bg-card py-3 font-mono text-[11px] uppercase tracking-[0.25em] transition-colors hover:border-imperium"
