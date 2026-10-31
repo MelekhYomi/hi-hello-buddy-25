@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart, formatNaira } from "@/lib/cart-context";
 import { SITE_URL } from "@/lib/site-url";
 import { PRODUCT_PLACEHOLDER } from "@/lib/seo";
+import { categoriesQuery, productsQuery, prefetch } from "@/lib/queries";
 import { SafeImg } from "@/components/safe-img";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -23,6 +24,10 @@ export const Route = createFileRoute("/shop/")({
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/shop` }],
   }),
+  // Load the product list on the server / at build time so the page (and its product links) are real HTML.
+  loader: async ({ context: { queryClient } }) => {
+    await Promise.all([prefetch(queryClient, categoriesQuery), prefetch(queryClient, productsQuery(null))]);
+  },
   component: ShopPage,
 });
 
@@ -30,24 +35,8 @@ function ShopPage() {
   const [cat, setCat] = useState<string | null>(null);
   const { add } = useCart();
 
-  const { data: cats } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const { data } = await supabase.from("product_categories").select("*").order("display_order");
-      return data ?? [];
-    },
-  });
-
-  const { data: products } = useQuery({
-    queryKey: ["products", cat],
-    queryFn: async () => {
-      let q = supabase.from("products").select("*").eq("is_active", true).order("display_order");
-      if (cat) q = q.eq("category_id", cat);
-      const { data, error } = await q;
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: cats } = useQuery(categoriesQuery);
+  const { data: products } = useQuery(productsQuery(cat));
 
   return (
     <div className="grain relative min-h-screen bg-background">

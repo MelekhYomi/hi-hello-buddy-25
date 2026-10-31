@@ -1,16 +1,59 @@
-# Hostinger / Apache SPA fallback for client-side routing
+# C Imperium: Apache / LiteSpeed settings for Hostinger shared hosting (static site).
+# Upload this file to the same folder as index.html (public_html).
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.html [L]
+
+  # One canonical address: https://www.cimperiumbrand.com (HTTPS + www).
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} !^www\. [NC]
+  RewriteRule ^ https://www.cimperiumbrand.com%{REQUEST_URI} [L,R=301]
+
+  # Real files and folders (pages, images, scripts) are served as they are.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Everything else (quote/invoice/receipt links, account, admin, login, unknown addresses)
+  # is handled by the app in the browser: serve the client-only shell page.
+  RewriteRule ^ /_shell.html [L]
 </IfModule>
 
-# Long cache for hashed build assets
-<IfModule mod_headers.c>
-  <FilesMatch "\.(?:js|css|woff2?|ttf|otf|jpg|jpeg|png|webp|avif|svg|ico)$">
-    Header set Cache-Control "public, max-age=31536000, immutable"
-  </FilesMatch>
+# Compress text files.
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml application/xml text/plain
 </IfModule>
+
+# Browser caching: built files have unique names, so they can be cached for a year;
+# pages and images are re-checked more often.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 5 minutes"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 week"
+  ExpiresByType image/png "access plus 1 week"
+  ExpiresByType image/webp "access plus 1 week"
+  ExpiresByType image/svg+xml "access plus 1 week"
+  ExpiresByType application/xml "access plus 1 hour"
+</IfModule>
+
+# Security headers.
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000"
+  # The client-only shell and the private pages must never be indexed or cached long.
+  <Files "_shell.html">
+    Header set X-Robots-Tag "noindex"
+    Header set Cache-Control "no-cache"
+  </Files>
+</IfModule>
+
+# Never serve hidden files or build leftovers.
+<FilesMatch "^\.(?!well-known)|\.(map|log)$">
+  Require all denied
+</FilesMatch>

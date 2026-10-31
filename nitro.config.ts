@@ -6,7 +6,8 @@ import { defineConfig } from "nitro/config";
 const week = "public, max-age=604800, stale-while-revalidate=86400";
 
 export default defineConfig({
-  compressPublicAssets: true,
+  // Static builds are served by an ordinary web host that compresses on its own.
+  compressPublicAssets: process.env.DEPLOY_TARGET !== "static",
   routeRules: {
     "/portfolio/**": { headers: { "cache-control": week } },
     "/products/**": { headers: { "cache-control": week } },

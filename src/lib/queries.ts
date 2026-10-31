@@ -176,3 +176,39 @@ export const blogPostBySlugQuery = (slug: string) =>
         return data;
       }),
   });
+
+export const categoriesQuery = queryOptions({
+  queryKey: ["categories"],
+  queryFn: () =>
+    cached("categories", TTL, async () => {
+      const { data } = await supabase.from("product_categories").select("*").order("display_order");
+      return data ?? [];
+    }),
+});
+
+export const productsQuery = (categoryId: string | null) =>
+  queryOptions({
+    queryKey: ["products", categoryId],
+    queryFn: () =>
+      cached(`products:${categoryId ?? "all"}`, TTL, async () => {
+        let q = supabase.from("products").select("*").eq("is_active", true).order("display_order");
+        if (categoryId) q = q.eq("category_id", categoryId);
+        const { data, error } = await q;
+        if (error) throw error;
+        return data;
+      }),
+  });
+
+export const blogListQuery = queryOptions({
+  queryKey: ["blog-posts-all"],
+  queryFn: () =>
+    cached("blog-posts-all", TTL, async () => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("id, slug, title, excerpt, cover_image, tags, published_at, created_at")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false, nullsFirst: false });
+      if (error) throw error;
+      return data;
+    }),
+});

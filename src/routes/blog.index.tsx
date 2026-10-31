@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE_URL } from "@/lib/site-url";
 import { DEFAULT_BLOG_COVER } from "@/lib/seo";
+import { blogListQuery, prefetch } from "@/lib/queries";
 import { SafeImg } from "@/components/safe-img";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -21,22 +22,15 @@ export const Route = createFileRoute("/blog/")({
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/blog` }],
   }),
+  // Load the post list on the server / at build time so the page (and its post links) are real HTML.
+  loader: async ({ context: { queryClient } }) => {
+    await prefetch(queryClient, blogListQuery);
+  },
   component: BlogIndex,
 });
 
 function BlogIndex() {
-  const { data: posts, isLoading } = useQuery({
-    queryKey: ["blog-posts-all"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .select("id, slug, title, excerpt, cover_image, tags, published_at, created_at")
-        .eq("is_published", true)
-        .order("published_at", { ascending: false, nullsFirst: false });
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: posts, isLoading } = useQuery(blogListQuery);
 
   return (
     <div className="grain relative min-h-screen bg-background">
