@@ -1,0 +1,24 @@
+name: Deploy Supabase Edge Function
+
+# Rebuilds and deploys the "api" Edge Function (quotes, invoices, payments, PDFs, WhatsApp/SMS, reviews sync).
+# Needs the repository secret SUPABASE_ACCESS_TOKEN (supabase.com/dashboard/account/tokens).
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: static-site
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build:edge
+      - run: npx supabase functions deploy api --no-verify-jwt --project-ref vgumuvshtowyxviqgikd
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}

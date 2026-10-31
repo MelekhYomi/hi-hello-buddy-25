@@ -1,0 +1,45 @@
+name: Deploy static site to Hostinger
+
+# Builds the static site and uploads it to Hostinger (public_html) over FTP.
+# Needs these repository secrets: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD
+# (Hostinger hPanel > Files > FTP Accounts). Optional FTP_DIR, default "public_html/".
+#
+# Run it by hand (Actions tab > Run workflow). The nightly run rebuilds the pages so new products,
+# posts and case studies added in the admin are prerendered for search engines.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *" # every night, 03:00 UTC
+
+concurrency:
+  group: deploy-hostinger
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: static-site
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build static site (pages, shell, sitemap)
+        run: npm run build:static
+
+      - name: Upload to Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: dist/client/
+          server-dir: ${{ secrets.FTP_DIR || 'public_html/' }}

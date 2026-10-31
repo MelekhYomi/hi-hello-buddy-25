@@ -14,6 +14,3 @@ import "@/routes/api/public/v1.$dataset";
 import { handle } from "./runtime";
 
 export { handle };
-
-declare const Deno: { serve: (h: (r: Request) => Response | Promise<Response>) => void } | undefined;
-if (typeof Deno !== "undefined") Deno.serve(handle);
