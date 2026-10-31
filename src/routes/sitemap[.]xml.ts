@@ -15,8 +15,6 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/shop", changefreq: "daily", priority: "0.9" },
           { path: "/blog", changefreq: "weekly", priority: "0.8" },
-          { path: "/itb2027/", changefreq: "monthly", priority: "0.6" },
-          { path: "/logistics/", changefreq: "monthly", priority: "0.6" },
         ];
 
         // One failing table must not take the whole sitemap down.
@@ -28,11 +26,12 @@ export const Route = createFileRoute("/sitemap.xml")({
           }
         };
 
-        const [products, posts, services, cases] = await Promise.all([
+        const [products, posts, services, cases, promos] = await Promise.all([
           safe(supabase.from("products").select("slug, updated_at").eq("is_active", true)),
           safe(supabase.from("blog_posts").select("slug, updated_at, published_at").eq("is_published", true)),
           safe(supabase.from("services").select("slug, updated_at").eq("is_active", true)),
           safe(supabase.from("case_studies").select("slug, updated_at")),
+          safe(supabase.from("promotions").select("slug, updated_at").eq("is_published", true)),
         ]);
 
         const serviceEntries: Entry[] = services.map((s) => ({
@@ -63,7 +62,14 @@ export const Route = createFileRoute("/sitemap.xml")({
           priority: "0.6",
         }));
 
-        const all = [...staticEntries, ...serviceEntries, ...workEntries, ...productEntries, ...blogEntries];
+        const promoEntries: Entry[] = promos.map((p) => ({
+          path: `/promo/${p.slug}`,
+          lastmod: p.updated_at?.slice(0, 10),
+          changefreq: "monthly",
+          priority: "0.7",
+        }));
+
+        const all = [...staticEntries, ...promoEntries, ...serviceEntries, ...workEntries, ...productEntries, ...blogEntries];
 
         const urls = all.map((e) =>
           [

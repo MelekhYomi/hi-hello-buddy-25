@@ -1,48 +1,23 @@
-import { ArrowUpRight, Check, Lightbulb, Truck, type LucideIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowUpRight, Calendar, Check, Gift, GraduationCap, Lightbulb, Megaphone, Rocket, Sparkles, Truck, type LucideIcon } from "lucide-react";
+import { promotionsQuery } from "@/lib/queries";
 
-type Promotion = {
-  tag: string;
-  title: string;
-  blurb: string;
-  benefits: string[];
-  href: string;
-  cta: string;
-  Icon: LucideIcon;
+// Admin picks an icon name per promotion (Admin > Promotions).
+const ICONS: Record<string, LucideIcon> = {
+  lightbulb: Lightbulb,
+  truck: Truck,
+  sparkles: Sparkles,
+  megaphone: Megaphone,
+  gift: Gift,
+  calendar: Calendar,
+  "graduation-cap": GraduationCap,
+  rocket: Rocket,
 };
 
-// Each promotion opens its own page (public/<folder>/index.html). Add a promotion here and it appears in the row.
-const PROMOTIONS: Promotion[] = [
-  {
-    tag: "Masterclass · 2027",
-    title: "Idea to Brand 2027",
-    blurb: "One practical day in Jos to take your business idea to a clear, credible, market-ready brand.",
-    benefits: [
-      "Business Idea Canvas, pricing and break-even worked out in naira",
-      "Brand foundation and a seven-day content plan",
-      "A 30-day roadmap with one committed first action",
-      "Printed workbook included",
-    ],
-    href: "/itb2027/",
-    cta: "See the masterclass",
-    Icon: Lightbulb,
-  },
-  {
-    tag: "Launching soon",
-    title: "Logistics Delivery",
-    blurb: "Describe what needs to move. A rider is matched, you pay securely and follow it to the door.",
-    benefits: [
-      "Order in plain words, no long forms",
-      "Your fare shown before you pay",
-      "Bike, car or bus riders matched to the job",
-      "Follow the delivery from pickup to drop-off",
-    ],
-    href: "/logistics/",
-    cta: "Get early access",
-    Icon: Truck,
-  },
-];
-
 export function PromotionsSection() {
+  const { data } = useQuery(promotionsQuery);
+  const promotions = data ?? [];
+  if (promotions.length === 0) return null;
   return (
     <section id="promotions" className="relative border-t border-border/40 py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-6">
@@ -55,11 +30,15 @@ export function PromotionsSection() {
         </div>
 
         <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2">
-          {PROMOTIONS.map(({ tag, title, blurb, benefits, href, cta, Icon }) => (
-            // Plain anchor: these are standalone pages, not routes of the app.
+          {promotions.map(({ slug, tag, title, blurb, benefits, card_cta: cta, icon }) => {
+            const Icon = ICONS[icon] ?? Sparkles;
+            return (
+            // Opens in a new tab so the visitor keeps their place on the home page.
             <a
-              key={href}
-              href={href}
+              key={slug}
+              href={`/promo/${slug}`}
+              target="_blank"
+              rel="noopener"
               className="group relative flex flex-col border border-border/60 bg-card p-8 transition-all hover:-translate-y-1 hover:border-imperium focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-imperium"
             >
               <div className="flex items-center justify-between gap-4">
@@ -87,7 +66,8 @@ export function PromotionsSection() {
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
               </span>
             </a>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

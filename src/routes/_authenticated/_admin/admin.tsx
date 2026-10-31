@@ -14,6 +14,7 @@ import { Check, Mail, Trash2, Download, Plus, Pencil } from "lucide-react";
 import { formatNaira } from "@/lib/cart-context";
 import { WorkflowBoard } from "@/components/admin/workflow-board";
 import { ExportsAdmin } from "@/components/admin/exports-admin";
+import { PromotionsAdmin } from "@/components/admin/promotions-admin";
 import { syncGoogleReviewsNow } from "@/lib/google-reviews.functions";
 import { isPdfFile, pdfFileToImageFile } from "@/lib/pdf-to-image";
 
@@ -26,7 +27,7 @@ const BOOKING_STATUSES = ["pending", "confirmed", "completed", "cancelled"] as c
 const ORDER_STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"] as const;
 const PAY_STATUSES = ["unpaid", "paid", "pay_on_delivery", "whatsapp_pending", "refunded"] as const;
 
-type Tab = "workflow" | "billing" | "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies" | "categories" | "delivery" | "exports";
+type Tab = "workflow" | "billing" | "bookings" | "contacts" | "orders" | "products" | "leads" | "blog" | "settings" | "users" | "payments" | "studio" | "testimonials" | "services" | "case_studies" | "promotions" | "categories" | "delivery" | "exports";
 
 function AdminPage() {
   const { user, signOut, isSuperAdmin } = useAuth();
@@ -170,6 +171,7 @@ function AdminPage() {
           <TabButton active={tab === "products"} onClick={() => setTab("products")}>Products</TabButton>
           <TabButton active={tab === "services"} onClick={() => setTab("services")}>Services</TabButton>
           <TabButton active={tab === "case_studies"} onClick={() => setTab("case_studies")}>Case studies</TabButton>
+          <TabButton active={tab === "promotions"} onClick={() => setTab("promotions")}>Promotions</TabButton>
           <TabButton active={tab === "categories"} onClick={() => setTab("categories")}>Categories</TabButton>
           <TabButton active={tab === "delivery"} onClick={() => setTab("delivery")}>Delivery zones</TabButton>
           <TabButton active={tab === "blog"} onClick={() => setTab("blog")}>Blog</TabButton>
@@ -293,6 +295,7 @@ function AdminPage() {
         {tab === "blog" && <BlogAdmin />}
         {tab === "services" && <ServicesAdmin />}
         {tab === "case_studies" && <CaseStudiesAdmin />}
+        {tab === "promotions" && <PromotionsAdmin />}
         {tab === "categories" && <CategoriesAdmin />}
         {tab === "delivery" && <DeliveryZonesAdmin />}
         {tab === "testimonials" && <TestimonialsAdmin />}

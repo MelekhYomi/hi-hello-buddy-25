@@ -8,6 +8,7 @@ import {
   caseStudiesQuery,
   testimonialsQuery,
   homeBlogQuery,
+  promotionsQuery,
   prefetch,
 } from "@/lib/queries";
 import { Hero } from "@/components/hero";
@@ -35,6 +36,7 @@ export const Route = createFileRoute("/")({
       prefetch(queryClient, caseStudiesQuery),
       prefetch(queryClient, testimonialsQuery),
       prefetch(queryClient, homeBlogQuery),
+      prefetch(queryClient, promotionsQuery),
     ]);
   },
   headers: () => ({

@@ -59,7 +59,7 @@ const tanstackStartOptions = {
           // checkout, quote/invoice/receipt links) redirect around and, when crawled, loop forever.
           filter: ({ path }: { path: string }) =>
             !/[?#]/.test(path) &&
-            (path === "/" || path === "/login" || /^\/(shop|blog|work|services)(\/[^/]+)?$/.test(path)),
+            (path === "/" || path === "/login" || /^\/(shop|blog|work|services|promo)(\/[^/]+)?$/.test(path)),
         },
         pages: [{ path: "/" }, { path: "/shop" }, { path: "/blog" }],
         // Pages that cannot be built ahead (quote/invoice/receipt links, account, admin) are served

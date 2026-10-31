@@ -1023,6 +1023,54 @@ export type Database = {
           },
         ]
       }
+      promotions: {
+        Row: {
+          benefits: string[]
+          blurb: string
+          card_cta: string
+          created_at: string
+          display_order: number
+          icon: string
+          id: string
+          is_published: boolean
+          page: Json
+          slug: string
+          tag: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          benefits?: string[]
+          blurb?: string
+          card_cta?: string
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          is_published?: boolean
+          page?: Json
+          slug: string
+          tag?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          benefits?: string[]
+          blurb?: string
+          card_cta?: string
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          is_published?: boolean
+          page?: Json
+          slug?: string
+          tag?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           created_at: string

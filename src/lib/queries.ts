@@ -1,5 +1,6 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { DEFAULT_PROMOTIONS, EMPTY_PAGE, type Promotion, type PromoPage } from "@/lib/promotions-defaults";
 
 // Shared query definitions. Route loaders prefetch these on the server so the first
 // HTML response already contains the content (good for SEO and first paint), and the
@@ -212,3 +213,45 @@ export const blogListQuery = queryOptions({
       return data;
     }),
 });
+
+// Promotions: cards on the home page and the page each one opens. If the table cannot be read
+// (for instance before it has been created) the built-in launch promotions are used instead.
+const DEFAULT_ROWS: Promotion[] = DEFAULT_PROMOTIONS.map((p) => ({ ...p, id: p.slug }));
+
+/** Fill any missing field of the stored page so older rows never break the page. */
+export function normalizePromotion(row: {
+  id: string; slug: string; is_published: boolean; display_order: number; tag: string; title: string;
+  blurb: string; benefits: string[]; card_cta: string; icon: string; page: unknown;
+}): Promotion {
+  return { ...row, page: { ...EMPTY_PAGE, ...((row.page ?? {}) as Partial<PromoPage>) } };
+}
+
+export const promotionsQuery = queryOptions({
+  queryKey: ["promotions"],
+  queryFn: () =>
+    cached("promotions", TTL, async () => {
+      const { data, error } = await supabase
+        .from("promotions")
+        .select("*")
+        .eq("is_published", true)
+        .order("display_order");
+      if (error) return DEFAULT_ROWS;
+      return data.map(normalizePromotion);
+    }),
+});
+
+export const promotionBySlugQuery = (slug: string) =>
+  queryOptions({
+    queryKey: ["promotion", slug],
+    queryFn: () =>
+      cached(`promotion:${slug}`, TTL, async () => {
+        const { data, error } = await supabase
+          .from("promotions")
+          .select("*")
+          .eq("slug", slug)
+          .eq("is_published", true)
+          .maybeSingle();
+        if (error) return DEFAULT_ROWS.find((p) => p.slug === slug) ?? null;
+        return data ? normalizePromotion(data) : null;
+      }),
+  });
