@@ -39,3 +39,4 @@ supabase/export/
 
 # generated edge function bundle (npm run build:edge)
 supabase/functions/api/
+supabase/.temp/

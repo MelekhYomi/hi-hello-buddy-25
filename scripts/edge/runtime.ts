@@ -28,12 +28,6 @@ function withCors(res: Response, req: Request) {
   return out;
 }
 
-function ensureEnv() {
-  const env = (globalThis as any).process?.env;
-  if (!env) return;
-  env.SUPABASE_PUBLISHABLE_KEY ||= env.SUPABASE_ANON_KEY || env.PUBLIC_KEY;
-}
-
 // "/api/public/pdf/$kind/$token" -> /public/pdf/:kind/:token (the function name already is "api").
 function matchRoute(pathname: string) {
   for (const r of routeRegistry) {
@@ -47,7 +41,6 @@ function matchRoute(pathname: string) {
 }
 
 export async function handle(req: Request): Promise<Response> {
-  ensureEnv();
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(req) });
 
   // Supabase forwards "/<function-name>/..." so drop the leading "/api".

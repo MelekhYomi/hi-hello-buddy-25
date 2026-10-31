@@ -40,6 +40,15 @@ await build({
       setup(b) {
         // Deno wants the node: prefix on built-in modules.
         b.onResolve({ filter: BUILTINS }, (a) => ({ path: "node:" + a.path, external: true }));
+        // The Edge runtime does not let code assign to process.env, so the publishable key falls back to the
+        // SUPABASE_ANON_KEY that Supabase provides to every function.
+        b.onLoad({ filter: /[\\/]integrations[\\/]supabase[\\/]auth-middleware\.ts$/ }, (a) => ({
+          contents: readFileSync(a.path, "utf8").replace(
+            "process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY",
+            "process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY",
+          ),
+          loader: "ts",
+        }));
         // Give every server function its name (createServerFn -> createServerFn.named("name")).
         b.onLoad({ filter: /[\\/]src[\\/]lib[\\/][^\\/]+\.functions\.ts$/ }, (a) => ({
           contents: readFileSync(a.path, "utf8").replace(
