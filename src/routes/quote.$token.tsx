@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { apiUrl } from "@/lib/api-client";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -122,7 +123,7 @@ function QuoteDocPage() {
           <h1 className="font-display text-4xl leading-none md:text-5xl">{quote.quote_number}</h1>
           <div className="flex flex-wrap gap-2">
             <a
-              href={`/api/public/pdf/quote/${token}`}
+              href={apiUrl(`/api/public/pdf/quote/${token}`)}
               className="inline-flex items-center gap-2 rounded-md border border-imperium px-4 py-2 text-xs text-imperium"
             >
               <FileDown className="h-4 w-4" /> Download PDF

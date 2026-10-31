@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Download } from "lucide-react";
 import { exportDataset } from "@/lib/export.functions";
+import { absoluteApiUrl } from "@/lib/api-client";
 
 const ITEMS = [
   ["orders", "Shop orders"], ["order_items", "Order line items"], ["quotes", "Quotes"], ["quote_items", "Quote line items"],
@@ -33,7 +34,7 @@ export function ExportsAdmin() {
     }
   }
 
-  const base = typeof window !== "undefined" ? window.location.origin : "";
+  const apiBase = absoluteApiUrl("/api/public/v1");
   return (
     <div className="mt-10 space-y-12">
       <section>
@@ -59,13 +60,13 @@ export function ExportsAdmin() {
       <section>
         <h2 className="font-display text-3xl">Read-only API</h2>
         <p className="mt-2 text-sm text-muted-foreground">For reporting tools (Power BI, Looker Studio, Excel Power Query, Zapier). Send the API key in the <code>x-api-key</code> header.</p>
-        <pre className="mt-4 overflow-x-auto border border-border bg-muted/40 p-4 font-mono text-xs">{`GET ${base}/api/public/v1/{dataset}
+        <pre className="mt-4 overflow-x-auto border border-border bg-muted/40 p-4 font-mono text-xs">{`GET ${apiBase}/{dataset}
 Header: x-api-key: <your key>
 
 Datasets: ${ITEMS.map((i) => i[0]).join(", ")}
 Options:  ?limit=1000 (max 5000)  &offset=0  &since=2026-01-01  &format=csv
 
-curl -H "x-api-key: YOUR_KEY" ${base}/api/public/v1/orders?limit=100`}</pre>
+curl -H "x-api-key: YOUR_KEY" ${apiBase}/orders?limit=100`}</pre>
       </section>
     </div>
   );

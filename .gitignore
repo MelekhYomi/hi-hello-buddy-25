@@ -36,3 +36,6 @@ dist-ssr
 
 # Local content snapshots for moving databases (regenerate with scripts/export-content.mjs)
 supabase/export/
+
+# generated edge function bundle (npm run build:edge)
+supabase/functions/api/index.ts

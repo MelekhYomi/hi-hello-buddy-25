@@ -14,7 +14,29 @@ const target =
 
 const isStatic = target === "static";
 
+// Static hosting has no server. Each src/lib/*.functions.ts file is replaced by stubs that call the
+// Supabase Edge Function "api" (see src/lib/api-client.ts and scripts/build-edge.mjs). The real
+// handlers (and the server-only code they import) never reach the browser bundle.
+const staticApiStubs = {
+  name: "static-api-stubs",
+  enforce: "pre" as const,
+  transform(code: string, id: string) {
+    if (!/[\\/]src[\\/]lib[\\/][^\\/]+\.functions\.ts$/.test(id.split("?")[0])) return null;
+    const names = [...code.matchAll(/export const (\w+) = createServerFn\(/g)].map((m) => m[1]);
+    const constants = [...code.matchAll(/^export const ([A-Z][A-Z0-9_]*) = .*;$/gm)].map((m) => m[0]);
+    return {
+      code: [
+        'import { callApi } from "@/lib/api-client";',
+        ...constants,
+        ...names.map((n) => `export const ${n} = callApi(${JSON.stringify(n)});`),
+      ].join("\n"),
+      map: null,
+    };
+  },
+};
+
 export default defineConfig({
+  ...(isStatic ? { plugins: [staticApiStubs], vite: { define: { "import.meta.env.VITE_STATIC": JSON.stringify("true") } } } : {}),
   tanstackStart: {
     server: { entry: "server" },
     // Increase the limit to 1000kB (1MB)

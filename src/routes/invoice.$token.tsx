@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { apiUrl } from "@/lib/api-client";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
@@ -144,7 +145,7 @@ function InvoicePage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <a
-              href={`/api/public/pdf/invoice/${token}`}
+              href={apiUrl(`/api/public/pdf/invoice/${token}`)}
               className="inline-flex items-center gap-2 rounded-md border border-imperium px-4 py-2 text-xs text-imperium"
             >
               <FileDown className="h-4 w-4" /> Download PDF

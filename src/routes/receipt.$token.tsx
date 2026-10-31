@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { apiUrl } from "@/lib/api-client";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, Printer, FileDown, MessageCircle } from "lucide-react";
@@ -94,7 +95,7 @@ function ReceiptPage() {
 
           <div className="mt-8 flex flex-wrap gap-3">
             <a
-              href={`/api/public/pdf/receipt/${token}`}
+              href={apiUrl(`/api/public/pdf/receipt/${token}`)}
               className="inline-flex items-center gap-2 rounded-md border border-imperium px-4 py-2 text-xs text-imperium"
             >
               <FileDown className="h-4 w-4" /> Download PDF

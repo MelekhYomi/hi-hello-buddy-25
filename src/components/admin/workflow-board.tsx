@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiUrl } from "@/lib/api-client";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -170,7 +171,7 @@ export function WorkflowBoard() {
                   <div className="font-display text-2xl text-imperium">{formatNaira(q.total)}</div>
                   <div className="flex flex-wrap gap-2">
                     <a
-                      href={`/api/public/pdf/quote/${q.public_token}`}
+                      href={apiUrl(`/api/public/pdf/quote/${q.public_token}`)}
                       className="inline-flex items-center gap-2 border border-border px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
                     >
                       <FileDown className="h-3 w-3" /> PDF
@@ -254,7 +255,7 @@ export function WorkflowBoard() {
                         </div>
                         <div className="flex flex-wrap gap-2">
                           <a
-                            href={`/api/public/pdf/invoice/${inv.public_token}`}
+                            href={apiUrl(`/api/public/pdf/invoice/${inv.public_token}`)}
                             className="inline-flex items-center gap-2 border border-border px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
                           >
                             <FileDown className="h-3 w-3" /> PDF

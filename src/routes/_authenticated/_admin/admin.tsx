@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { absoluteApiUrl } from "@/lib/api-client";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -940,7 +941,7 @@ function PaymentsAdmin() {
     }
   };
 
-  const webhookUrl = typeof window !== "undefined" ? `${window.location.origin}/api/public/paystack-webhook` : "";
+  const webhookUrl = typeof window !== "undefined" ? absoluteApiUrl("/api/public/paystack-webhook") : "";
   const inp = "w-full border border-border bg-card px-3 py-2 text-sm outline-none focus:border-imperium";
 
   return (
