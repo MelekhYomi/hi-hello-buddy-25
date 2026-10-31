@@ -40,3 +40,6 @@ supabase/export/
 # generated edge function bundle (npm run build:edge)
 supabase/functions/api/
 supabase/.temp/
+
+# public production settings for the static build (no secrets)
+!.env.production
