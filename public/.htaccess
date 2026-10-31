@@ -1,6 +1,9 @@
 # C Imperium: Apache / LiteSpeed settings for Hostinger shared hosting (static site).
 # Upload this file to the same folder as index.html (public_html).
 
+# Hostinger puts a "Default page" (default.php) in new sites: our index.html must win over it.
+DirectoryIndex index.html index.htm
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
