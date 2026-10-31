@@ -50,6 +50,7 @@ const entries = [
   { path: "/shop", changefreq: "daily", priority: "0.9" },
   { path: "/blog", changefreq: "weekly", priority: "0.8" },
   { path: "/itb2027/", changefreq: "monthly", priority: "0.6" },
+  { path: "/logistics/", changefreq: "monthly", priority: "0.6" },
   ...services.map((s) => ({ path: `/services/${s.slug}`, lastmod: day(s.updated_at), changefreq: "monthly", priority: "0.8" })),
   ...cases.map((c) => ({ path: `/work/${c.slug}`, lastmod: day(c.updated_at), changefreq: "monthly", priority: "0.7" })),
   ...products.map((p) => ({ path: `/shop/${p.slug}`, lastmod: day(p.updated_at), changefreq: "weekly", priority: "0.7" })),

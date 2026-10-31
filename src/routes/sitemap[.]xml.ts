@@ -16,6 +16,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/shop", changefreq: "daily", priority: "0.9" },
           { path: "/blog", changefreq: "weekly", priority: "0.8" },
           { path: "/itb2027/", changefreq: "monthly", priority: "0.6" },
+          { path: "/logistics/", changefreq: "monthly", priority: "0.6" },
         ];
 
         // One failing table must not take the whole sitemap down.

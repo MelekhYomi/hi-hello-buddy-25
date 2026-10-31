@@ -21,6 +21,7 @@ import { PortfolioSection } from "@/components/portfolio-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { BlogSection } from "@/components/blog-section";
 import { WhySection } from "@/components/why-section";
+import { PromotionsSection } from "@/components/promotions-section";
 import { BookingSection } from "@/components/booking-section";
 import { ContactSection } from "@/components/contact-section";
 
@@ -71,6 +72,7 @@ function HomePage() {
         <WhySection />
         <TestimonialsSection />
         <BlogSection />
+        <PromotionsSection />
         <BookingSection />
         <ContactSection />
       </main>
