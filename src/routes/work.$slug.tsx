@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CaseStudyBanner, CaseStudyBody } from "@/components/case-study-modal";
 import { caseStudyBySlugQuery } from "@/lib/queries";
-import { BUSINESS_ID, absUrl, breadcrumbJsonLd, seoHead, snippet } from "@/lib/seo";
+import { BUSINESS_ID, absUrl, breadcrumbJsonLd, fitTitle, seoHead, snippet } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site-url";
 
 export const Route = createFileRoute("/work/$slug")({
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/work/$slug")({
     const path = `/work/${params.slug}`;
     const description = snippet(`${study.client}: ${study.challenge ?? ""} ${study.solution ?? ""}`);
     return seoHead({
-      title: `${study.title} | Case Study | C Imperium Branding`,
+      title: fitTitle(`${study.title} Case Study`),
       description: description || study.title,
       path,
       image: study.cover_image,

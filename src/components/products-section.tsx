@@ -14,7 +14,7 @@ export function ProductsSection() {
     <section id="products" className="relative border-t border-border/40 py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center">
-          <div className="font-mono text-[1.4rem] uppercase tracking-[0.3em] text-imperium">Our Collection</div>
+          <h2 className="font-mono text-[1.4rem] uppercase tracking-[0.3em] text-imperium">Our Collection</h2>
           <div className="mx-auto mt-6 h-px w-24 bg-imperium" />
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
             Branded apparel, stationery, and print collateral — designed and produced in-house.

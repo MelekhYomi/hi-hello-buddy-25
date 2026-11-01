@@ -25,6 +25,18 @@ export function snippet(text: string | null | undefined, max = 155): string {
   return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), 60))}…`;
 }
 
+/**
+ * Page title that fits a search result (about 60 characters): the page name is shortened with an
+ * ellipsis if needed, and the brand suffix is always kept so every result still says "C Imperium".
+ */
+export function fitTitle(name: string, suffix = " | C Imperium", max = 60): string {
+  const room = max - suffix.length;
+  const clean = name.replace(/\s+/g, " ").trim();
+  if (clean.length <= room) return clean + suffix;
+  const cut = clean.slice(0, room - 1);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), 20)).replace(/[\s,:;\-|]+$/, "")}…${suffix}`;
+}
+
 type SeoInput = {
   title: string;
   description: string;
@@ -51,10 +63,12 @@ export function seoHead({ title, description, path, image, type = "website", noi
       { property: "og:description", content: description },
       { property: "og:url", content: url },
       { property: "og:image", content: img },
+      { property: "og:image:alt", content: title },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
       { name: "twitter:image", content: img },
+      { name: "twitter:image:alt", content: title },
     ],
     links: [{ rel: "canonical", href: url }],
     scripts: jsonLd

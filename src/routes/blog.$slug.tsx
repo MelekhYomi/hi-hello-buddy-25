@@ -5,7 +5,7 @@ import { blogPostBySlugQuery } from "@/lib/queries";
 import { RichText } from "@/components/rich-text";
 import { SafeImg } from "@/components/safe-img";
 import { SITE_URL } from "@/lib/site-url";
-import { BUSINESS_ID, DEFAULT_BLOG_COVER, absUrl } from "@/lib/seo";
+import { BUSINESS_ID, DEFAULT_BLOG_COVER, absUrl, fitTitle } from "@/lib/seo";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ArrowLeft } from "lucide-react";
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/blog/$slug")({
     if (!loaderData) {
       return { meta: [{ title: "Article not found — C Imperium" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${loaderData.title} — C Imperium`;
+    const title = fitTitle(loaderData.title);
     const desc = (loaderData.excerpt ?? "").slice(0, 155) || "Insights from C Imperium Branding.";
     const img = loaderData.cover_image || DEFAULT_BLOG_COVER;
     return {

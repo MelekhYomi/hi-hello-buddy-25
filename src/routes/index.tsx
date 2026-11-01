@@ -8,7 +8,6 @@ import {
   caseStudiesQuery,
   testimonialsQuery,
   homeBlogQuery,
-  promotionsQuery,
   prefetch,
 } from "@/lib/queries";
 import { Hero } from "@/components/hero";
@@ -22,7 +21,7 @@ import { PortfolioSection } from "@/components/portfolio-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { BlogSection } from "@/components/blog-section";
 import { WhySection } from "@/components/why-section";
-import { PromotionsSection } from "@/components/promotions-section";
+import { FaqSection, faqJsonLd } from "@/components/faq-section";
 import { BookingSection } from "@/components/booking-section";
 import { ContactSection } from "@/components/contact-section";
 
@@ -36,7 +35,6 @@ export const Route = createFileRoute("/")({
       prefetch(queryClient, caseStudiesQuery),
       prefetch(queryClient, testimonialsQuery),
       prefetch(queryClient, homeBlogQuery),
-      prefetch(queryClient, promotionsQuery),
     ]);
   },
   headers: () => ({
@@ -46,8 +44,9 @@ export const Route = createFileRoute("/")({
     const seo = seoHead({
       title: "Branding Agency in Jos, Nigeria | C Imperium Branding",
       description:
-        "C Imperium is a branding agency in Jos, Plateau State. Brand identity, logo design, printing, packaging, social media and web design for businesses, ministries and organisations.",
+        "Branding agency in Jos, Plateau State. Brand identity, logo design, printing, packaging, social media and web design for businesses, churches and organisations.",
       path: "/",
+      jsonLd: faqJsonLd(),
     });
     return {
       ...seo,
@@ -74,7 +73,7 @@ function HomePage() {
         <WhySection />
         <TestimonialsSection />
         <BlogSection />
-        <PromotionsSection />
+        <FaqSection />
         <BookingSection />
         <ContactSection />
       </main>

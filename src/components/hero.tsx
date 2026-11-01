@@ -38,23 +38,24 @@ export function Hero() {
       />
 
       <div className="relative z-[2] mx-auto w-full max-w-7xl px-6 pt-3 md:px-16">
-        <p
-          className="mb-3 text-[0.75rem] font-medium uppercase text-imperium opacity-0"
-          style={{ letterSpacing: "0.25em", animation: "ci-fadeUp 0.8s 0.3s forwards" }}
-        >
-          Brand Transformation Agency · Jos, Nigeria
-        </p>
-
+        {/* No fade-in on the H1: it is the largest text on screen, and hiding it until an animation ends delays
+            the "largest contentful paint" that Google measures for ranking. The other lines still fade in. */}
         <h1
-          className="mb-3 opacity-0"
+          className="mb-3"
           style={{
             fontFamily: "'Poppins', sans-serif",
             fontSize: "clamp(2.25rem, 5.5vw, 4.75rem)",
             lineHeight: 0.95,
             letterSpacing: "0.02em",
-            animation: "ci-fadeUp 0.8s 0.5s forwards",
           }}
         >
+          {/* The keyword line is part of the heading, so search engines read "Branding Agency in Jos, Nigeria" as the page's H1. */}
+          <span
+            className="mb-3 block text-[0.75rem] font-medium uppercase text-imperium"
+            style={{ letterSpacing: "0.25em", lineHeight: 1.5 }}
+          >
+            Branding Agency in Jos, Nigeria
+          </span>
           <span className="text-imperium">STAND</span>
           <br />
           <span>OUT.</span>

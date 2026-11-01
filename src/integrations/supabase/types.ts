@@ -1028,12 +1028,15 @@ export type Database = {
           benefits: string[]
           blurb: string
           card_cta: string
+          coming_soon: boolean
           created_at: string
           display_order: number
           icon: string
           id: string
           is_published: boolean
+          nav_label: string
           page: Json
+          placement: string
           slug: string
           tag: string
           title: string
@@ -1043,12 +1046,15 @@ export type Database = {
           benefits?: string[]
           blurb?: string
           card_cta?: string
+          coming_soon?: boolean
           created_at?: string
           display_order?: number
           icon?: string
           id?: string
           is_published?: boolean
+          nav_label?: string
           page?: Json
+          placement?: string
           slug: string
           tag?: string
           title: string
@@ -1058,12 +1064,15 @@ export type Database = {
           benefits?: string[]
           blurb?: string
           card_cta?: string
+          coming_soon?: boolean
           created_at?: string
           display_order?: number
           icon?: string
           id?: string
           is_published?: boolean
+          nav_label?: string
           page?: Json
+          placement?: string
           slug?: string
           tag?: string
           title?: string

@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { ShoppingBag, FileText, Menu, X } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { useQuoteBuilder } from "@/lib/quote-context";
+import { promotionsQuery } from "@/lib/queries";
 // The Lovable-hosted asset URL (cimperium-c-mark.png.asset.json) only resolves
 // inside Lovable's own preview/hosting — it 404s on Netlify/Vercel. Use the
 // copy checked into /public instead, which works on every host.
@@ -24,6 +26,9 @@ export function SiteHeader() {
   const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Promotions the admin placed in the top menu (e.g. Idea to Brand). They open in a new tab.
+  const { data: promos } = useQuery(promotionsQuery);
+  const navPromos = (promos ?? []).filter((p) => p.placement === "nav");
 
   const goToSection = (id: string) => async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -54,6 +59,17 @@ export function SiteHeader() {
           {SECTIONS.map((s) => (
             <a key={s.id} href={`#${s.id}`} onClick={goToSection(s.id)} className="story-link text-muted-foreground hover:text-foreground transition-colors">
               {s.label}
+            </a>
+          ))}
+          {navPromos.map((p) => (
+            <a
+              key={p.slug}
+              href={`/promo/${p.slug}`}
+              target="_blank"
+              rel="noopener"
+              className="nav-sweep rounded-sm px-3 py-1.5 text-foreground"
+            >
+              {p.nav_label || p.title}
             </a>
           ))}
           {user ? (
@@ -121,6 +137,18 @@ export function SiteHeader() {
                 className="flex items-center py-2.5 text-muted-foreground hover:text-foreground"
               >
                 {s.label}
+              </a>
+            ))}
+            {navPromos.map((p) => (
+              <a
+                key={p.slug}
+                href={`/promo/${p.slug}`}
+                target="_blank"
+                rel="noopener"
+                onClick={() => setMenuOpen(false)}
+                className="nav-sweep my-1 flex items-center rounded-sm px-3 py-2.5 text-foreground"
+              >
+                {p.nav_label || p.title}
               </a>
             ))}
             {user ? (

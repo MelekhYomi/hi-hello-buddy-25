@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 import { cn } from "@/lib/utils";
 import { normalizePromotion } from "@/lib/queries";
-import { EMPTY_PAGE, PROMO_ICONS, type Promotion, type PromoPage } from "@/lib/promotions-defaults";
+import { EMPTY_PAGE, PROMO_ICONS, type Placement, type Promotion, type PromoPage } from "@/lib/promotions-defaults";
 
 const inp = "w-full rounded border border-border bg-card px-3 py-2 text-sm outline-none focus:border-imperium";
 const btnGhost = "border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] hover:border-imperium";
@@ -87,7 +87,7 @@ export function PromotionsAdmin() {
             <div key={row.id} className={cn("border border-border bg-card p-4", !row.is_published && "opacity-60")}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-imperium">{row.tag}</div>
+                  <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-imperium">{row.tag}{row.placement !== "none" && ` · ${row.placement === "nav" ? "In top menu" : "In Services"}${row.coming_soon ? " · Coming soon" : ""}`}</div>
                   <div className="mt-1 font-display text-lg">{row.title}</div>
                   <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                     /promo/{row.slug} · #{row.display_order} · {row.is_published ? "Published" : "Hidden"}
@@ -223,6 +223,9 @@ function PromotionForm({
   const [icon, setIcon] = useState(initial?.icon ?? "sparkles");
   const [order, setOrder] = useState(initial?.display_order ?? nextOrder);
   const [published, setPublished] = useState(initial?.is_published ?? true);
+  const [placement, setPlacement] = useState<Placement>(initial?.placement ?? "none");
+  const [navLabel, setNavLabel] = useState(initial?.nav_label ?? "");
+  const [comingSoon, setComingSoon] = useState(initial?.coming_soon ?? false);
   const [page, setPage] = useState<PromoPage>(initial?.page ?? EMPTY_PAGE);
   const [busy, setBusy] = useState(false);
 
@@ -245,6 +248,9 @@ function PromotionForm({
       icon,
       display_order: Math.round(order),
       is_published: published,
+      placement,
+      nav_label: navLabel.trim(),
+      coming_soon: comingSoon,
       page: page as unknown as Json,
     };
     const q = initial
@@ -288,6 +294,25 @@ function PromotionForm({
             </Label>
             <Label text="Order" hint="lower shows first"><input className={inp} type="number" value={order} onChange={(e) => setOrder(+e.target.value)} /></Label>
           </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Label text="Where it shows on the site" hint="besides its own page">
+              <select className={inp} value={placement} onChange={(e) => setPlacement(e.target.value as Placement)}>
+                <option value="nav">Top menu (highlighted link)</option>
+                <option value="service">Services section (as a card)</option>
+                <option value="none">Only its own page</option>
+              </select>
+            </Label>
+            {placement === "nav" && (
+              <Label text="Menu label" hint="short, e.g. Idea to Brand">
+                <input className={inp} value={navLabel} onChange={(e) => setNavLabel(e.target.value)} />
+              </Label>
+            )}
+          </div>
+          {placement === "service" && (
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={comingSoon} onChange={(e) => setComingSoon(e.target.checked)} /> Show a "Coming soon" stamp on its card (the card still opens the page)
+            </label>
+          )}
           <Label text="Page address" hint={`cimperiumbrand.com/promo/${slugify(slug || title) || "…"}`}>
             <input className={inp} placeholder="idea-to-brand-2027" value={slug} onChange={(e) => setSlug(e.target.value)} />
           </Label>

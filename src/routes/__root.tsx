@@ -16,7 +16,7 @@ import { QuoteDrawer } from "@/components/quote-drawer";
 import { SignInNudge } from "@/components/sign-in-nudge";
 import { LeadCapturePopup } from "@/components/lead-capture-popup";
 import { useVisitorTracker } from "@/lib/use-visitor-tracker";
-import { siteSettingsQuery, servicesQuery, prefetch } from "@/lib/queries";
+import { siteSettingsQuery, servicesQuery, promotionsQuery, prefetch } from "@/lib/queries";
 import { DEFAULT_OG_IMAGE, businessJsonLd } from "@/lib/seo";
 
 import appCss from "../styles.css?url";
@@ -87,6 +87,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       prefetch(context.queryClient, siteSettingsQuery),
       // Also feeds the footer's service links, so every page links to the service pages.
       prefetch(context.queryClient, servicesQuery),
+      // The top menu shows promotions placed there (Idea to Brand).
+      prefetch(context.queryClient, promotionsQuery),
     ]);
   },
   head: () => ({

@@ -35,7 +35,7 @@ export function TestimonialsSection() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="ci-section-label" style={{ fontSize: "1.4rem" }}>Client Stories</div>
+            <h2 className="ci-section-label" style={{ fontSize: "1.4rem" }}>Client Stories</h2>
             {google?.rating ? (
               <a
                 href={google.maps_url || google.review_url || undefined}

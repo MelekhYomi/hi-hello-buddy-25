@@ -51,7 +51,7 @@ export function ContactSection() {
     <section id="contact" className="border-t border-border/40 py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center">
-          <div className="font-mono text-[1.4rem] uppercase tracking-[0.3em] text-imperium">Get in touch</div>
+          <h2 className="font-mono text-[1.4rem] uppercase tracking-[0.3em] text-imperium">Get in touch</h2>
           <div className="mx-auto mt-6 h-px w-24 bg-imperium" />
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
             Ready to elevate your brand? Reach out via WhatsApp for instant response, or send us a

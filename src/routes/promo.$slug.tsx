@@ -26,15 +26,34 @@ export const Route = createFileRoute("/promo/$slug")({
       description: p.seo_description || promo.blurb,
       path,
       image: p.og_image || undefined,
-      jsonLd: breadcrumbJsonLd([
-        { name: "Home", path: "/" },
-        { name: "Promotions", path: "/#promotions" },
-        { name: promo.title, path },
-      ]),
+      jsonLd: [
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: promo.title, path },
+        ]),
+        ...faqSchema(p.faq),
+      ],
     });
   },
   component: PromoPageView,
 });
+
+/** FAQPage markup from the page's questions. Answers that still contain a [placeholder] are left out until filled in. */
+function faqSchema(faq: PromoPage["faq"]) {
+  const ready = faq.filter((f) => f.q.trim() && f.a.trim() && !/\[[^\]]+\]/.test(f.a));
+  if (ready.length === 0) return [];
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: ready.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a.replace(/\*\*/g, "") },
+      })),
+    },
+  ];
+}
 
 /**
  * Inline text: **bold**, and [square brackets] = a placeholder that shows highlighted

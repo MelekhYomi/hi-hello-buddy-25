@@ -46,8 +46,16 @@ export type Promotion = {
   benefits: string[];
   card_cta: string;
   icon: string;
+  /** Where it shows besides its own page: in the top menu, as a card in Services, or nowhere else. */
+  placement: Placement;
+  /** Short label for the top menu (falls back to the title). */
+  nav_label: string;
+  /** Shows a "Coming soon" stamp on its Services card; the card still opens the page. */
+  coming_soon: boolean;
   page: PromoPage;
 };
+
+export type Placement = "nav" | "service" | "none";
 
 export const PROMO_ICONS = ["lightbulb", "truck", "sparkles", "megaphone", "gift", "calendar", "graduation-cap", "rocket"] as const;
 
@@ -99,6 +107,9 @@ export const DEFAULT_PROMOTIONS: Omit<Promotion, "id">[] = [
     ],
     card_cta: "See the masterclass",
     icon: "lightbulb",
+    placement: "nav",
+    nav_label: "Idea to Brand",
+    coming_soon: false,
     page: {
       ...EMPTY_PAGE,
       seo_title: "Idea to Brand 2027 | C Imperium Masterclass in Jos",
@@ -176,6 +187,9 @@ export const DEFAULT_PROMOTIONS: Omit<Promotion, "id">[] = [
     ],
     card_cta: "Get early access",
     icon: "truck",
+    placement: "service",
+    nav_label: "",
+    coming_soon: true,
     page: {
       ...EMPTY_PAGE,
       seo_title: "Logistics Delivery | C Imperium, Jos",

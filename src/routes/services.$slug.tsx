@@ -8,7 +8,7 @@ import { useState } from "react";
 import { useQuoteBuilder } from "@/lib/quote-context";
 import { useAuth } from "@/lib/auth-context";
 import { QuoteSignInGate } from "@/components/quote-sign-in-gate";
-import { BUSINESS_ID, breadcrumbJsonLd, seoHead, snippet } from "@/lib/seo";
+import { BUSINESS_ID, breadcrumbJsonLd, fitTitle, seoHead, snippet } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site-url";
 
 export const Route = createFileRoute("/services/$slug")({
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/services/$slug")({
     const path = `/services/${params.slug}`;
     const description = snippet(`${service.description} Based in Jos, Plateau State, Nigeria.`);
     return seoHead({
-      title: `${service.title} in Jos, Nigeria | C Imperium Branding`,
+      title: fitTitle(`${service.title} in Jos, Nigeria`),
       description,
       path,
       jsonLd: [

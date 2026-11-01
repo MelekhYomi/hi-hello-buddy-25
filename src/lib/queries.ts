@@ -1,6 +1,6 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { DEFAULT_PROMOTIONS, EMPTY_PAGE, type Promotion, type PromoPage } from "@/lib/promotions-defaults";
+import { DEFAULT_PROMOTIONS, EMPTY_PAGE, type Placement, type Promotion, type PromoPage } from "@/lib/promotions-defaults";
 
 // Shared query definitions. Route loaders prefetch these on the server so the first
 // HTML response already contains the content (good for SEO and first paint), and the
@@ -218,12 +218,20 @@ export const blogListQuery = queryOptions({
 // (for instance before it has been created) the built-in launch promotions are used instead.
 const DEFAULT_ROWS: Promotion[] = DEFAULT_PROMOTIONS.map((p) => ({ ...p, id: p.slug }));
 
-/** Fill any missing field of the stored page so older rows never break the page. */
+/** Fill any missing field of the stored row so older rows (or a database not yet updated) never break the site. */
 export function normalizePromotion(row: {
   id: string; slug: string; is_published: boolean; display_order: number; tag: string; title: string;
   blurb: string; benefits: string[]; card_cta: string; icon: string; page: unknown;
+  placement?: string | null; nav_label?: string | null; coming_soon?: boolean | null;
 }): Promotion {
-  return { ...row, page: { ...EMPTY_PAGE, ...((row.page ?? {}) as Partial<PromoPage>) } };
+  const base = DEFAULT_PROMOTIONS.find((p) => p.slug === row.slug);
+  return {
+    ...row,
+    placement: (row.placement ?? base?.placement ?? "none") as Placement,
+    nav_label: row.nav_label ?? base?.nav_label ?? "",
+    coming_soon: row.coming_soon ?? base?.coming_soon ?? false,
+    page: { ...EMPTY_PAGE, ...((row.page ?? {}) as Partial<PromoPage>) },
+  };
 }
 
 export const promotionsQuery = queryOptions({
