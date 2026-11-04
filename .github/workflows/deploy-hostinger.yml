@@ -26,7 +26,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # Node 24 = npm 11, matching the local dev machine. npm 10 (bundled
+          # with Node 22) rejects this lockfile over an optional unstorage
+          # peer (lru-cache) that npm 11 accepts.
+          node-version: 24
           cache: npm
 
       - run: npm ci
