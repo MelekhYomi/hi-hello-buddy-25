@@ -1,0 +1,21 @@
+name: FTP debug
+
+# Temporary debug run: uses the deploy secrets to list where the FTP account
+# connects and what public_html contains. Output is a plain directory listing.
+on:
+  workflow_dispatch:
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show remote layout
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          echo "=== FTP login root ==="
+          curl -s --ssl-reqd "ftps://${FTP_USERNAME}:${FTP_PASSWORD}@${FTP_SERVER}/" || true
+          echo "=== FTP public_html ==="
+          curl -s --ssl-reqd "ftps://${FTP_USERNAME}:${FTP_PASSWORD}@${FTP_SERVER}/public_html/" || true
