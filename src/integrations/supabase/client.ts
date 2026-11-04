@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { brokeredPreviewStorage } from './previewAuthStorage';
+import { keepAwareStorage } from '@/lib/session-persistence';
 
 function createSupabaseClient() {
   // Use import.meta.env for client-side (Vite build-time replacement)
@@ -31,7 +32,11 @@ function createSupabaseClient() {
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
-      storage: brokeredPreviewStorage(),
+      // Normal browsers: honour the "keep me signed in" choice. Lovable's preview frame keeps its own brokered storage.
+      storage: (() => {
+        const base = brokeredPreviewStorage();
+        return typeof window !== 'undefined' && base === window.localStorage ? keepAwareStorage : base;
+      })(),
       persistSession: true,
       autoRefreshToken: true,
     }

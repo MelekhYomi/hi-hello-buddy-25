@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { signInWithGoogle } from "@/lib/google-auth";
+import { getKeepSignedIn, setKeepSignedIn } from "@/lib/session-persistence";
 import { toast } from "sonner";
 
 
@@ -34,6 +35,9 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  // On by default: returning visitors stay signed in. Unticked = signed out when the browser tab is closed.
+  const [keep, setKeep] = useState(true);
+  useEffect(() => setKeep(getKeepSignedIn()), []);
 
   // Already signed in (session lives in the browser, so the server can't see it): go straight on.
   useEffect(() => {
@@ -51,6 +55,7 @@ function LoginPage() {
       return;
     }
     setBusy(true);
+    setKeepSignedIn(keep);
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
     setBusy(false);
     if (error) {
@@ -94,6 +99,16 @@ function LoginPage() {
             autoComplete="current-password"
           />
 
+          <label className="flex cursor-pointer items-center gap-3 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={keep}
+              onChange={(e) => setKeep(e.target.checked)}
+              className="h-4 w-4 accent-[var(--imperium)]"
+            />
+            Keep me signed in on this device
+          </label>
+
           <button
             type="submit"
             disabled={busy}
@@ -110,6 +125,7 @@ function LoginPage() {
         <button
           type="button"
           onClick={async () => {
+            setKeepSignedIn(keep);
             const r = await signInWithGoogle(window.location.origin);
             if (r.error) toast.error(r.error.message ?? "Google sign-in failed");
           }}
