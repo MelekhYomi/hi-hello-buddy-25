@@ -1,7 +1,7 @@
 name: FTP debug
 
-# Temporary debug run: uses the deploy secrets to list where the FTP account
-# connects and what public_html contains. Output is a plain directory listing.
+# Temporary debug run: tries FTP listing against both candidate hosts with
+# visible errors, to find where the site files actually landed.
 on:
   workflow_dispatch:
 
@@ -9,13 +9,19 @@ jobs:
   list:
     runs-on: ubuntu-latest
     steps:
-      - name: Show remote layout
+      - name: Try FTP listing on both hosts
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          echo "=== FTP login root ==="
-          curl -s --ssl-reqd "ftps://${FTP_USERNAME}:${FTP_PASSWORD}@${FTP_SERVER}/" || true
-          echo "=== FTP public_html ==="
-          curl -s --ssl-reqd "ftps://${FTP_USERNAME}:${FTP_PASSWORD}@${FTP_SERVER}/public_html/" || true
+          try_host() {
+            echo "===== HOST: $1 ====="
+            echo "--- login root ---"
+            curl -m 60 -sS --ssl-reqd "ftps://${FTP_USERNAME}:${FTP_PASSWORD}@$1/" 2>&1 | head -30
+            echo "--- public_html ---"
+            curl -m 60 -sS --ssl-reqd "ftps://${FTP_USERNAME}:${FTP_PASSWORD}@$1/public_html/" 2>&1 | head -40
+            echo "--- exit code: $? ---"
+          }
+          try_host "${FTP_SERVER}"
+          try_host "srv1788-files.hstgr.io"
