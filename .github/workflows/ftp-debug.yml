@@ -1,27 +1,49 @@
 name: FTP debug
 
-# Temporary debug run: tries FTP listing against both candidate hosts with
-# visible errors, to find where the site files actually landed.
+# Temporary debug run (2): find the webroot of www.cimperiumbrand.com.
+# Uploads a marker file into every candidate webroot over FTP, lists the
+# directories, then probes the live domain for the markers.
 on:
   workflow_dispatch:
 
 jobs:
   list:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Try FTP listing on both hosts
+      - name: Probe FTP layout and webroot
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          try_host() {
-            echo "===== HOST: $1 ====="
-            echo "--- login root ---"
-            curl -m 60 -sS --ssl-reqd "ftps://${FTP_USERNAME}:${FTP_PASSWORD}@$1/" 2>&1 | head -30
-            echo "--- public_html ---"
-            curl -m 60 -sS --ssl-reqd "ftps://${FTP_USERNAME}:${FTP_PASSWORD}@$1/public_html/" 2>&1 | head -40
-            echo "--- exit code: $? ---"
+          BASE="ftps://${FTP_USERNAME}:${FTP_PASSWORD}@${FTP_SERVER}"
+          echo "=== marker file ==="
+          echo "ci ftp marker $(date -u '+%Y-%m-%d %H:%M:%SZ')" > ci-ftp-marker.txt
+          upload() {
+            echo "--- upload -> $1 ---"
+            curl -m 90 -sS --ssl-reqd -T ci-ftp-marker.txt "${BASE}/$1" 2>&1 | head -5
+            echo "(exit $?): $1"
           }
-          try_host "${FTP_SERVER}"
-          try_host "srv1788-files.hstgr.io"
+          upload "public_html/ci-ftp-marker.txt"
+          upload "domains/cimperiumbrand.com/public_html/ci-ftp-marker.txt"
+          echo "=== list FTP root ==="
+          curl -m 90 -sS --ssl-reqd "${BASE}/" 2>&1 | head -20
+          echo "=== list domains/ ==="
+          curl -m 90 -sS --ssl-reqd "${BASE}/domains/" 2>&1 | head -20
+          echo "=== list domains/cimperiumbrand.com/ ==="
+          curl -m 90 -sS --ssl-reqd "${BASE}/domains/cimperiumbrand.com/" 2>&1 | head -20
+          echo "=== list domains/cimperiumbrand.com/public_html ==="
+          curl -m 90 -sS --ssl-reqd "${BASE}/domains/cimperiumbrand.com/public_html/" 2>&1 | head -30
+
+      - name: Probe the live domain for the markers
+        run: |
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/131"
+          for ip in 147.79.116.233 193.58.105.216 147.79.103.170; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -A "$UA" --resolve "www.cimperiumbrand.com:443:${ip}" --max-time 30 "https://www.cimperiumbrand.com/ci-ftp-marker.txt")
+            echo "IP $ip marker -> $code"
+          done
+          code=$(curl -s -o /dev/null -w "%{http_code}" -A "$UA" --max-time 30 "https://www.cimperiumbrand.com/ci-ftp-marker.txt")
+          echo "DNS default marker -> $code"
+          code=$(curl -s -o /dev/null -w "%{http_code}" -A "$UA" --max-time 30 "https://cimperium-xi.vercel.app/ci-ftp-marker.txt")
+          echo "vercel marker -> $code"
