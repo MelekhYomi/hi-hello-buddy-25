@@ -63,8 +63,8 @@ function ResetPasswordPage() {
   return (
     <div className="grain relative flex min-h-screen items-center justify-center bg-background px-6 py-16">
       <div className="w-full max-w-sm">
-        <Link to="/" className="font-display text-3xl">
-          <span className="text-imperium">C</span> IMPERIUM
+        <Link to="/" className="inline-flex items-center" aria-label="C Imperium home">
+          <img src="/cimperium-c-mark.png" alt="C Imperium" className="h-12 w-12 object-contain" />
         </Link>
         <h1 className="mt-12 font-display text-4xl">
           {mode === "request" ? "RESET ACCESS." : "NEW PASSWORD."}

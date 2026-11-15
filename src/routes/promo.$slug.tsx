@@ -121,7 +121,7 @@ function PromoPageView() {
     <div className="promo">
       <header className="nav">
         <div className="wrap">
-          <Link to="/" className="logo" title="Back to cimperiumbrand.com"><i>C</i>IMPERIUM</Link>
+          <Link to="/" className="logo" title="Back to cimperiumbrand.com"><img src="/icon-192.png" alt="C Imperium mark" width={30} height={30} />IMPERIUM</Link>
           <a className="btn" href="#reserve">{p.cta_primary}</a>
         </div>
       </header>

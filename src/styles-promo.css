@@ -24,7 +24,7 @@
 .promo .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
 .promo .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; }
 .promo .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .06em; text-decoration: none; font-size: 15px; }
-.promo .logo i { display: grid; place-items: center; width: 30px; height: 30px; background: var(--yellow); color: var(--on-yellow); border-radius: 9px; font-style: normal; font-size: 16px; }
+.promo .logo img { display: block; width: 30px; height: 30px; border-radius: 9px; }
 .promo .nav .btn { min-height: 42px; padding: 0 20px; font-size: 14px; box-shadow: none; }
 .promo .hero { padding-block: clamp(40px, 7vw, 96px) clamp(48px, 8vw, 104px); position: relative; overflow: hidden; }
 .promo .hero::before { content: ""; position: absolute; width: min(560px, 90vw); aspect-ratio: 1; right: -12%; top: -20%; background: radial-gradient(circle at 50% 50%, rgba(244,210,31,.55), rgba(244,210,31,0) 65%); pointer-events: none; }
