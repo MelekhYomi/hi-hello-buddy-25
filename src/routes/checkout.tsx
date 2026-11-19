@@ -30,7 +30,7 @@ const schema = z.object({
   notes: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 
-const inputClass = "w-full rounded-md border border-border bg-card/60 px-4 py-3 text-sm outline-none focus:border-imperium";
+const inputClass = "w-full rounded-md border border-border bg-card/60 px-4 py-3 text-base outline-none focus:border-imperium md:text-sm";
 
 function CheckoutPage() {
   const { user } = useAuth();

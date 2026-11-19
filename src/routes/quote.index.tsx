@@ -54,7 +54,7 @@ const schema = z.object({
 });
 
 const inputClass =
-  "w-full rounded-md border border-border bg-card/60 px-4 py-3 text-sm outline-none focus:border-imperium";
+  "w-full rounded-md border border-border bg-card/60 px-4 py-3 text-base outline-none focus:border-imperium md:text-sm";
 const labelClass = "font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground";
 
 function QuotePage() {

@@ -56,15 +56,15 @@ export function CartDrawer() {
                     <div className="mt-1 text-xs text-imperium">{formatNaira(item.price)}</div>
                     <div className="mt-auto flex items-center justify-between">
                       <div className="flex items-center rounded-md border border-border">
-                        <button onClick={() => setQty(item.id, item.quantity - 1)} className="p-1.5 hover:text-imperium" aria-label="Decrease">
-                          <Minus className="h-3 w-3" />
+                        <button onClick={() => setQty(item.id, item.quantity - 1)} className="flex h-9 w-9 items-center justify-center hover:text-imperium" aria-label="Decrease">
+                          <Minus className="h-3.5 w-3.5" />
                         </button>
-                        <span className="px-3 font-mono text-xs">{item.quantity}</span>
-                        <button onClick={() => setQty(item.id, item.quantity + 1)} className="p-1.5 hover:text-imperium" aria-label="Increase">
-                          <Plus className="h-3 w-3" />
+                        <span className="min-w-6 text-center font-mono text-xs">{item.quantity}</span>
+                        <button onClick={() => setQty(item.id, item.quantity + 1)} className="flex h-9 w-9 items-center justify-center hover:text-imperium" aria-label="Increase">
+                          <Plus className="h-3.5 w-3.5" />
                         </button>
                       </div>
-                      <button onClick={() => remove(item.id)} className="text-muted-foreground hover:text-destructive" aria-label="Remove">
+                      <button onClick={() => remove(item.id)} className="flex h-9 w-9 items-center justify-center text-muted-foreground hover:text-destructive" aria-label="Remove">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>

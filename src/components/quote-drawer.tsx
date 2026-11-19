@@ -82,23 +82,23 @@ export function QuoteDrawer() {
                   </button>
                 </div>
                 <div className="mt-3 flex items-center justify-between">
-                  <div className="inline-flex items-center gap-2 rounded-md border border-border">
+                  <div className="inline-flex items-center rounded-md border border-border">
                     <button
                       type="button"
-                      className="px-2 py-1"
+                      className="flex h-9 w-9 items-center justify-center"
                       onClick={() => setQty(l.id, l.quantity - 1)}
                       aria-label="Decrease quantity"
                     >
-                      <Minus className="h-3 w-3" />
+                      <Minus className="h-3.5 w-3.5" />
                     </button>
                     <span className="min-w-6 text-center text-sm">{l.quantity}</span>
                     <button
                       type="button"
-                      className="px-2 py-1"
+                      className="flex h-9 w-9 items-center justify-center"
                       onClick={() => setQty(l.id, l.quantity + 1)}
                       aria-label="Increase quantity"
                     >
-                      <Plus className="h-3 w-3" />
+                      <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
                   <div className="text-sm text-muted-foreground">

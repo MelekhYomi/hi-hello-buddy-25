@@ -80,7 +80,7 @@ function StaffLogin() {
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
             required
-            className="w-full rounded-md border border-border bg-input px-4 py-3 text-sm outline-none focus:border-imperium"
+            className="w-full rounded-md border border-border bg-input px-4 py-3 text-base outline-none focus:border-imperium md:text-sm"
           />
           <input
             type="password"
@@ -89,7 +89,7 @@ function StaffLogin() {
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
             required
-            className="w-full rounded-md border border-border bg-input px-4 py-3 text-sm outline-none focus:border-imperium"
+            className="w-full rounded-md border border-border bg-input px-4 py-3 text-base outline-none focus:border-imperium md:text-sm"
           />
           <button type="submit" disabled={busy} className="btn-cta h-12 w-full disabled:opacity-50">
             {busy ? "Signing in…" : "Enter command center"}

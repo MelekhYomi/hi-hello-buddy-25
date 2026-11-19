@@ -30,7 +30,7 @@ const schema = z.object({
 });
 
 const inputClass =
-  "w-full rounded-md border border-border/70 bg-card/60 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none transition-colors focus:border-imperium";
+  "w-full rounded-md border border-border/70 bg-card/60 px-4 py-3 text-base text-foreground placeholder:text-muted-foreground/60 outline-none transition-colors focus:border-imperium md:text-sm";
 
 const labelClass =
   "font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground";

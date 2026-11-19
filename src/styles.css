@@ -87,7 +87,13 @@
 @layer base {
   * { border-color: var(--color-border); }
 
-  html { color-scheme: dark; }
+  html { color-scheme: dark; scroll-padding-top: 4.5rem; }
+
+  /* Smooth in-page anchor jumps (the header buttons scroll to #sections);
+     respect users who ask for reduced motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
 
   body {
     background-color: var(--color-background);

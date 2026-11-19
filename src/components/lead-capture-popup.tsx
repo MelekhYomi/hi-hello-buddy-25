@@ -109,7 +109,7 @@ export function LeadCapturePopup() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full rounded-md border border-border bg-input px-4 py-3 text-sm outline-none focus:border-imperium"
+            className="w-full rounded-md border border-border bg-input px-4 py-3 text-base outline-none focus:border-imperium md:text-sm"
           />
           <input
             type="email"
@@ -117,20 +117,20 @@ export function LeadCapturePopup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-md border border-border bg-input px-4 py-3 text-sm outline-none focus:border-imperium"
+            className="w-full rounded-md border border-border bg-input px-4 py-3 text-base outline-none focus:border-imperium md:text-sm"
           />
           <input
             type="tel"
             placeholder="Phone (optional)"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="w-full rounded-md border border-border bg-input px-4 py-3 text-sm outline-none focus:border-imperium"
+            className="w-full rounded-md border border-border bg-input px-4 py-3 text-base outline-none focus:border-imperium md:text-sm"
           />
           <input
             placeholder="What are you interested in? (optional)"
             value={interest}
             onChange={(e) => setInterest(e.target.value)}
-            className="w-full rounded-md border border-border bg-input px-4 py-3 text-sm outline-none focus:border-imperium"
+            className="w-full rounded-md border border-border bg-input px-4 py-3 text-base outline-none focus:border-imperium md:text-sm"
           />
           <button type="submit" disabled={busy} className="btn-cta h-12 w-full disabled:opacity-50">
             {busy ? "Sending…" : "Claim my 10% off"}

@@ -101,7 +101,7 @@ function PayPage() {
               </label>
               <input
                 type="email"
-                className="w-full rounded-md border border-border bg-background/40 px-4 py-3 text-sm outline-none focus:border-imperium"
+                className="w-full rounded-md border border-border bg-background/40 px-4 py-3 text-base outline-none focus:border-imperium md:text-sm"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"

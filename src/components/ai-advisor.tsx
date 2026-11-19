@@ -148,7 +148,7 @@ export function AiAdvisor() {
             rows={4}
             maxLength={2000}
             placeholder="e.g. I'm opening a small restaurant in Jos next month. I need a logo, menu design, signage and someone to run my Instagram."
-            className="mt-2 w-full resize-none border border-border bg-background px-4 py-3 text-sm outline-none focus:border-imperium"
+            className="mt-2 w-full resize-none border border-border bg-background px-4 py-3 text-base outline-none focus:border-imperium md:text-sm"
           />
           <div className="mt-4 grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
             <div>
@@ -160,7 +160,7 @@ export function AiAdvisor() {
                 onChange={(e) => setBudget(e.target.value)}
                 maxLength={120}
                 placeholder="e.g. around ₦500,000"
-                className="mt-2 w-full border border-border bg-background px-4 py-3 text-sm outline-none focus:border-imperium"
+                className="mt-2 w-full border border-border bg-background px-4 py-3 text-base outline-none focus:border-imperium md:text-sm"
               />
             </div>
             <button
@@ -317,7 +317,7 @@ export function AiAdvisor() {
                         ? "Anything else you'd like us to include? (optional)"
                         : "Tell us what was missing or wrong (optional)"
                     }
-                    className="w-full resize-none border border-border bg-background px-4 py-3 text-sm outline-none focus:border-imperium"
+                    className="w-full resize-none border border-border bg-background px-4 py-3 text-base outline-none focus:border-imperium md:text-sm"
                   />
                   <button
                     type="button"
