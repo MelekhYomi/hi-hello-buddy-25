@@ -123,7 +123,11 @@ export function ServicesSection() {
                   params={{ slug: s.slug }}
                   className="mt-6 inline-flex items-center gap-1.5 self-start font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:underline"
                 >
-                  Learn more <ArrowRight className="h-3 w-3" />
+                  Learn more{" "}
+                  {/* Descriptive suffix for search engines/screen readers; visually hidden
+                      so the small-caps design stays as-is. */}
+                  <span className="sr-only">about {s.title}</span>
+                  <ArrowRight className="h-3 w-3" />
                 </Link>
 
                 <button
