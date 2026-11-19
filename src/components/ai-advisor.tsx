@@ -167,7 +167,7 @@ export function AiAdvisor() {
               type="button"
               onClick={submit}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 bg-imperium px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-imperium-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 bg-imperium px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-charleston transition-opacity hover:opacity-90 disabled:opacity-60"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               {loading ? "Thinking" : "Get recommendations"}
@@ -234,7 +234,7 @@ export function AiAdvisor() {
                 <button
                   type="button"
                   onClick={addAll}
-                  className="inline-flex items-center gap-2 bg-imperium px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-imperium-foreground transition-opacity hover:opacity-90"
+                  className="inline-flex items-center gap-2 bg-imperium px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-charleston transition-opacity hover:opacity-90"
                 >
                   <Plus className="h-4 w-4" /> Add all to my quote
                 </button>

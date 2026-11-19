@@ -26,7 +26,7 @@ export function ProcessSection() {
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
           {steps.map((s) => (
             <article key={s.n} className="relative border border-border/60 bg-card p-6 transition-all hover:border-imperium">
-              <div className="font-display text-5xl text-imperium/30 leading-none">{s.n}</div>
+              <div className="font-display text-5xl text-imperium/50 leading-none">{s.n}</div>
               <h3 className="mt-5 font-display text-xl tracking-tight">{s.title.toUpperCase()}</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
             </article>

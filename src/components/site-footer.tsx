@@ -42,7 +42,7 @@ export function SiteFooter() {
             </div>
           </div>
           <div>
-            <h4 className="font-mono text-[11px] uppercase tracking-[0.2em] text-imperium">Navigate</h4>
+            <h3 className="font-mono text-[11px] uppercase tracking-[0.2em] text-imperium">Navigate</h3>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
               <li><a href="/#portfolio" className="hover:text-foreground transition-colors">Portfolio</a></li>
               <li><Link to="/shop" className="hover:text-foreground transition-colors">Shop</Link></li>
@@ -54,7 +54,7 @@ export function SiteFooter() {
           </div>
           {services && services.length > 0 && (
             <div>
-              <h4 className="font-mono text-[11px] uppercase tracking-[0.2em] text-imperium">Services</h4>
+              <h3 className="font-mono text-[11px] uppercase tracking-[0.2em] text-imperium">Services</h3>
               <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                 {services.map((svc) => (
                   <li key={svc.id}>
@@ -67,7 +67,7 @@ export function SiteFooter() {
             </div>
           )}
           <div>
-            <h4 className="font-mono text-[11px] uppercase tracking-[0.2em] text-imperium">Reach Us</h4>
+            <h3 className="font-mono text-[11px] uppercase tracking-[0.2em] text-imperium">Reach Us</h3>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
               <li>{footer.address_line1}</li>
               <li>{footer.address_line2}</li>

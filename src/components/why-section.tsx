@@ -29,7 +29,7 @@ export function WhySection() {
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
           {reasons.map(({ n, title, body }) => (
             <article key={n} className="group border border-border/60 bg-card p-6 transition-all hover:border-imperium hover:-translate-y-1">
-              <div className="font-display text-4xl text-imperium/30 leading-none">{n}</div>
+              <div className="font-display text-4xl text-imperium/50 leading-none">{n}</div>
               <h3 className="mt-5 font-display text-lg tracking-tight">{title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
             </article>
