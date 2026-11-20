@@ -16,12 +16,16 @@ export type OrderPackage = {
   image: string;
   blurb: string;
   includes: string[];
+  /** Fine print shown under the includes (e.g. print specs). */
+  notes?: string[];
 };
 
 export type OrderCatalog = {
   /** Matches services.slug. */
   slug: BriefServiceSlug;
   title: string;
+  /** E-flyer shown as a banner on the order page; hidden while the file is missing. */
+  heroImage?: string;
   /** Empty = the items are still being prepared; the page offers the brief form instead. */
   packages: OrderPackage[];
 };
@@ -30,6 +34,7 @@ export const ORDER_CATALOG: Record<string, OrderCatalog> = {
   "brand-identity": {
     slug: "brand-identity",
     title: "Brand Identity System",
+    heroImage: "/packages/brand-identity-hero.jpg",
     packages: [
       {
         id: "basic",
@@ -37,7 +42,7 @@ export const ORDER_CATALOG: Record<string, OrderCatalog> = {
         price: 250_000,
         image: "/packages/brand-identity-basic.jpg",
         blurb:
-          "The essentials to kick-start your brand on a budget — run your business smoothly while delivering solutions to your target audience.",
+          "This package equips you with the essentials to kick-start your brand on a budget, helping you run your business smoothly while delivering solutions to your target audience.",
         includes: [
           "Logo",
           "Letterhead Design",
@@ -56,8 +61,51 @@ export const ORDER_CATALOG: Record<string, OrderCatalog> = {
         price: 450_000,
         image: "/packages/brand-identity-standard.jpg",
         blurb:
-          "Everything you need to launch your brand, plus enhancements that refine its style and tone — leaving a lasting impression on your clients.",
-        includes: ["Everything in Basic", "Roll-up Banner Design", "Brochure Design"],
+          "This package provides everything you need to launch your brand, along with enhancements that refine its style and tone, leaving a lasting impression on your clients.",
+        includes: [
+          "Logo",
+          "Letterhead Design",
+          "Business Card Design",
+          "E-Flyer Design",
+          "Receipt Design",
+          "Roll-up Banner Design",
+          "T-Shirt Design & Print",
+          "Colour Palette",
+          "Typography",
+          "Brand Manual Design & Print",
+          "Brochure Design",
+        ],
+      },
+      {
+        id: "premium",
+        name: "Premium",
+        price: 1_400_000,
+        image: "/packages/brand-identity-premium.jpg",
+        blurb:
+          "This package includes all the essentials to help you launch your brand on a budget, operate your business effectively, and deliver solutions to your target audience.",
+        includes: [
+          "Logo",
+          "Letterhead Design",
+          "Business Card Design",
+          "E-Flyer Design",
+          "Receipt Design",
+          "Roll-up Banner Design",
+          "T-Shirt Design & Print",
+          "Colour Palette",
+          "Typography",
+          "Brand Manual Design & Print",
+          "Brochure Design",
+          "Single Page Website",
+          "ID Card Design",
+          "Logo Animation",
+          "File Jacket Design",
+        ],
+        notes: [
+          "Letterhead, Business Card & Envelopes will have no added elements",
+          "It will be monochrome",
+          "300GSM logo print",
+          "Brochure optimised for both digital viewing and print",
+        ],
       },
     ],
   },

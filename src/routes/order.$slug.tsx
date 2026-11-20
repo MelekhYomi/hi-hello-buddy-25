@@ -107,7 +107,9 @@ function OrderFlow({ catalog }: { catalog: OrderCatalog }) {
         as both are in.
       </p>
 
-      <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+      <HeroBanner src={catalog.heroImage} alt={`${catalog.title} e-flyer`} />
+
+      <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {catalog.packages.map((p) => (
           <PackageCard
             key={p.id}
@@ -122,6 +124,34 @@ function OrderFlow({ catalog }: { catalog: OrderCatalog }) {
         {selected && <ContactStep catalog={catalog} pkg={selected} onClear={() => setSelected(null)} />}
       </div>
     </main>
+  );
+}
+
+/**
+ * Service e-flyer as a full-width banner. Hidden while the image is missing —
+ * same pre-hydration 404 quirk as PackageCard: check the element on mount,
+ * because an error that fires before React attaches onError never reaches us.
+ */
+function HeroBanner({ src, alt }: { src?: string; alt: string }) {
+  const ref = useRef<HTMLImageElement>(null);
+  const [ok, setOk] = useState(true);
+
+  useEffect(() => {
+    const img = ref.current;
+    if (img && img.complete && img.naturalWidth === 0) setOk(false);
+  }, []);
+
+  if (!src || !ok) return null;
+  return (
+    <div className="mt-8 overflow-hidden border border-border/60">
+      <img
+        ref={ref}
+        src={src}
+        alt={alt}
+        onError={() => setOk(false)}
+        className="h-auto w-full"
+      />
+    </div>
   );
 }
 
@@ -196,6 +226,13 @@ function PackageCard({
             </li>
           ))}
         </ul>
+        {pkg.notes && (
+          <ul className="mt-3 space-y-1 text-[11px] leading-relaxed text-muted-foreground/80">
+            {pkg.notes.map((n) => (
+              <li key={n}>· {n}</li>
+            ))}
+          </ul>
+        )}
       </div>
     </article>
   );
