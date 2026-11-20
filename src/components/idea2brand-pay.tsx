@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { initPaystackTransaction, verifyPaystackTransaction } from "@/lib/paystack.functions";
 import type { Promotion } from "@/lib/promotions-defaults";
 
-/** Seat pricing for Idea to Brand 2027. One order = one seat booking (a team pays as a single contact). */
+/** Seat pricing for Idea 2 Brand 2027. One order = one seat booking (a team pays as a single contact). */
 const TIERS = [
   { id: "individual", label: "Individual", note: "1 participant", price: 50_000 },
   { id: "team5", label: "Team of 5", note: "5 participants · save ₦50,000", price: 200_000 },
@@ -50,16 +50,16 @@ export function Idea2BrandPay() {
         customer_name: name.trim(),
         customer_email: email.trim(),
         customer_phone: phone.trim(),
-        delivery_address: "Idea to Brand 2027 seat",
+        delivery_address: "Idea 2 Brand 2027 seat",
         country: "Nigeria",
-        notes: `Idea to Brand 2027 — ${tier.label} (${tier.note})`,
+        notes: `Idea 2 Brand 2027 — ${tier.label} (${tier.note})`,
       });
       if (orderErr) throw new Error(orderErr.message);
 
       const { error: itemErr } = await supabase.from("order_items").insert({
         order_id: orderId,
         product_id: null,
-        title_snapshot: `Idea to Brand 2027 — ${tier.label}`,
+        title_snapshot: `Idea 2 Brand 2027 — ${tier.label}`,
         price_snapshot: tier.price,
         quantity: 1,
       });
@@ -195,7 +195,7 @@ export function Idea2BrandJoin({ promo, reference }: { promo: Promotion; referen
               <CheckCircle2 className="join-icon ok" aria-hidden="true" />
               <h1>Payment confirmed</h1>
               <p>
-                Your seat for <b>Idea to Brand 2027</b> is secured — 5 January 2027, 10am–1pm. Check your
+                Your seat for <b>Idea 2 Brand 2027</b> is secured — 5 January 2027, 10am–1pm. Check your
                 email for the receipt.
               </p>
               {hasGroup ? (
@@ -242,7 +242,7 @@ export function Idea2BrandJoin({ promo, reference }: { promo: Promotion; referen
             </>
           )}
 
-          <Link to="/idea2brand" className="join-back">← Back to Idea to Brand 2027</Link>
+          <Link to="/idea2brand" className="join-back">← Back to Idea 2 Brand 2027</Link>
         </div>
       </div>
     </section>

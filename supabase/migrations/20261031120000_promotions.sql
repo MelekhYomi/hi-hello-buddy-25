@@ -34,14 +34,14 @@ CREATE POLICY "Admins manage promotions" ON public.promotions
 
 -- Starting content (never overwrites a promotion that already exists).
 INSERT INTO public.promotions (slug, is_published, display_order, tag, title, blurb, benefits, card_cta, icon, page)
-VALUES ('idea-to-brand-2027', true, 1, 'Masterclass · 2027', 'Idea to Brand 2027', 'One practical day in Jos to take your business idea to a clear, credible, market-ready brand.',
+VALUES ('idea-to-brand-2027', true, 1, 'Masterclass · 2027', 'Idea 2 Brand 2027', 'One practical day in Jos to take your business idea to a clear, credible, market-ready brand.',
   ARRAY['Business Idea Canvas, pricing and break-even worked out in naira', 'Brand foundation and a seven-day content plan', 'A 30-day roadmap with one committed first action', 'Printed workbook included'], 'See the masterclass', 'lightbulb',
   $json${
-  "seo_title": "Idea to Brand 2027 | C Imperium Masterclass in Jos",
+  "seo_title": "Idea 2 Brand 2027 | C Imperium Masterclass in Jos",
   "seo_description": "A practical one-day masterclass in Jos: turn your business idea into a clear, credible, market-ready brand with a printed workbook and a 30-day roadmap.",
   "og_image": "/og-image.jpg",
   "pill": "C Imperium presents · Masterclass",
-  "headline": "Idea to *Brand* 2027",
+  "headline": "Idea 2 *Brand* 2027",
   "lead": "From business idea to a clear, credible, market-ready brand. One practical day, working on your own idea.",
   "cta_primary": "Reserve my seat",
   "cta_secondary": "See the six steps",
@@ -144,7 +144,7 @@ VALUES ('idea-to-brand-2027', true, 1, 'Masterclass · 2027', 'Idea to Brand 202
   "final_sub": "Leave with a plan, not inspiration alone.",
   "button_label": "Reserve on WhatsApp",
   "whatsapp_number": "2348038577654",
-  "whatsapp_message": "Hi C Imperium, I'd like to reserve a seat for Idea to Brand 2027.",
+  "whatsapp_message": "Hi C Imperium, I'd like to reserve a seat for Idea 2 Brand 2027.",
   "contacts": [
     "+234 803 857 7654",
     "info@cimperiumbrand.com",

@@ -325,7 +325,7 @@ function PromotionForm({
         </Group>
 
         <Group title="Search and sharing" hint="What Google shows, and the preview when the link is shared on WhatsApp.">
-          <Label text="Page title">{text("seo_title", "Idea to Brand 2027 | C Imperium Masterclass in Jos")}</Label>
+          <Label text="Page title">{text("seo_title", "Idea 2 Brand 2027 | C Imperium Masterclass in Jos")}</Label>
           <Label text="Description" hint="about 150 characters">
             <textarea className={inp} rows={2} value={page.seo_description} onChange={(e) => set("seo_description", e.target.value)} />
           </Label>

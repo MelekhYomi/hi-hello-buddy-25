@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { X, LogIn } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { useQuoteBuilder } from "@/lib/quote-context";
@@ -44,13 +44,6 @@ export function SignInNudge() {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4">
       <div className="relative w-full max-w-sm rounded-lg border border-imperium/40 bg-background p-6 shadow-2xl">
-        <button
-          onClick={dismiss}
-          aria-label="Close"
-          className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
-        >
-          <X className="h-4 w-4" />
-        </button>
         <LogIn className="h-8 w-8 text-imperium" strokeWidth={1.5} />
         <h2 className="mt-4 font-display text-xl">
           {forQuote ? "Sign in to send your request" : "Sign in to continue?"}
@@ -68,19 +61,17 @@ export function SignInNudge() {
         >
           Sign in
         </Link>
-        <Link
-          to="/signup"
-          search={{ redirect }}
+        <button
           onClick={dismiss}
           className="mt-2 inline-flex h-11 w-full items-center justify-center border border-border px-6 font-mono text-[11px] uppercase tracking-[0.2em] hover:border-imperium hover:text-imperium"
         >
-          Create an account
-        </Link>
+          Continue without sign in
+        </button>
         <button
           onClick={dismiss}
           className="mt-3 w-full text-center text-xs text-muted-foreground hover:text-foreground"
         >
-          Not now
+          Go back
         </button>
       </div>
     </div>
