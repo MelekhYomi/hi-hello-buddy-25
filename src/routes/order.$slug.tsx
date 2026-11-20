@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { initPaystackTransaction, verifyPaystackTransaction } from "@/lib/paystack.functions";
 import { useSiteSettings, cleanWaNumber } from "@/lib/site-settings";
 import { orderCatalogFor, type OrderCatalog, type OrderPackage } from "@/lib/order-catalog";
+import { ServiceBriefForm } from "@/components/service-brief-form";
 
 export const Route = createFileRoute("/order/$slug")({
   head: ({ params }) => {
@@ -26,9 +27,12 @@ export const Route = createFileRoute("/order/$slug")({
       ],
     };
   },
-  validateSearch: (s: Record<string, unknown>): { reference?: string; trxref?: string } => ({
+  // `pkg` rides along in the Paystack callback so the post-payment brief can
+  // record which package was bought.
+  validateSearch: (s: Record<string, unknown>): { reference?: string; trxref?: string; pkg?: string } => ({
     reference: typeof s.reference === "string" ? s.reference : undefined,
     trxref: typeof s.trxref === "string" ? s.trxref : undefined,
+    pkg: typeof s.pkg === "string" ? s.pkg : undefined,
   }),
   component: OrderPage,
 });
@@ -47,7 +51,7 @@ function useWaLink() {
 
 function OrderPage() {
   const { slug } = Route.useParams();
-  const { reference, trxref } = Route.useSearch();
+  const { reference, trxref, pkg } = Route.useSearch();
   const catalog = orderCatalogFor(slug);
   const ref = reference || trxref;
 
@@ -55,7 +59,7 @@ function OrderPage() {
     <div className="grain relative min-h-screen bg-background">
       <SiteHeader />
       {ref && catalog ? (
-        <OrderPaid catalog={catalog} reference={ref} />
+        <OrderPaid catalog={catalog} reference={ref} pkgId={pkg} />
       ) : catalog ? (
         <OrderFlow catalog={catalog} />
       ) : (
@@ -131,6 +135,14 @@ function PackageCard({
   onPick: () => void;
 }) {
   const [imgOk, setImgOk] = useState(true);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // The prerendered <img> can 404 before React attaches onError (the error
+  // never reaches us), so also check the element on mount.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth === 0) setImgOk(false);
+  }, []);
 
   return (
     <article
@@ -141,6 +153,7 @@ function PackageCard({
       <div className="relative aspect-[16/10] overflow-hidden bg-charleston">
         {imgOk ? (
           <img
+            ref={imgRef}
             src={pkg.image}
             alt={`${pkg.name} package — what's included`}
             loading="lazy"
@@ -246,7 +259,7 @@ function ContactStep({
           orderId,
           email: email.trim(),
           amountNaira: pkg.price,
-          callbackUrl: `${window.location.origin}/order/${catalog.slug}`,
+          callbackUrl: `${window.location.origin}/order/${catalog.slug}?pkg=${pkg.id}`,
         },
       });
       const url = res?.authorizationUrl;
@@ -325,43 +338,59 @@ function ContactStep({
   );
 }
 
-/** Print & Packaging has no priced items yet — send the brief straight to the form. */
+/** Print & Packaging has no priced items yet — collect the brief on the spot. */
 function ItemsComingSoon({ catalog }: { catalog: OrderCatalog }) {
   const wa = useWaLink();
   return (
-    <main className="mx-auto max-w-2xl px-6 pb-24 pt-32 text-center">
-      <PackageOpen className="mx-auto h-12 w-12 text-imperium" strokeWidth={1.5} />
-      <h1 className="mt-6 font-display text-4xl">{catalog.title.toUpperCase()}.</h1>
-      <p className="mt-4 text-muted-foreground">
-        Our {catalog.title.toLowerCase()} items are being added to the shop. In the meantime, tell us
-        what you need and we'll price it for you.
-      </p>
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <a href={catalog.formUrl} target="_blank" rel="noopener noreferrer" className="btn-cta h-12 px-8">
-          Fill the brief form <ArrowRight className="h-4 w-4" />
-        </a>
-        <a
-          href={wa(`Hi C Imperium, I'd like to place a ${catalog.title} order.`)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex h-12 items-center border border-border px-8 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:border-imperium hover:text-imperium"
-        >
-          Message us on WhatsApp
-        </a>
+    <main className="mx-auto max-w-3xl px-6 pb-24 pt-32">
+      <div className="text-center">
+        <PackageOpen className="mx-auto h-12 w-12 text-imperium" strokeWidth={1.5} />
+        <h1 className="mt-6 font-display text-4xl">{catalog.title.toUpperCase()}.</h1>
+        <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+          Our {catalog.title.toLowerCase()} items are being added to the shop. In the meantime, tell us
+          what you need below and we'll price it for you.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <a
+            href={wa(`Hi C Imperium, I'd like to place a ${catalog.title} order.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-cta h-12 px-8"
+          >
+            Message us on WhatsApp
+          </a>
+          <Link
+            to="/services/$slug"
+            params={{ slug: catalog.slug }}
+            className="inline-flex h-12 items-center border border-border px-8 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:border-imperium hover:text-imperium"
+          >
+            ← Back to {catalog.title}
+          </Link>
+        </div>
       </div>
-      <Link to="/services/$slug" params={{ slug: catalog.slug }} className="mt-6 inline-block text-xs text-muted-foreground hover:text-foreground">
-        ← Back to {catalog.title}
-      </Link>
+
+      <div className="mt-10">
+        <ServiceBriefForm serviceSlug={catalog.slug} />
+      </div>
     </main>
   );
 }
 
-/** Paystack returns here with ?reference= — verify, then hand over the brief form. */
-function OrderPaid({ catalog, reference }: { catalog: OrderCatalog; reference: string }) {
+/** Paystack returns here with ?reference= — verify, then collect the brief on the spot. */
+function OrderPaid({
+  catalog,
+  reference,
+  pkgId,
+}: {
+  catalog: OrderCatalog;
+  reference: string;
+  pkgId?: string;
+}) {
   const verify = useServerFn(verifyPaystackTransaction);
   const wa = useWaLink();
   const [state, setState] = useState<"checking" | "ok" | "failed">("checking");
   const [attempt, setAttempt] = useState(0);
+  const pkgName = catalog.packages.find((p) => p.id === pkgId)?.name;
 
   useEffect(() => {
     let alive = true;
@@ -378,6 +407,40 @@ function OrderPaid({ catalog, reference }: { catalog: OrderCatalog; reference: s
     };
   }, [verify, reference, attempt]);
 
+  if (state === "ok") {
+    return (
+      <main className="mx-auto max-w-3xl px-6 pb-24 pt-32">
+        <div className="text-center">
+          <CheckCircle2 className="mx-auto h-16 w-16 text-imperium" />
+          <h1 className="mt-6 font-display text-4xl md:text-5xl">PAYMENT CONFIRMED.</h1>
+          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+            Thank you — your payment for the <b>{catalog.title}</b> is confirmed. Check your email for
+            the receipt. One last step: tell us about your project so we can begin.
+          </p>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Order reference: <span className="font-mono">{reference.slice(0, 12)}</span>
+          </p>
+        </div>
+
+        <div className="mt-10">
+          <ServiceBriefForm
+            serviceSlug={catalog.slug}
+            packageName={pkgName}
+            orderReference={reference}
+          />
+        </div>
+
+        <Link
+          to="/services/$slug"
+          params={{ slug: catalog.slug }}
+          className="mt-8 inline-block text-xs text-muted-foreground hover:text-foreground"
+        >
+          ← Back to {catalog.title}
+        </Link>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto max-w-2xl px-6 pb-24 pt-32 text-center">
       {state === "checking" && (
@@ -385,28 +448,6 @@ function OrderPaid({ catalog, reference }: { catalog: OrderCatalog; reference: s
           <Loader2 className="mx-auto h-12 w-12 animate-spin text-imperium" />
           <h1 className="mt-6 font-display text-4xl">CONFIRMING PAYMENT…</h1>
           <p className="mt-3 text-muted-foreground">Hold tight — verifying with Paystack.</p>
-        </>
-      )}
-
-      {state === "ok" && (
-        <>
-          <CheckCircle2 className="mx-auto h-16 w-16 text-imperium" />
-          <h1 className="mt-6 font-display text-4xl md:text-5xl">PAYMENT CONFIRMED.</h1>
-          <p className="mt-4 text-muted-foreground">
-            Thank you — your payment for the <b>{catalog.title}</b> is confirmed. Check your email for
-            the receipt. One last step: tell us about your project so we can begin.
-          </p>
-          <a
-            href={catalog.formUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-cta mt-8 inline-flex h-14 px-10"
-          >
-            Complete your brief <ArrowRight className="h-4 w-4" />
-          </a>
-          <p className="mt-4 text-xs text-muted-foreground">
-            It takes about 3 minutes — your order reference: <span className="font-mono">{reference.slice(0, 8)}</span>
-          </p>
         </>
       )}
 

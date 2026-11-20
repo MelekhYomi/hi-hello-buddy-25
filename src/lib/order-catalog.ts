@@ -2,10 +2,11 @@
  * Paid service orders. "Place an Order" on a service card opens /order/<slug>,
  * which shows each package (image + price) with a Pay overlay button, takes the
  * customer's details and pays through Paystack (same rails as the shop and
- * Idea 2 Brand). After payment the customer completes the brief on the
- * service's Google Form.
+ * Idea 2 Brand). After payment the customer completes the project brief in
+ * the site's own form (see service-brief-form.tsx) — no Google Forms.
  */
 
+import type { BriefServiceSlug } from "@/components/service-brief-form";
 export type OrderPackage = {
   id: string;
   name: string;
@@ -19,11 +20,9 @@ export type OrderPackage = {
 
 export type OrderCatalog = {
   /** Matches services.slug. */
-  slug: string;
+  slug: BriefServiceSlug;
   title: string;
-  /** Brief form the customer fills in after paying. */
-  formUrl: string;
-  /** Empty = the items are still being prepared; the page offers the form instead. */
+  /** Empty = the items are still being prepared; the page offers the brief form instead. */
   packages: OrderPackage[];
 };
 
@@ -31,7 +30,6 @@ export const ORDER_CATALOG: Record<string, OrderCatalog> = {
   "brand-identity": {
     slug: "brand-identity",
     title: "Brand Identity System",
-    formUrl: "https://forms.gle/Q1BBK4fDRJqXcfLF9",
     packages: [
       {
         id: "basic",
@@ -66,7 +64,6 @@ export const ORDER_CATALOG: Record<string, OrderCatalog> = {
   "print-packaging": {
     slug: "print-packaging",
     title: "Print & Packaging",
-    formUrl: "https://forms.gle/PdSLdc5AxdZgYq9X7",
     packages: [],
   },
 };

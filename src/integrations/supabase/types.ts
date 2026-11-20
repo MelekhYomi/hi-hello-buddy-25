@@ -1080,6 +1080,39 @@ export type Database = {
         }
         Relationships: []
       }
+      service_briefs: {
+        Row: {
+          answers: Json
+          created_at: string
+          files: Json
+          id: string
+          order_reference: string | null
+          package_name: string | null
+          service_slug: string
+          status: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          files?: Json
+          id?: string
+          order_reference?: string | null
+          package_name?: string | null
+          service_slug: string
+          status?: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          files?: Json
+          id?: string
+          order_reference?: string | null
+          package_name?: string | null
+          service_slug?: string
+          status?: string
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           created_at: string
