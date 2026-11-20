@@ -85,3 +85,45 @@
 .promo button { font-family: inherit; }
 .promo .nav { position: sticky; top: 0; }
 @media (prefers-reduced-motion: reduce) { .promo .btn { transition: none; } }
+
+/* === Seat payment (Idea to Brand): tier picker + contact details inside the reserve box === */
+.promo .pay { background: var(--card); color: var(--ink); border-radius: 24px; padding: clamp(20px, 4vw, 28px); box-shadow: var(--shadow); margin-top: 28px; }
+.promo .pay fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.promo .pay .pay-title { padding: 0; margin-bottom: 12px; font-size: 13.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.promo .pay .tiers { display: grid; gap: 10px; }
+.promo .pay .tier { display: flex; align-items: center; gap: 12px; border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px; background: var(--bg); cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+.promo .pay .tier:hover { border-color: color-mix(in srgb, var(--ink) 35%, var(--line)); }
+.promo .pay .tier:has(input:checked) { border-color: var(--ink); background: var(--tint); }
+.promo .pay .tier input { width: 18px; height: 18px; flex: none; margin: 0; accent-color: var(--ink); }
+.promo .pay .t-text { display: grid; gap: 2px; min-width: 0; }
+.promo .pay .t-name { font-weight: 700; font-size: 16.5px; }
+.promo .pay .t-note { color: var(--muted); font-size: 14px; }
+.promo .pay .t-price { margin-left: auto; font-weight: 800; font-size: 17px; white-space: nowrap; }
+.promo .pay .fields { display: grid; gap: 10px; margin-top: 16px; }
+/* 16px keeps iOS Safari from zooming the page when a field is focused. */
+.promo .pay .fields input { width: 100%; border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 16px; background: var(--bg); color: var(--ink); font: 600 16px/1.3 var(--f); }
+.promo .pay .fields input::placeholder { color: var(--muted); font-weight: 500; }
+.promo .pay .fields input:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--yellow) 55%, transparent); }
+.promo .pay .btn { width: 100%; margin-top: 14px; background: var(--ink); color: var(--bg); box-shadow: none; }
+.promo .pay .btn:hover { box-shadow: 0 10px 24px rgba(0,0,0,.2); }
+.promo .pay .btn[disabled] { opacity: .65; cursor: progress; transform: none; }
+.promo .pay .err { margin-top: 12px; font-size: 14.5px; font-weight: 700; color: #A02A1E; }
+.promo .pay .fine { margin-top: 12px; font-size: 13.5px; line-height: 1.5; color: var(--muted); text-align: center; }
+
+/* === Join-cohort screen (shown after Paystack returns) === */
+.promo .join { display: grid; align-content: center; min-height: min(72vh, 720px); }
+.promo .join .join-card { display: grid; justify-items: center; gap: 14px; max-width: 640px; margin-inline: auto; background: var(--card); border: 1px solid var(--line); border-radius: 28px; padding: clamp(28px, 6vw, 48px); box-shadow: var(--shadow); text-align: center; }
+.promo .join h1 { font-size: clamp(28px, 5vw, 40px); }
+.promo .join p { color: var(--muted); font-size: 17px; max-width: 34em; }
+.promo .join .join-icon { width: 60px; height: 60px; }
+.promo .join .join-icon.ok { color: #1E7A46; }
+.promo .join .join-icon.warn { color: #A02A1E; }
+.promo .join .spin { color: var(--muted); animation: itb-spin 1s linear infinite; }
+@keyframes itb-spin { to { transform: rotate(360deg); } }
+.promo .join .btn { margin-top: 6px; }
+.promo .join .join-note { font-size: 15px; }
+.promo .join .join-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 4px; }
+.promo .join .join-ref { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; overflow-wrap: anywhere; color: var(--ink); }
+.promo .join .join-back { margin-top: 8px; font-size: 14.5px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.promo .join .join-back:hover { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .promo .join .spin { animation: none; } }

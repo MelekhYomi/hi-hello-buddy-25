@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { servicesQuery, promotionsQuery } from "@/lib/queries";
+import { promoPath } from "@/lib/promotions-defaults";
 import {
   Palette,
   Printer,
@@ -161,7 +162,7 @@ export function ServicesSection() {
             return (
               <a
                 key={p.id}
-                href={`/promo/${p.slug}`}
+                href={promoPath(p.slug)}
                 className="group relative flex flex-col overflow-hidden border border-border/60 bg-card p-8 transition-all duration-300 hover:-translate-y-1 hover:border-imperium hover:shadow-[0_0_40px_-10px_var(--imperium)]"
               >
                 <Icon

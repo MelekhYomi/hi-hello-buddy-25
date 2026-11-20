@@ -47,11 +47,13 @@ const [products, posts, services, cases, promos] = await Promise.all([
 ]);
 
 const day = (d) => (d ? String(d).slice(0, 10) : undefined);
+// Mirrors promoPath() in src/lib/promotions-defaults.ts: Idea to Brand has its own short address.
+const promoPath = (slug) => (slug === "idea-to-brand-2027" ? "/idea2brand" : `/promo/${slug}`);
 const entries = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/shop", changefreq: "daily", priority: "0.9" },
   { path: "/blog", changefreq: "weekly", priority: "0.8" },
-  ...promos.map((p) => ({ path: `/promo/${p.slug}`, lastmod: day(p.updated_at), changefreq: "monthly", priority: "0.7" })),
+  ...promos.map((p) => ({ path: promoPath(p.slug), lastmod: day(p.updated_at), changefreq: "monthly", priority: "0.7" })),
   ...services.map((s) => ({ path: `/services/${s.slug}`, lastmod: day(s.updated_at), changefreq: "monthly", priority: "0.8" })),
   ...cases.map((c) => ({ path: `/work/${c.slug}`, lastmod: day(c.updated_at), changefreq: "monthly", priority: "0.7" })),
   ...products.map((p) => ({ path: `/shop/${p.slug}`, lastmod: day(p.updated_at), changefreq: "weekly", priority: "0.7" })),

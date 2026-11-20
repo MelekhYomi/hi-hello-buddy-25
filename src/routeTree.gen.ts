@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as BookingSuccessRouteImport } from './routes/booking-success'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CheckoutPayRouteImport } from './routes/checkout-pay'
+import { Route as Idea2brandRouteImport } from './routes/idea2brand'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OrderSuccessRouteImport } from './routes/order-success'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -66,6 +67,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const CheckoutPayRoute = CheckoutPayRouteImport.update({
   id: '/checkout-pay',
   path: '/checkout-pay',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Idea2brandRoute = Idea2brandRouteImport.update({
+  id: '/idea2brand',
+  path: '/idea2brand',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -224,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/booking-success': typeof BookingSuccessRoute
   '/checkout': typeof CheckoutRoute
   '/checkout-pay': typeof CheckoutPayRoute
+  '/idea2brand': typeof Idea2brandRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -258,6 +265,7 @@ export interface FileRoutesByTo {
   '/booking-success': typeof BookingSuccessRoute
   '/checkout': typeof CheckoutRoute
   '/checkout-pay': typeof CheckoutPayRoute
+  '/idea2brand': typeof Idea2brandRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -293,6 +301,7 @@ export interface FileRoutesById {
   '/booking-success': typeof BookingSuccessRoute
   '/checkout': typeof CheckoutRoute
   '/checkout-pay': typeof CheckoutPayRoute
+  '/idea2brand': typeof Idea2brandRoute
   '/login': typeof LoginRoute
   '/order-success': typeof OrderSuccessRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -330,6 +339,7 @@ export interface FileRouteTypes {
     | '/booking-success'
     | '/checkout'
     | '/checkout-pay'
+    | '/idea2brand'
     | '/login'
     | '/order-success'
     | '/reset-password'
@@ -364,6 +374,7 @@ export interface FileRouteTypes {
     | '/booking-success'
     | '/checkout'
     | '/checkout-pay'
+    | '/idea2brand'
     | '/login'
     | '/order-success'
     | '/reset-password'
@@ -398,6 +409,7 @@ export interface FileRouteTypes {
     | '/booking-success'
     | '/checkout'
     | '/checkout-pay'
+    | '/idea2brand'
     | '/login'
     | '/order-success'
     | '/reset-password'
@@ -435,6 +447,7 @@ export interface RootRouteChildren {
   BookingSuccessRoute: typeof BookingSuccessRoute
   CheckoutRoute: typeof CheckoutRoute
   CheckoutPayRoute: typeof CheckoutPayRoute
+  Idea2brandRoute: typeof Idea2brandRoute
   LoginRoute: typeof LoginRoute
   OrderSuccessRoute: typeof OrderSuccessRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -493,6 +506,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout-pay'
       fullPath: '/checkout-pay'
       preLoaderRoute: typeof CheckoutPayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/idea2brand': {
+      id: '/idea2brand'
+      path: '/idea2brand'
+      fullPath: '/idea2brand'
+      preLoaderRoute: typeof Idea2brandRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -751,6 +771,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookingSuccessRoute: BookingSuccessRoute,
   CheckoutRoute: CheckoutRoute,
   CheckoutPayRoute: CheckoutPayRoute,
+  Idea2brandRoute: Idea2brandRoute,
   LoginRoute: LoginRoute,
   OrderSuccessRoute: OrderSuccessRoute,
   ResetPasswordRoute: ResetPasswordRoute,

@@ -32,6 +32,8 @@ export type PromoPage = {
   button_label: string;
   whatsapp_number: string;
   whatsapp_message: string;
+  /** WhatsApp group invite for the cohort, opened by the post-payment join screen. Empty = not set yet. */
+  whatsapp_group: string;
   contacts: string[];
 };
 
@@ -58,6 +60,13 @@ export type Promotion = {
 export type Placement = "nav" | "service" | "none";
 
 export const PROMO_ICONS = ["lightbulb", "truck", "sparkles", "megaphone", "gift", "calendar", "graduation-cap", "rocket"] as const;
+
+/** The Idea to Brand masterclass has its own short address; every other promotion lives at /promo/<slug>. */
+export const IDEA_TO_BRAND_SLUG = "idea-to-brand-2027";
+
+export function promoPath(slug: string): string {
+  return slug === IDEA_TO_BRAND_SLUG ? "/idea2brand" : `/promo/${slug}`;
+}
 
 export const EMPTY_PAGE: PromoPage = {
   seo_title: "",
@@ -88,6 +97,7 @@ export const EMPTY_PAGE: PromoPage = {
   button_label: "Reserve on WhatsApp",
   whatsapp_number: "2349010912491",
   whatsapp_message: "Hi C Imperium, I'd like to know more.",
+  whatsapp_group: "",
   contacts: ["+234 901 091 2491", "info@cimperiumbrand.com", "@cimperium"],
 };
 
@@ -118,14 +128,14 @@ export const DEFAULT_PROMOTIONS: Omit<Promotion, "id">[] = [
       pill: "C Imperium presents · Masterclass",
       headline: "Idea to *Brand* 2027",
       lead: "From business idea to a clear, credible, market-ready brand. One practical day, working on your own idea.",
-      cta_primary: "Reserve my seat",
+      cta_primary: "Pay",
       cta_secondary: "See the six steps",
       details: [
-        { label: "Date", value: "[Date]" },
-        { label: "Venue", value: "[Venue, Jos]" },
-        { label: "Time", value: "[Time]" },
-        { label: "Length", value: "About 4½ hours" },
-        { label: "Includes", value: "Printed workbook" },
+        { label: "Date", value: "5 January 2027" },
+        { label: "Venue", value: "Undisclosed" },
+        { label: "Time", value: "10am – 1pm" },
+        { label: "Length", value: "3 hours" },
+        { label: "Includes", value: "Gift pack, lunch, printed workbook" },
       ],
       outcomes_kicker: "What you leave with",
       outcomes_title: "A plan, not just inspiration",
@@ -160,15 +170,19 @@ export const DEFAULT_PROMOTIONS: Omit<Promotion, "id">[] = [
         { q: "What should I bring?", a: "Your business idea and a pen. We provide the printed workbook. [Add any extras]" },
         {
           q: "Will you help me register my business?",
-          a: "We help you plan the steps. Requirements and fees change, so you will learn how to check them with CAC and official sources.",
+          a: "Yes.",
         },
-        { q: "How much is it?", a: "[Price and payment details] Team rate: [if offered]" },
+        {
+          q: "How much is it?",
+          a: "₦50,000 per participant. ₦200,000 for a team of 5 and ₦400,000 for a team of 10. Pay online — your seat is confirmed the moment payment succeeds, and every seat includes a gift pack, lunch and a printed workbook.",
+        },
       ],
       final_title: "Ready to turn your idea into a brand?",
       final_sub: "Leave with a plan, not inspiration alone.",
-      button_label: "Reserve on WhatsApp",
+      button_label: "Pay",
       whatsapp_number: "2348038577654",
-      whatsapp_message: "Hi C Imperium, I'd like to reserve a seat for Idea to Brand 2027.",
+      whatsapp_message: "Hi C Imperium, I just paid for Idea to Brand 2027 — how do I join the cohort?",
+      whatsapp_group: "[WhatsApp cohort group link]",
       contacts: ["+234 803 857 7654", "info@cimperiumbrand.com", "@cimperium"],
     },
   },

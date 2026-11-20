@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { useQuoteBuilder } from "@/lib/quote-context";
 import { promotionsQuery } from "@/lib/queries";
+import { promoPath } from "@/lib/promotions-defaults";
 // The Lovable-hosted asset URL (cimperium-c-mark.png.asset.json) only resolves
 // inside Lovable's own preview/hosting — it 404s on Netlify/Vercel. Use the
 // copy checked into /public instead, which works on every host.
@@ -73,7 +74,7 @@ export function SiteHeader() {
           {navPromos.map((p) => (
             <a
               key={p.slug}
-              href={`/promo/${p.slug}`}
+              href={promoPath(p.slug)}
               target="_blank"
               rel="noopener"
               className="nav-sweep rounded-sm px-3 py-1.5 text-foreground"
@@ -149,7 +150,7 @@ export function SiteHeader() {
             {navPromos.map((p) => (
               <a
                 key={p.slug}
-                href={`/promo/${p.slug}`}
+                href={promoPath(p.slug)}
                 target="_blank"
                 rel="noopener"
                 onClick={() => setMenuOpen(false)}

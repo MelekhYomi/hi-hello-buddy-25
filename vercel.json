@@ -3,5 +3,9 @@
   "buildCommand": "npm run build",
   "framework": null,
   "installCommand": "npm install",
-  "crons": [{ "path": "/api/public/sync-google-reviews", "schedule": "0 5 * * *" }]
+  "crons": [{ "path": "/api/public/sync-google-reviews", "schedule": "0 5 * * *" }],
+  "redirects": [
+    { "source": "/promo/idea-to-brand-2027", "destination": "/idea2brand", "permanent": true },
+    { "source": "/promo/idea-to-brand-2027/", "destination": "/idea2brand", "permanent": true }
+  ]
 }

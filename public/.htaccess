@@ -14,6 +14,10 @@ DirectoryIndex index.html index.htm
   RewriteCond %{HTTP_HOST} !^www\. [NC]
   RewriteRule ^ https://www.cimperiumbrand.com%{REQUEST_URI} [L,R=301]
 
+  # Idea to Brand has its own short address. Keep the old promotion URL working (301, so
+  # search engines and old links keep their weight) before any file check can answer it.
+  RewriteRule ^promo/idea-to-brand-2027/?$ /idea2brand [R=301,L]
+
   # Real files are served as they are. Directories too, but only when they hold
   # their own index.html — a bare directory (e.g. /services, which has no index
   # page) would otherwise answer with a 403 instead of falling to the shell.

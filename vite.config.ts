@@ -59,9 +59,9 @@ const tanstackStartOptions = {
           // checkout, quote/invoice/receipt links) redirect around and, when crawled, loop forever.
           filter: ({ path }: { path: string }) =>
             !/[?#]/.test(path) &&
-            (path === "/" || path === "/login" || /^\/(shop|blog|work|services|promo)(\/[^/]+)?$/.test(path)),
+            (path === "/" || path === "/login" || /^\/(shop|blog|work|services|promo|idea2brand)(\/[^/]+)?$/.test(path)),
         },
-        pages: [{ path: "/" }, { path: "/shop" }, { path: "/blog" }],
+        pages: [{ path: "/" }, { path: "/shop" }, { path: "/blog" }, { path: "/idea2brand" }],
         // Pages that cannot be built ahead (quote/invoice/receipt links, account, admin) are served
         // by this client-only shell; the host rewrites unknown addresses to it. The shell is
         // rendered from /login (an existing route) but written to _shell.html, never to /login.

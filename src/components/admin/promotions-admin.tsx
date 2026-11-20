@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 import { cn } from "@/lib/utils";
 import { normalizePromotion } from "@/lib/queries";
-import { EMPTY_PAGE, PROMO_ICONS, type Placement, type Promotion, type PromoPage } from "@/lib/promotions-defaults";
+import { EMPTY_PAGE, PROMO_ICONS, promoPath, type Placement, type Promotion, type PromoPage } from "@/lib/promotions-defaults";
 
 const inp = "w-full rounded border border-border bg-card px-3 py-2 text-sm outline-none focus:border-imperium";
 const btnGhost = "border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] hover:border-imperium";
@@ -90,7 +90,7 @@ export function PromotionsAdmin() {
                   <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-imperium">{row.tag}{row.placement !== "none" && ` · ${row.placement === "nav" ? "In top menu" : "In Services"}${row.coming_soon ? " · Coming soon" : ""}`}</div>
                   <div className="mt-1 font-display text-lg">{row.title}</div>
                   <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                    /promo/{row.slug} · #{row.display_order} · {row.is_published ? "Published" : "Hidden"}
+                    {promoPath(row.slug)} · #{row.display_order} · {row.is_published ? "Published" : "Hidden"}
                   </div>
                   <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{row.blurb}</p>
                   {open > 0 && (
@@ -100,7 +100,7 @@ export function PromotionsAdmin() {
                   )}
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <a href={`/promo/${row.slug}`} target="_blank" rel="noopener" className={btnMini} title="Open the page">
+                  <a href={promoPath(row.slug)} target="_blank" rel="noopener" className={btnMini} title="Open the page">
                     <ExternalLink className="h-3 w-3" />
                   </a>
                   <button onClick={() => toggle(row)} className={btnMini}>{row.is_published ? "Hide" : "Show"}</button>
@@ -313,7 +313,7 @@ function PromotionForm({
               <input type="checkbox" checked={comingSoon} onChange={(e) => setComingSoon(e.target.checked)} /> Show a "Coming soon" stamp on its card (the card still opens the page)
             </label>
           )}
-          <Label text="Page address" hint={`cimperiumbrand.com/promo/${slugify(slug || title) || "…"}`}>
+          <Label text="Page address" hint={`cimperiumbrand.com${promoPath(slugify(slug || title) || "…")}`}>
             <input className={inp} placeholder="idea-to-brand-2027" value={slug} onChange={(e) => setSlug(e.target.value)} />
           </Label>
           {initial && slug && slug !== initial.slug && (
@@ -416,7 +416,7 @@ function PromotionForm({
 
         <div className="mt-8 flex items-center justify-end gap-3 border-t border-border pt-5">
           {initial && (
-            <a href={`/promo/${initial.slug}`} target="_blank" rel="noopener" className={cn(btnGhost, "mr-auto inline-flex items-center gap-2")}>
+            <a href={promoPath(initial.slug)} target="_blank" rel="noopener" className={cn(btnGhost, "mr-auto inline-flex items-center gap-2")}>
               <ExternalLink className="h-3 w-3" /> View page
             </a>
           )}
