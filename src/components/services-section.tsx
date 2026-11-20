@@ -119,38 +119,41 @@ export function ServicesSection() {
                   ))}
                 </ul>
 
-                <Link
-                  to="/services/$slug"
-                  params={{ slug: s.slug }}
-                  className="mt-6 inline-flex items-center gap-1.5 self-start font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:underline"
-                >
-                  Learn more{" "}
-                  {/* Descriptive suffix for search engines/screen readers; visually hidden
-                      so the small-caps design stays as-is. */}
-                  <span className="sr-only">about {s.title}</span>
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
+                {/* One row: "Learn more" on the left, the order button on the right. */}
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                  <Link
+                    to="/services/$slug"
+                    params={{ slug: s.slug }}
+                    className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium hover:underline"
+                  >
+                    Learn more{" "}
+                    {/* Descriptive suffix for search engines/screen readers; visually hidden
+                        so the small-caps design stays as-is. */}
+                    <span className="sr-only">about {s.title}</span>
+                    <ArrowRight className="h-3 w-3" />
+                  </Link>
 
-                <button
-                  type="button"
-                  onClick={() => requestQuote(s)}
-                  aria-pressed={chosen}
-                  className={
-                    chosen
-                      ? "mt-4 inline-flex h-11 w-full items-center justify-center gap-2 border border-imperium/60 bg-imperium/10 px-6 font-mono text-[11px] uppercase tracking-[0.2em] text-imperium transition-colors hover:bg-imperium/15"
-                      : "btn-cta mt-4 inline-flex h-11 w-full items-center justify-center gap-2 px-6"
-                  }
-                >
-                  {chosen ? (
-                    <>
-                      <Check className="h-4 w-4" /> In your request
-                    </>
-                  ) : (
-                    <>
-                      Get a Quote <ArrowRight className="h-4 w-4" />
-                    </>
-                  )}
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => requestQuote(s)}
+                    aria-pressed={chosen}
+                    className={
+                      chosen
+                        ? "ml-auto inline-flex h-9 items-center justify-center gap-1.5 border border-imperium/60 bg-imperium/10 px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-imperium transition-colors hover:bg-imperium/15"
+                        : "btn-cta ml-auto h-9 px-4"
+                    }
+                  >
+                    {chosen ? (
+                      <>
+                        <Check className="h-3.5 w-3.5" /> In your request
+                      </>
+                    ) : (
+                      <>
+                        Place an Order <ArrowRight className="h-3.5 w-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
 
                 <div className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-imperium transition-transform duration-500 group-hover:scale-x-100" />
               </article>

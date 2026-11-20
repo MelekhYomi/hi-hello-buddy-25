@@ -108,7 +108,7 @@ function ServicePage() {
             onClick={requestQuote}
             className="btn-cta inline-flex h-12 px-8"
           >
-            {has(service.id) ? "In your request" : "Get a quote"} <FileText className="h-4 w-4" />
+            {has(service.id) ? "In your request" : "Place an Order"} <FileText className="h-4 w-4" />
           </button>
           <a
             href="/#book"
