@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useQuoteBuilder } from "@/lib/quote-context";
 import { useAuth } from "@/lib/auth-context";
 import { QuoteSignInGate } from "@/components/quote-sign-in-gate";
+import { orderLabelFor } from "@/components/services-section";
 import { BUSINESS_ID, breadcrumbJsonLd, fitTitle, seoHead, snippet } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -108,7 +109,7 @@ function ServicePage() {
             onClick={requestQuote}
             className="btn-cta inline-flex h-12 px-8"
           >
-            {has(service.id) ? "In your request" : "Place an Order"} <FileText className="h-4 w-4" />
+            {has(service.id) ? "In your request" : orderLabelFor(service.slug)} <FileText className="h-4 w-4" />
           </button>
           <a
             href="/#book"

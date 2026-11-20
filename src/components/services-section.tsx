@@ -30,6 +30,15 @@ const ICONS: Record<string, LucideIcon> = {
   lightbulb: Lightbulb,
 };
 
+/**
+ * Only these two services take an order on the spot ("Place an Order");
+ * the other services still ask for a quote first ("Get a Quote").
+ */
+export const ORDER_SERVICES = new Set(["brand-identity", "print-packaging"]);
+
+export const orderLabelFor = (slug: string): string =>
+  ORDER_SERVICES.has(slug) ? "Place an Order" : "Get a Quote";
+
 export function ServicesSection() {
   const { add, has, setOpen, count } = useQuoteBuilder();
   const { user } = useAuth();
@@ -149,7 +158,7 @@ export function ServicesSection() {
                       </>
                     ) : (
                       <>
-                        Place an Order <ArrowRight className="h-3.5 w-3.5" />
+                        {orderLabelFor(s.slug)} <ArrowRight className="h-3.5 w-3.5" />
                       </>
                     )}
                   </button>
