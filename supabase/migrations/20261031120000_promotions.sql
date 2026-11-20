@@ -129,7 +129,7 @@ VALUES ('idea-to-brand-2027', true, 1, 'Masterclass · 2027', 'Idea to Brand 202
     },
     {
       "q": "What should I bring?",
-      "a": "Your business idea and a pen. We provide the printed workbook. [Add any extras]"
+      "a": "Your business idea and a pen. We provide the printed workbook."
     },
     {
       "q": "Will you help me register my business?",

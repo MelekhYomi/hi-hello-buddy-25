@@ -167,7 +167,7 @@ export const DEFAULT_PROMOTIONS: Omit<Promotion, "id">[] = [
       faq_title: "Before you book",
       faq: [
         { q: "Do I need a business already?", a: "No. It works for an idea, a new business or an established one." },
-        { q: "What should I bring?", a: "Your business idea and a pen. We provide the printed workbook. [Add any extras]" },
+        { q: "What should I bring?", a: "Your business idea and a pen. We provide the printed workbook." },
         {
           q: "Will you help me register my business?",
           a: "Yes.",
