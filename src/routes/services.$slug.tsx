@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, Check, FileText } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -9,6 +9,7 @@ import { useQuoteBuilder } from "@/lib/quote-context";
 import { useAuth } from "@/lib/auth-context";
 import { QuoteSignInGate } from "@/components/quote-sign-in-gate";
 import { orderLabelFor } from "@/components/services-section";
+import { isOrderService } from "@/lib/order-catalog";
 import { BUSINESS_ID, breadcrumbJsonLd, fitTitle, seoHead, snippet } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -54,9 +55,12 @@ function ServicePage() {
   const service = Route.useLoaderData();
   const { add, has, setOpen, count } = useQuoteBuilder();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [gate, setGate] = useState(false);
   const { data: cases } = useQuery(caseStudiesQuery);
   const features = service.features ?? [];
+  // Paid services skip the quote flow — their button opens /order/<slug>.
+  const isOrder = isOrderService(service.slug);
 
   const requestQuote = () => {
     if (has(service.id)) {
@@ -106,10 +110,15 @@ function ServicePage() {
         <div className="mt-12 flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={requestQuote}
+            onClick={() =>
+              isOrder
+                ? navigate({ to: "/order/$slug", params: { slug: service.slug } })
+                : requestQuote()
+            }
             className="btn-cta inline-flex h-12 px-8"
           >
-            {has(service.id) ? "In your request" : orderLabelFor(service.slug)} <FileText className="h-4 w-4" />
+            {has(service.id) && !isOrder ? "In your request" : orderLabelFor(service.slug)}{" "}
+            <FileText className="h-4 w-4" />
           </button>
           <a
             href="/#book"

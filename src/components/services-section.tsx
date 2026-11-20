@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { servicesQuery, promotionsQuery } from "@/lib/queries";
 import { promoPath } from "@/lib/promotions-defaults";
 import {
@@ -19,6 +19,7 @@ import {
 import { useQuoteBuilder } from "@/lib/quote-context";
 import { useAuth } from "@/lib/auth-context";
 import { QuoteSignInGate } from "@/components/quote-sign-in-gate";
+import { isOrderService } from "@/lib/order-catalog";
 
 const ICONS: Record<string, LucideIcon> = {
   palette: Palette,
@@ -31,17 +32,16 @@ const ICONS: Record<string, LucideIcon> = {
 };
 
 /**
- * Only these two services take an order on the spot ("Place an Order");
- * the other services still ask for a quote first ("Get a Quote").
+ * Paid services ("Place an Order") open /order/<slug>, where the customer picks a
+ * package and pays; the other services still ask for a quote first ("Get a Quote").
  */
-export const ORDER_SERVICES = new Set(["brand-identity", "print-packaging"]);
-
 export const orderLabelFor = (slug: string): string =>
-  ORDER_SERVICES.has(slug) ? "Place an Order" : "Get a Quote";
+  isOrderService(slug) ? "Place an Order" : "Get a Quote";
 
 export function ServicesSection() {
   const { add, has, setOpen, count } = useQuoteBuilder();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [gate, setGate] = useState(false);
 
   const { data: services, isLoading } = useQuery(servicesQuery);
@@ -103,7 +103,9 @@ export function ServicesSection() {
             ))}
           {services?.map((s) => {
             const Icon = ICONS[s.icon] ?? Sparkles;
-            const chosen = has(s.id);
+            // Paid services skip the quote flow entirely — they open /order/<slug>.
+            const isOrder = isOrderService(s.slug);
+            const chosen = !isOrder && has(s.id);
             return (
               <article
                 key={s.id}
@@ -144,7 +146,11 @@ export function ServicesSection() {
 
                   <button
                     type="button"
-                    onClick={() => requestQuote(s)}
+                    onClick={() =>
+                      isOrder
+                        ? navigate({ to: "/order/$slug", params: { slug: s.slug } })
+                        : requestQuote(s)
+                    }
                     aria-pressed={chosen}
                     className={
                       chosen

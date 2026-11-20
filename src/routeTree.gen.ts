@@ -27,6 +27,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as InvoiceTokenRouteImport } from './routes/invoice.$token'
+import { Route as OrderSlugRouteImport } from './routes/order.$slug'
 import { Route as PromoSlugRouteImport } from './routes/promo.$slug'
 import { Route as QuoteIndexRouteImport } from './routes/quote.index'
 import { Route as QuoteTokenRouteImport } from './routes/quote.$token'
@@ -131,6 +132,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
 const InvoiceTokenRoute = InvoiceTokenRouteImport.update({
   id: '/invoice/$token',
   path: '/invoice/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrderSlugRoute = OrderSlugRouteImport.update({
+  id: '/order/$slug',
+  path: '/order/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PromoSlugRoute = PromoSlugRouteImport.update({
@@ -241,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/invoice/$token': typeof InvoiceTokenRoute
+  '/order/$slug': typeof OrderSlugRoute
   '/promo/$slug': typeof PromoSlugRoute
   '/quote/$token': typeof QuoteTokenRoute
   '/receipt/$token': typeof ReceiptTokenRoute
@@ -275,6 +282,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/invoice/$token': typeof InvoiceTokenRoute
+  '/order/$slug': typeof OrderSlugRoute
   '/promo/$slug': typeof PromoSlugRoute
   '/quote/$token': typeof QuoteTokenRoute
   '/receipt/$token': typeof ReceiptTokenRoute
@@ -313,6 +321,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/invoice/$token': typeof InvoiceTokenRoute
+  '/order/$slug': typeof OrderSlugRoute
   '/promo/$slug': typeof PromoSlugRoute
   '/quote/$token': typeof QuoteTokenRoute
   '/receipt/$token': typeof ReceiptTokenRoute
@@ -350,6 +359,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/blog/$slug'
     | '/invoice/$token'
+    | '/order/$slug'
     | '/promo/$slug'
     | '/quote/$token'
     | '/receipt/$token'
@@ -384,6 +394,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/blog/$slug'
     | '/invoice/$token'
+    | '/order/$slug'
     | '/promo/$slug'
     | '/quote/$token'
     | '/receipt/$token'
@@ -421,6 +432,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/blog/$slug'
     | '/invoice/$token'
+    | '/order/$slug'
     | '/promo/$slug'
     | '/quote/$token'
     | '/receipt/$token'
@@ -456,6 +468,7 @@ export interface RootRouteChildren {
   StaffLoginRoute: typeof StaffLoginRoute
   BlogSlugRoute: typeof BlogSlugRoute
   InvoiceTokenRoute: typeof InvoiceTokenRoute
+  OrderSlugRoute: typeof OrderSlugRoute
   PromoSlugRoute: typeof PromoSlugRoute
   QuoteTokenRoute: typeof QuoteTokenRoute
   ReceiptTokenRoute: typeof ReceiptTokenRoute
@@ -597,6 +610,13 @@ declare module '@tanstack/react-router' {
       path: '/invoice/$token'
       fullPath: '/invoice/$token'
       preLoaderRoute: typeof InvoiceTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/order/$slug': {
+      id: '/order/$slug'
+      path: '/order/$slug'
+      fullPath: '/order/$slug'
+      preLoaderRoute: typeof OrderSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/promo/$slug': {
@@ -780,6 +800,7 @@ const rootRouteChildren: RootRouteChildren = {
   StaffLoginRoute: StaffLoginRoute,
   BlogSlugRoute: BlogSlugRoute,
   InvoiceTokenRoute: InvoiceTokenRoute,
+  OrderSlugRoute: OrderSlugRoute,
   PromoSlugRoute: PromoSlugRoute,
   QuoteTokenRoute: QuoteTokenRoute,
   ReceiptTokenRoute: ReceiptTokenRoute,
