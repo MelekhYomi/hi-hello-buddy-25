@@ -101,9 +101,9 @@ export const ORDER_CATALOG: Record<string, OrderCatalog> = {
           "File Jacket Design",
         ],
         notes: [
-          "Letterhead, Business Card & Envelopes will have no added elements",
-          "It will be monochrome",
-          "300GSM logo print",
+          "Letterhead, Business Card & Envelopes will have 50 printed samples each",
+          "1 ID Card print",
+          "1 T-Shirt with logo print",
           "Brochure optimised for both digital viewing and print",
         ],
       },
