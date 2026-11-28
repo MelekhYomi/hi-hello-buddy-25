@@ -406,7 +406,11 @@ export function ServiceBriefForm({ serviceSlug, packageName, orderReference }: S
         const { error: upErr } = await supabase.storage
           .from("service-briefs")
           .upload(path, file, { upsert: false, contentType: file.type || undefined });
-        if (upErr) throw new Error(`We couldn't upload ${file.name}: ${upErr.message}. Please try a smaller file.`);
+        if (upErr) {
+          // Only nudge about file size when that's actually the problem.
+          const hint = /too large|exceed|size/i.test(upErr.message) ? " Please try a smaller file." : "";
+          throw new Error(`We couldn't upload ${file.name}: ${upErr.message}.${hint}`);
+        }
         stored.push({ field: fileField?.label ?? "Attachment", name: file.name, path });
       }
 
